@@ -65,11 +65,26 @@ function resolveWebDir(): string {
   return resolve(__dirname, "../../web/out");
 }
 
+function resolveDefaultWorkspace(): string {
+  const isDev = process.env.NODE_ENV === "development";
+  if (isDev) {
+    // Dev mode (pnpm dev:gateway): use .workspace dir to avoid working in source tree
+    const ws = resolve(__dirname, "../.workspace");
+    if (!existsSync(ws)) {
+      mkdirSync(ws, { recursive: true });
+      console.log(`[Config] Created default workspace: ${ws}`);
+    }
+    return ws;
+  }
+  // Published mode (npx bit-office): use the directory where the user ran the command
+  return process.cwd();
+}
+
 function buildConfig() {
   const saved = loadSavedConfig();
   return {
     machineId: getOrCreateMachineId(),
-    defaultWorkspace: process.env.WORKSPACE || process.cwd(),
+    defaultWorkspace: process.env.WORKSPACE || resolveDefaultWorkspace(),
     wsPort: 9090,
     ablyApiKey: process.env.ABLY_API_KEY || saved.ablyApiKey || undefined,
     webDir: resolveWebDir(),
