@@ -1,8 +1,7 @@
 # Bit Office
 
-Your very own AI dev shop — a pixel-art office staffed with AI coders who actually write code.
-
-Assign tasks, sit back, sip your coffee, and watch your AI employees grind away like it's crunch week. Every. Single. Day.
+A pixel-art office where you hire AI agents, assign them projects, and watch them actually work.
+Leaders delegate, teammates debate, code gets written — all while you supervise like a tiny AI startup CEO.
 
 <video src="https://github.com/user-attachments/assets/2a0afe2d-25f7-49a4-8790-888ec1bd99c5" controls width="100%"></video>
 
