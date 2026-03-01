@@ -1,0 +1,432 @@
+import { TILE_SIZE, MATRIX_EFFECT_DURATION, CharacterState, Direction } from '../types'
+import type { Character, Seat, FurnitureInstance, TileType as TileTypeVal, OfficeLayout, PlacedFurniture } from '../types'
+import { createCharacter, updateCharacter } from './characters'
+import { matrixEffectSeeds } from './matrixEffect'
+import { isWalkable, getWalkableTiles, findPath } from '../layout/tileMap'
+import {
+  createDefaultLayout,
+  layoutToTileMap,
+  layoutToFurnitureInstances,
+  layoutToSeats,
+  getBlockedTiles,
+} from '../layout/layoutSerializer'
+import { getCatalogEntry, getOnStateType } from '../layout/furnitureCatalog'
+import {
+  PALETTE_COUNT,
+  HUE_SHIFT_MIN_DEG,
+  HUE_SHIFT_RANGE_DEG,
+  WAITING_BUBBLE_DURATION_SEC,
+  DISMISS_BUBBLE_FAST_FADE_SEC,
+  INACTIVE_SEAT_TIMER_MIN_SEC,
+  INACTIVE_SEAT_TIMER_RANGE_SEC,
+  AUTO_ON_FACING_DEPTH,
+  AUTO_ON_SIDE_DEPTH,
+  CHARACTER_SITTING_OFFSET_PX,
+  CHARACTER_HIT_HALF_WIDTH,
+  CHARACTER_HIT_HEIGHT,
+  SPEECH_BUBBLE_DURATION_SEC,
+  SPEECH_BUBBLE_MAX_CHARS,
+} from '../constants'
+import type { AgentStatus } from '@office/shared'
+
+/**
+ * Bridge between our Zustand store (string agentIds) and the pixel-agents
+ * engine (numeric Character.id). Manages the office layout, characters,
+ * seat assignments, and matrix effects.
+ */
+export class OfficeState {
+  layout: OfficeLayout
+  tileMap: TileTypeVal[][]
+  seats: Map<string, Seat>
+  blockedTiles: Set<string>
+  furniture: FurnitureInstance[]
+  walkableTiles: Array<{ col: number; row: number }>
+  characters: Map<number, Character> = new Map()
+  selectedCharId: number | null = null
+  hoveredCharId: number | null = null
+
+  // ── Agent ID mapping ──────────────────────────────────────────
+  private agentIdToCharId = new Map<string, number>()
+  private charIdToAgentId = new Map<number, string>()
+  private nextCharId = 1
+
+  constructor(layout?: OfficeLayout) {
+    this.layout = layout || createDefaultLayout()
+    this.tileMap = layoutToTileMap(this.layout)
+    this.seats = layoutToSeats(this.layout.furniture)
+    this.blockedTiles = getBlockedTiles(this.layout.furniture)
+    this.furniture = layoutToFurnitureInstances(this.layout.furniture)
+    this.walkableTiles = getWalkableTiles(this.tileMap, this.blockedTiles)
+  }
+
+  /** Hot-replace layout: rebuild tileMap, seats, furniture, reassign characters */
+  setLayout(layout: OfficeLayout): void {
+    this.layout = layout
+    this.tileMap = layoutToTileMap(layout)
+    this.seats = layoutToSeats(layout.furniture)
+    this.blockedTiles = getBlockedTiles(layout.furniture)
+    this.furniture = layoutToFurnitureInstances(layout.furniture)
+    this.walkableTiles = getWalkableTiles(this.tileMap, this.blockedTiles)
+
+    // Reassign characters to seats
+    for (const ch of this.characters.values()) {
+      if (ch.seatId) {
+        const seat = this.seats.get(ch.seatId)
+        if (seat) {
+          seat.assigned = true
+        } else {
+          // Old seat no longer exists — try to find a new one
+          ch.seatId = null
+          const newSeatId = this.findFreeSeat()
+          if (newSeatId) {
+            const newSeat = this.seats.get(newSeatId)!
+            newSeat.assigned = true
+            ch.seatId = newSeatId
+          }
+        }
+      }
+    }
+    this.rebuildFurnitureInstances()
+  }
+
+  // ── Public API (string agentId) ───────────────────────────────
+
+  addCharacter(agentId: string, _name: string, palette?: number): void {
+    if (this.agentIdToCharId.has(agentId)) return
+
+    const charId = this.nextCharId++
+    this.agentIdToCharId.set(agentId, charId)
+    this.charIdToAgentId.set(charId, agentId)
+
+    const { palette: pickedPalette, hueShift } = palette !== undefined
+      ? { palette, hueShift: 0 }
+      : this.pickDiversePalette()
+
+    const seatId = this.findFreeSeat()
+
+    let ch: Character
+    if (seatId) {
+      const seat = this.seats.get(seatId)!
+      seat.assigned = true
+      ch = createCharacter(charId, pickedPalette, seatId, seat, hueShift)
+    } else {
+      const spawn = this.walkableTiles.length > 0
+        ? this.walkableTiles[Math.floor(Math.random() * this.walkableTiles.length)]
+        : { col: 1, row: 1 }
+      ch = createCharacter(charId, pickedPalette, null, null, hueShift)
+      ch.x = spawn.col * TILE_SIZE + TILE_SIZE / 2
+      ch.y = spawn.row * TILE_SIZE + TILE_SIZE / 2
+      ch.tileCol = spawn.col
+      ch.tileRow = spawn.row
+    }
+
+    // Matrix spawn effect
+    ch.matrixEffect = 'spawn'
+    ch.matrixEffectTimer = 0
+    ch.matrixEffectSeeds = matrixEffectSeeds()
+
+    this.characters.set(charId, ch)
+  }
+
+  removeCharacter(agentId: string): void {
+    const charId = this.agentIdToCharId.get(agentId)
+    if (charId === undefined) return
+
+    const ch = this.characters.get(charId)
+    if (!ch) return
+    if (ch.matrixEffect === 'despawn') return // already despawning
+
+    // Free seat
+    if (ch.seatId) {
+      const seat = this.seats.get(ch.seatId)
+      if (seat) seat.assigned = false
+    }
+
+    if (this.selectedCharId === charId) this.selectedCharId = null
+
+    // Start despawn animation
+    ch.matrixEffect = 'despawn'
+    ch.matrixEffectTimer = 0
+    ch.matrixEffectSeeds = matrixEffectSeeds()
+    ch.bubbleType = null
+  }
+
+  updateCharacterStatus(agentId: string, status: AgentStatus): void {
+    const charId = this.agentIdToCharId.get(agentId)
+    if (charId === undefined) return
+    const ch = this.characters.get(charId)
+    if (!ch) return
+
+    const wasActive = ch.isActive
+    const isNowActive = status === 'working' || status === 'waiting_approval'
+
+    ch.isActive = isNowActive
+
+    if (!isNowActive && wasActive) {
+      // Just became inactive
+      ch.seatTimer = -1
+      ch.path = []
+      ch.moveProgress = 0
+      this.rebuildFurnitureInstances()
+    } else if (isNowActive && !wasActive) {
+      this.rebuildFurnitureInstances()
+    }
+  }
+
+  selectCharacter(agentId: string | null): void {
+    if (agentId === null) {
+      this.selectedCharId = null
+      return
+    }
+    const charId = this.agentIdToCharId.get(agentId)
+    this.selectedCharId = charId ?? null
+  }
+
+  showBubble(agentId: string, type: 'permission' | 'working' | 'waiting'): void {
+    const charId = this.agentIdToCharId.get(agentId)
+    if (charId === undefined) return
+    const ch = this.characters.get(charId)
+    if (!ch) return
+
+    if (type === 'permission' || type === 'working') {
+      ch.bubbleType = type
+      ch.bubbleTimer = 0  // persistent, no countdown
+    } else {
+      ch.bubbleType = 'waiting'
+      ch.bubbleTimer = WAITING_BUBBLE_DURATION_SEC
+    }
+  }
+
+  clearBubble(agentId: string): void {
+    const charId = this.agentIdToCharId.get(agentId)
+    if (charId === undefined) return
+    const ch = this.characters.get(charId)
+    if (!ch) return
+    if (ch.bubbleType === 'permission' || ch.bubbleType === 'working') {
+      ch.bubbleType = null
+      ch.bubbleTimer = 0
+    } else if (ch.bubbleType === 'waiting') {
+      ch.bubbleTimer = Math.min(ch.bubbleTimer, DISMISS_BUBBLE_FAST_FADE_SEC)
+    }
+  }
+
+  showSpeechBubble(agentId: string, text: string): void {
+    const charId = this.agentIdToCharId.get(agentId)
+    if (charId === undefined) return
+    const ch = this.characters.get(charId)
+    if (!ch) return
+    const truncated = text.length > SPEECH_BUBBLE_MAX_CHARS
+      ? text.slice(0, SPEECH_BUBBLE_MAX_CHARS) + '...'
+      : text
+    ch.speechText = truncated
+    ch.speechTimer = SPEECH_BUBBLE_DURATION_SEC
+  }
+
+  // ── Getters for renderer ──────────────────────────────────────
+
+  getCharacters(): Character[] {
+    return Array.from(this.characters.values())
+  }
+
+  getLayout(): OfficeLayout {
+    return this.layout
+  }
+
+  getSelectedCharId(): number | null {
+    return this.selectedCharId
+  }
+
+  getHoveredCharId(): number | null {
+    return this.hoveredCharId
+  }
+
+  /** Get the string agentId for a character (numeric) id */
+  getAgentId(charId: number): string | null {
+    return this.charIdToAgentId.get(charId) ?? null
+  }
+
+  /** Get character at pixel position (for hit testing). Returns agentId or null. */
+  getAgentAtPixel(worldX: number, worldY: number): string | null {
+    const chars = this.getCharacters().sort((a, b) => b.y - a.y)
+    for (const ch of chars) {
+      if (ch.matrixEffect === 'despawn') continue
+      const sittingOffset = ch.state === CharacterState.TYPE ? CHARACTER_SITTING_OFFSET_PX : 0
+      const anchorY = ch.y + sittingOffset
+      const left = ch.x - CHARACTER_HIT_HALF_WIDTH
+      const right = ch.x + CHARACTER_HIT_HALF_WIDTH
+      const top = anchorY - CHARACTER_HIT_HEIGHT
+      const bottom = anchorY
+      if (worldX >= left && worldX <= right && worldY >= top && worldY <= bottom) {
+        return this.charIdToAgentId.get(ch.id) ?? null
+      }
+    }
+    return null
+  }
+
+  /** Set hovered character by numeric id (for outline rendering) */
+  setHoveredCharAtPixel(worldX: number, worldY: number): void {
+    const chars = this.getCharacters().sort((a, b) => b.y - a.y)
+    for (const ch of chars) {
+      if (ch.matrixEffect === 'despawn') continue
+      const sittingOffset = ch.state === CharacterState.TYPE ? CHARACTER_SITTING_OFFSET_PX : 0
+      const anchorY = ch.y + sittingOffset
+      const left = ch.x - CHARACTER_HIT_HALF_WIDTH
+      const right = ch.x + CHARACTER_HIT_HALF_WIDTH
+      const top = anchorY - CHARACTER_HIT_HEIGHT
+      const bottom = anchorY
+      if (worldX >= left && worldX <= right && worldY >= top && worldY <= bottom) {
+        this.hoveredCharId = ch.id
+        return
+      }
+    }
+    this.hoveredCharId = null
+  }
+
+  // ── Update loop ───────────────────────────────────────────────
+
+  update(dt: number): void {
+    const toDelete: number[] = []
+    for (const ch of this.characters.values()) {
+      // Handle matrix effect animation
+      if (ch.matrixEffect) {
+        ch.matrixEffectTimer += dt
+        if (ch.matrixEffectTimer >= MATRIX_EFFECT_DURATION) {
+          if (ch.matrixEffect === 'spawn') {
+            ch.matrixEffect = null
+            ch.matrixEffectTimer = 0
+            ch.matrixEffectSeeds = []
+          } else {
+            toDelete.push(ch.id)
+          }
+        }
+        continue
+      }
+
+      // Temporarily unblock own seat so character can pathfind to it
+      this.withOwnSeatUnblocked(ch, () =>
+        updateCharacter(ch, dt, this.walkableTiles, this.seats, this.tileMap, this.blockedTiles)
+      )
+
+      // Tick bubble timer
+      if (ch.bubbleType === 'waiting') {
+        ch.bubbleTimer -= dt
+        if (ch.bubbleTimer <= 0) {
+          ch.bubbleType = null
+          ch.bubbleTimer = 0
+        }
+      }
+
+      // Tick speech bubble timer
+      if (ch.speechText) {
+        ch.speechTimer -= dt
+        if (ch.speechTimer <= 0) {
+          ch.speechText = null
+          ch.speechTimer = 0
+        }
+      }
+    }
+
+    // Remove characters that finished despawn
+    for (const id of toDelete) {
+      const agentId = this.charIdToAgentId.get(id)
+      this.characters.delete(id)
+      if (agentId) {
+        this.agentIdToCharId.delete(agentId)
+        this.charIdToAgentId.delete(id)
+      }
+    }
+  }
+
+  // ── Private helpers ───────────────────────────────────────────
+
+  private findFreeSeat(): string | null {
+    for (const [uid, seat] of this.seats) {
+      if (!seat.assigned) return uid
+    }
+    return null
+  }
+
+  private pickDiversePalette(): { palette: number; hueShift: number } {
+    const counts = new Array(PALETTE_COUNT).fill(0) as number[]
+    for (const ch of this.characters.values()) {
+      if (ch.isSubagent) continue
+      counts[ch.palette]++
+    }
+    const minCount = Math.min(...counts)
+    const available: number[] = []
+    for (let i = 0; i < PALETTE_COUNT; i++) {
+      if (counts[i] === minCount) available.push(i)
+    }
+    const palette = available[Math.floor(Math.random() * available.length)]
+    let hueShift = 0
+    if (minCount > 0) {
+      hueShift = HUE_SHIFT_MIN_DEG + Math.floor(Math.random() * HUE_SHIFT_RANGE_DEG)
+    }
+    return { palette, hueShift }
+  }
+
+  private ownSeatKey(ch: Character): string | null {
+    if (!ch.seatId) return null
+    const seat = this.seats.get(ch.seatId)
+    if (!seat) return null
+    return `${seat.seatCol},${seat.seatRow}`
+  }
+
+  private withOwnSeatUnblocked<T>(ch: Character, fn: () => T): T {
+    const key = this.ownSeatKey(ch)
+    if (key) this.blockedTiles.delete(key)
+    const result = fn()
+    if (key) this.blockedTiles.add(key)
+    return result
+  }
+
+  /** Rebuild furniture instances with auto-state applied (active agents turn electronics ON) */
+  private rebuildFurnitureInstances(): void {
+    const autoOnTiles = new Set<string>()
+    for (const ch of this.characters.values()) {
+      if (!ch.isActive || !ch.seatId) continue
+      const seat = this.seats.get(ch.seatId)
+      if (!seat) continue
+      const dCol = seat.facingDir === Direction.RIGHT ? 1 : seat.facingDir === Direction.LEFT ? -1 : 0
+      const dRow = seat.facingDir === Direction.DOWN ? 1 : seat.facingDir === Direction.UP ? -1 : 0
+      for (let d = 1; d <= AUTO_ON_FACING_DEPTH; d++) {
+        autoOnTiles.add(`${seat.seatCol + dCol * d},${seat.seatRow + dRow * d}`)
+      }
+      for (let d = 1; d <= AUTO_ON_SIDE_DEPTH; d++) {
+        const baseCol = seat.seatCol + dCol * d
+        const baseRow = seat.seatRow + dRow * d
+        if (dCol !== 0) {
+          autoOnTiles.add(`${baseCol},${baseRow - 1}`)
+          autoOnTiles.add(`${baseCol},${baseRow + 1}`)
+        } else {
+          autoOnTiles.add(`${baseCol - 1},${baseRow}`)
+          autoOnTiles.add(`${baseCol + 1},${baseRow}`)
+        }
+      }
+    }
+
+    if (autoOnTiles.size === 0) {
+      this.furniture = layoutToFurnitureInstances(this.layout.furniture)
+      return
+    }
+
+    const modifiedFurniture: PlacedFurniture[] = this.layout.furniture.map((item) => {
+      const entry = getCatalogEntry(item.type)
+      if (!entry) return item
+      for (let dr = 0; dr < entry.footprintH; dr++) {
+        for (let dc = 0; dc < entry.footprintW; dc++) {
+          if (autoOnTiles.has(`${item.col + dc},${item.row + dr}`)) {
+            const onType = getOnStateType(item.type)
+            if (onType !== item.type) {
+              return { ...item, type: onType }
+            }
+            return item
+          }
+        }
+      }
+      return item
+    })
+
+    this.furniture = layoutToFurnitureInstances(modifiedFurniture)
+  }
+}

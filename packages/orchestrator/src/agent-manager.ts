@@ -1,0 +1,71 @@
+import type { AgentSession } from "./agent-session.js";
+
+export class AgentManager {
+  private agents = new Map<string, AgentSession>();
+  private _teamLeadId: string | null = null;
+
+  setTeamLead(id: string | null) {
+    this._teamLeadId = id;
+  }
+
+  getTeamLead(): string | null {
+    return this._teamLeadId;
+  }
+
+  isTeamLead(id: string): boolean {
+    return this._teamLeadId === id;
+  }
+
+  getTeamRoster(): string {
+    const lines: string[] = [];
+    for (const session of this.agents.values()) {
+      const lead = this.isTeamLead(session.agentId) ? " (Team Lead)" : "";
+      const result = session.lastResult ? ` — ${session.lastResult}` : "";
+      lines.push(`- ${session.name} (${session.role}) [${session.status}]${lead}${result}`);
+    }
+    return lines.join("\n");
+  }
+
+  getTeamMembers(): Array<{ name: string; role: string; status: string; isLead: boolean; lastResult: string | null }> {
+    return Array.from(this.agents.values()).map(s => ({
+      name: s.name,
+      role: s.role,
+      status: s.status,
+      isLead: this.isTeamLead(s.agentId),
+      lastResult: s.lastResult,
+    }));
+  }
+
+  add(session: AgentSession): void {
+    const existing = this.agents.get(session.agentId);
+    if (existing) {
+      existing.destroy();
+    }
+    this.agents.set(session.agentId, session);
+  }
+
+  delete(agentId: string): boolean {
+    const session = this.agents.get(agentId);
+    if (!session) return false;
+    session.destroy();
+    this.agents.delete(agentId);
+    return true;
+  }
+
+  get(agentId: string): AgentSession | undefined {
+    return this.agents.get(agentId);
+  }
+
+  getAll(): AgentSession[] {
+    return Array.from(this.agents.values());
+  }
+
+  findByName(name: string): AgentSession | undefined {
+    for (const session of this.agents.values()) {
+      if (session.name.toLowerCase() === name.toLowerCase()) {
+        return session;
+      }
+    }
+    return undefined;
+  }
+}
