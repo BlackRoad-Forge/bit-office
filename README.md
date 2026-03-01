@@ -4,16 +4,6 @@ Your very own AI dev shop — a pixel-art office staffed with AI coders who actu
 
 Assign tasks, sit back, sip your coffee, and watch your AI employees grind away like it's crunch week. Every. Single. Day.
 
-## Features
-
-- **Pixel Office UI** — PixiJS-rendered 2D office, each AI agent is a pixel character with idle/working/approval animations
-- **Multi-Agent Orchestration** — Team lead delegates tasks to workers, collects results, retries on failure, escalates when stuck
-- **Multi-Channel** — WebSocket (LAN), Ably (remote), Telegram (bot per agent)
-- **Multi-Backend** — Claude Code, Codex, Gemini CLI, Aider, OpenCode — use whatever's installed
-- **Mobile PWA** — Install on phone, pair with a 6-digit code, control agents anywhere
-- **Approval Bubbles** — Risky commands (git push, rm -rf, npm install) trigger Yes/No approval on your phone
-- **Office Editor** — Drag-and-drop furniture, paint floors/walls, customize your virtual office
-
 ## Quick Start
 
 ```bash
@@ -24,7 +14,17 @@ That's it. Opens a browser UI, auto-detects installed AI backends, generates a p
 
 ## Demo
 
-https://github.com/user-attachments/assets/demo.mp4
+<video src="https://github.com/user-attachments/assets/2a0afe2d-25f7-49a4-8790-888ec1bd99c5" controls width="100%"></video>
+
+## Features
+
+- **Pixel Office UI** — PixiJS-rendered 2D office, each AI agent is a pixel character with idle/working/approval animations
+- **Multi-Agent Orchestration** — Team lead delegates tasks to workers, collects results, retries on failure, escalates when stuck
+- **Multi-Channel** — WebSocket (LAN), Ably (remote), Telegram (bot per agent)
+- **Multi-Backend** — Claude Code, Codex, Gemini CLI, Aider, OpenCode — use whatever's installed
+- **Mobile PWA** — Install on phone, pair with a 6-digit code, control agents anywhere
+- **Approval Bubbles** — Risky commands (git push, rm -rf, npm install) trigger Yes/No approval on your phone
+- **Office Editor** — Drag-and-drop furniture, paint floors/walls, customize your virtual office
 
 ## Run from Source
 
