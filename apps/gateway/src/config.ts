@@ -58,9 +58,9 @@ function getOrCreateMachineId(): string {
 
 function resolveWebDir(): string {
   if (process.env.WEB_DIR) return process.env.WEB_DIR;
-  // Bundled mode: dist/web/out (next to dist/index.js)
-  const bundled = resolve(__dirname, "web/out");
-  if (existsSync(bundled)) return bundled;
+  // Bundled mode: dist/web (next to dist/index.js)
+  const bundled = resolve(__dirname, "web");
+  if (existsSync(resolve(bundled, "index.html"))) return bundled;
   // Dev mode: apps/web/out (relative to apps/gateway/src/)
   return resolve(__dirname, "../../web/out");
 }
