@@ -395,7 +395,8 @@ const mdComponents: React.ComponentProps<typeof ReactMarkdown>["components"] = {
           style={{
             backgroundColor: "#1a1830", padding: "8px 10px", borderRadius: 6,
             fontSize: 12, cursor: "pointer", border: "1px solid #2a2a4a",
-            display: "flex", alignItems: "center", gap: 8, whiteSpace: "pre",
+            display: "flex", alignItems: "center", gap: 8,
+            whiteSpace: "pre-wrap", wordBreak: "break-all",
           }}
           title="Click to open"
         >
@@ -407,7 +408,7 @@ const mdComponents: React.ComponentProps<typeof ReactMarkdown>["components"] = {
     return isBlock ? (
       <pre style={{
         backgroundColor: "#1a1830", padding: "8px 10px", borderRadius: 6,
-        fontSize: 12, whiteSpace: "pre",
+        fontSize: 12, whiteSpace: "pre-wrap", wordBreak: "break-all",
       }}>
         <code style={{ fontFamily: "monospace", color: "#a5b4fc" }} {...props}>{children}</code>
       </pre>
@@ -438,7 +439,7 @@ const mdComponents: React.ComponentProps<typeof ReactMarkdown>["components"] = {
     return <ol style={{ margin: "4px 0", paddingLeft: 18 }}>{children}</ol>;
   },
   a({ href, children }) {
-    return <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "#818cf8", textDecoration: "underline" }}>{children}</a>;
+    return <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "#818cf8", textDecoration: "underline", wordBreak: "break-all" }}>{children}</a>;
   },
   strong({ children }) {
     return <strong style={{ color: "#f0f0f0" }}>{children}</strong>;
