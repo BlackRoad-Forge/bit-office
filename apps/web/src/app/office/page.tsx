@@ -949,6 +949,149 @@ function TeamChatView({ messages, agents, assetsReady }: {
   );
 }
 
+function TeamActivityLog({ messages, agents, assetsReady, onClear }: {
+  messages: TeamChatMessage[];
+  agents: Map<string, { name: string; palette?: number }>;
+  assetsReady?: boolean;
+  onClear?: () => void;
+}) {
+  const [collapsed, setCollapsed] = useState(false);
+  const endRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!collapsed) endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length, collapsed]);
+
+  return (
+    <div style={{
+      borderTop: "1px solid #2e2448",
+      padding: "6px 0",
+    }}>
+      <div
+        onClick={() => setCollapsed(!collapsed)}
+        style={{
+          padding: "4px 12px 6px",
+          fontSize: 9, color: "#6a5848", fontFamily: "monospace",
+          letterSpacing: "0.05em", textTransform: "uppercase",
+          cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
+        }}
+      >
+        <span style={{ width: 10, textAlign: "center" }}>{collapsed ? "▶" : "▼"}</span>
+        Activity ({messages.length})
+        {onClear && (
+          <span
+            onClick={(e) => { e.stopPropagation(); onClear(); }}
+            style={{
+              marginLeft: "auto", fontSize: 8, padding: "1px 5px",
+              color: "#7a6858", border: "1px solid #3d2e5480",
+              cursor: "pointer",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "#e04848"; e.currentTarget.style.borderColor = "#e0484880"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "#7a6858"; e.currentTarget.style.borderColor = "#3d2e5480"; }}
+          >CLEAR</span>
+        )}
+      </div>
+      {!collapsed && (
+        <div style={{ overflowY: "auto", padding: "0 8px", display: "flex", flexDirection: "column", gap: 4 }}>
+          {messages.map((msg, i) => {
+            if (!msg || !msg.fromAgentId) return null;
+            const cfg = TEAM_MSG_COLORS[msg.messageType] ?? TEAM_MSG_COLORS.status;
+            const fromAgent = agents.get(msg.fromAgentId);
+            const toAgent = msg.toAgentId ? agents.get(msg.toAgentId) : undefined;
+            const msgText = msg.message ?? "";
+            return (
+              <div key={msg.id ?? `tc-${i}`} style={{
+                padding: "8px 10px",
+                backgroundColor: cfg.bg, borderLeft: `2px solid ${cfg.border}`,
+                border: `1px solid ${cfg.border}40`,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                  {fromAgent?.palette !== undefined && (
+                    <SpriteAvatar palette={fromAgent.palette} zoom={1} ready={assetsReady} />
+                  )}
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#eddcb8" }}>
+                    {msg.fromAgentName ?? msg.fromAgentId}
+                  </span>
+                  {msg.toAgentName && (
+                    <>
+                      <span style={{ fontSize: 10, color: "#6a5848" }}>&rarr;</span>
+                      {toAgent?.palette !== undefined && (
+                        <SpriteAvatar palette={toAgent.palette} zoom={1} ready={assetsReady} />
+                      )}
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "#eddcb8" }}>
+                        {msg.toAgentName}
+                      </span>
+                    </>
+                  )}
+                  <span style={{
+                    marginLeft: "auto", fontSize: 8, padding: "1px 4px",
+                    backgroundColor: cfg.border + "20", color: cfg.border,
+                    border: `1px solid ${cfg.border}40`, fontFamily: "monospace",
+                  }}>
+                    {cfg.label}
+                  </span>
+                </div>
+                <div style={{
+                  fontSize: 11, color: "#b09878", wordBreak: "break-word",
+                  maxHeight: 80, overflow: "hidden", fontFamily: "monospace",
+                }}>
+                  {msgText.slice(0, 150)}{msgText.length > 150 ? "..." : ""}
+                </div>
+              </div>
+            );
+          })}
+          <div ref={endRef} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AccordionHeader({
+  label, count, isExpanded, onToggle, actions, accentColor,
+}: {
+  label: string; count: number; isExpanded: boolean; onToggle: () => void;
+  actions?: React.ReactNode;
+  accentColor?: string;
+}) {
+  const color = accentColor ?? "#e8b040";
+  return (
+    <button
+      onClick={onToggle}
+      style={{
+        display: "flex", alignItems: "center", gap: 8,
+        width: "100%", padding: "10px 12px",
+        backgroundColor: isExpanded ? color + "30" : color + "18",
+        border: "none", borderBottom: "1px solid #2e2448",
+        borderLeft: `3px solid ${isExpanded ? color : color + "40"}`,
+        cursor: "pointer", textAlign: "left",
+        transition: "background-color 0.15s, border-color 0.15s",
+      }}
+      onMouseEnter={(e) => { if (!isExpanded) e.currentTarget.style.backgroundColor = color + "25"; }}
+      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = isExpanded ? color + "30" : color + "18"; }}
+    >
+      <span style={{ fontSize: 10, color: isExpanded ? color : "#7a6858", width: 12, textAlign: "center", flexShrink: 0 }}>
+        {isExpanded ? "\u25BC" : "\u25B6"}
+      </span>
+      <span style={{
+        fontSize: 11, fontWeight: 700, color: isExpanded ? color : "#b09878",
+        fontFamily: "'Press Start 2P', monospace", letterSpacing: "0.03em",
+      }}>{label}</span>
+      {count > 0 && (
+        <span style={{
+          fontSize: 9, padding: "1px 5px",
+          backgroundColor: color + "15", color,
+          border: `1px solid ${color}30`, fontFamily: "monospace",
+        }}>{count}</span>
+      )}
+      <div style={{ marginLeft: "auto", display: "flex", gap: 4, alignItems: "center" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {actions}
+      </div>
+    </button>
+  );
+}
+
 function HireTeamModal({ onCreateTeam, onClose, assetsReady }: {
   onCreateTeam: (leadIndex: number, memberIndices: number[], backends: Record<string, string>) => void;
   onClose: () => void;
@@ -1072,7 +1215,8 @@ export default function OfficePage() {
   const [showHireModal, setShowHireModal] = useState(false);
   const [showHireTeamModal, setShowHireTeamModal] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [sidebarTab, setSidebarTab] = useState<"agents" | "team">("agents");
+  const [mobileTeamOpen, setMobileTeamOpen] = useState(false);
+  const [expandedSection, setExpandedSection] = useState<"team" | "agents" | "external">("team");
   const [prompt, setPrompt] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -1238,7 +1382,10 @@ export default function OfficePage() {
   const handleCreateTeam = useCallback((leadIndex: number, memberIndices: number[], backends: Record<string, string>) => {
     sendCommand({ type: "CREATE_TEAM", leadPresetIndex: leadIndex, memberPresetIndices: memberIndices, backends });
     setShowHireTeamModal(false);
-    setSidebarTab("agents");
+    setExpandedSection("team");
+    setSelectedAgent(null);
+    setChatOpen(false);
+    setMobileTeamOpen(true);
   }, []);
 
   const handleFire = useCallback(async (agentId: string) => {
@@ -1282,7 +1429,7 @@ export default function OfficePage() {
     clearTeamMessages();
     setSelectedAgent(null);
     setChatOpen(false);
-    setSidebarTab("agents");
+    setMobileTeamOpen(false);
   }, [agents, clearTeamMessages, confirm]);
 
   const handleRunTask = useCallback(() => {
@@ -1329,7 +1476,8 @@ export default function OfficePage() {
   const handleEndProject = useCallback(() => {
     if (!selectedAgent) return;
     sendCommand({ type: "END_PROJECT", agentId: selectedAgent });
-  }, [selectedAgent]);
+    clearTeamMessages();
+  }, [selectedAgent, clearTeamMessages]);
 
   const handleApproval = useCallback((approvalId: string, decision: "yes" | "no") => {
     sendCommand({ type: "APPROVAL_DECISION", approvalId, decision });
@@ -1342,6 +1490,9 @@ export default function OfficePage() {
   }, []);
 
   const agentList = Array.from(agents.values());
+  const teamAgents = agentList.filter((a) => !!a.teamId);
+  const soloAgents = agentList.filter((a) => !a.teamId && !a.isExternal);
+  const externalAgents = agentList.filter((a) => !!a.isExternal);
   const editor = editorRef.current;
 
   // Responsive: detect mobile
@@ -1463,86 +1614,12 @@ export default function OfficePage() {
           flexDirection: "column",
           overflow: "hidden",
         }}>
-          {/* Sidebar header: tab toggle + hire buttons */}
-          <div style={{ padding: "8px 10px 6px", flexShrink: 0, borderBottom: "1px solid #2e2448" }}>
-            {/* Tab toggle */}
-            <div style={{ display: "flex", gap: 0, marginBottom: 8, border: "1px solid #3d2e54", overflow: "hidden" }}>
-              <button
-                onClick={() => setSidebarTab("agents")}
-                style={{
-                  flex: 1, minWidth: 0, padding: "10px 6px", fontSize: 10, fontWeight: 700, border: "none", cursor: "pointer",
-                  borderRight: "1px solid #3d2e54",
-                  backgroundColor: sidebarTab === "agents" ? "#382800" : "#1a1530",
-                  color: sidebarTab === "agents" ? "#e8b040" : "#6a5848",
-                  fontFamily: "'Press Start 2P', monospace",
-                  letterSpacing: "0.03em", textAlign: "center",
-                  boxShadow: sidebarTab === "agents" ? "inset 0 -2px 0 #e8b040" : "none",
-                }}
-              >Agents</button>
-              <button
-                onClick={() => setSidebarTab("team")}
-                style={{
-                  flex: 1, minWidth: 0, padding: "10px 6px", fontSize: 10, fontWeight: 700, border: "none", cursor: "pointer",
-                  backgroundColor: sidebarTab === "team" ? "#382800" : "#1a1530",
-                  color: sidebarTab === "team" ? "#e8b040" : "#6a5848",
-                  position: "relative",
-                  fontFamily: "'Press Start 2P', monospace",
-                  letterSpacing: "0.03em", textAlign: "center",
-                  boxShadow: sidebarTab === "team" ? "inset 0 -2px 0 #e8b040" : "none",
-                }}
-              >
-                Team
-                {teamMessages.length > 0 && (
-                  <span style={{
-                    marginLeft: 5, fontSize: 8, padding: "1px 4px",
-                    backgroundColor: "#48cc6a22", color: "#48cc6a",
-                    border: "1px solid #48cc6a44",
-                  }}>{teamMessages.length}</span>
-                )}
-              </button>
-            </div>
+          {/* Accordion sections */}
+          <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" }}>
 
-            {/* Hire buttons */}
-            <div style={{ display: "flex", gap: 6 }}>
-              <button
-                onClick={() => setShowHireModal(true)}
-                style={{
-                  flex: 1, minWidth: 0, padding: "9px 6px",
-                  border: "1px solid #e8b04060",
-                  backgroundColor: "transparent", color: "#e8b040",
-                  fontSize: 10, fontWeight: 700, cursor: "pointer",
-                  fontFamily: "'Press Start 2P', monospace",
-                  letterSpacing: "0.03em", textAlign: "center",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(200,155,48,0.12)"; e.currentTarget.style.borderColor = "#e8b040"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.borderColor = "#e8b04060"; }}
-              >+ Hire</button>
-              {!hasTeam && (
-                <button
-                  onClick={() => setShowHireTeamModal(true)}
-                  style={{
-                    flex: 1, minWidth: 0, padding: "9px 6px",
-                    border: "1px solid #e8903070",
-                    backgroundColor: "transparent", color: "#e89030",
-                    fontSize: 10, fontWeight: 700, cursor: "pointer",
-                    fontFamily: "'Press Start 2P', monospace",
-                    letterSpacing: "0.03em", textAlign: "center",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(224,133,48,0.12)"; e.currentTarget.style.borderColor = "#e89030"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.borderColor = "#e8903070"; }}
-                >+ Team</button>
-              )}
-            </div>
-          </div>
-
-          {/* Team Chat view (team tab) */}
-          {sidebarTab === "team" && (
-            <TeamChatView messages={teamMessages} agents={agents} assetsReady={assetsReady} />
-          )}
-
-          {/* Agent list — scrollable (agents tab) */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "4px 0", display: sidebarTab === "agents" ? "block" : "none" }}>
-            {agentList.map((agent) => {
+          {(() => {
+            // Shared agent row renderer
+            const renderAgentRow = (agent: typeof agentList[number]) => {
               const cfg = STATUS_CONFIG[agent.status] ?? STATUS_CONFIG.idle;
               const isExpanded = chatOpen && selectedAgent === agent.agentId;
               const agentState = agents.get(agent.agentId);
@@ -1554,7 +1631,7 @@ export default function OfficePage() {
                 <div key={agent.agentId} style={{
                   display: "flex", flexDirection: "column",
                   borderBottom: "1px solid #272040",
-                  borderLeft: isExternal ? "3px solid #5aacff" : agentState?.teamId ? "3px solid #e8b040" : "3px solid transparent",
+                  borderLeft: "none",
                 }}>
                   {/* Collapsed row — always visible */}
                   <button
@@ -1598,19 +1675,6 @@ export default function OfficePage() {
                             border: "1px solid #e8b04050", fontFamily: "monospace", letterSpacing: "0.05em",
                           }}>TEAM</span>
                         )}
-                        {isExternal && (
-                          <span style={{
-                            fontSize: 8, padding: "1px 4px",
-                            backgroundColor: "#3b82f620", color: "#5aacff",
-                            border: "1px solid #3b82f650", fontFamily: "monospace", letterSpacing: "0.05em",
-                          }}>EXTERNAL</span>
-                        )}
-                        {/* TODO: token usage display disabled for now — re-enable when data is verified */}
-                      </div>
-                      <div style={{ fontSize: 10, color: "#7a6858", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}
-                        title={isExternal && agentState?.cwd ? agentState.cwd : undefined}
-                      >
-                        {isExternal && agentState?.cwd ? agentState.cwd.split("/").pop() : agent.role}
                         {agent.backend && (
                           <span style={{
                             fontSize: 8, padding: "1px 4px",
@@ -1622,6 +1686,11 @@ export default function OfficePage() {
                           </span>
                         )}
                       </div>
+                      <div style={{ fontSize: 10, color: "#7a6858", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}
+                        title={isExternal && agentState?.cwd ? agentState.cwd : undefined}
+                      >
+                        {isExternal && agentState?.cwd ? agentState.cwd.split("/").pop() : agent.role}
+                      </div>
                     </div>
                     <span style={{
                       fontSize: 9, padding: "2px 5px",
@@ -1631,8 +1700,8 @@ export default function OfficePage() {
                       flexShrink: 0, whiteSpace: "nowrap", fontFamily: "monospace",
                     }}>
                       {agent.isTeamLead && agent.status === "done"
-                        ? "✓ Done"
-                        : <>{agent.status === "done" ? "✓ " : agent.status === "working" ? "▶ " : ""}{cfg.label}</>
+                        ? "\u2713 Done"
+                        : <>{agent.status === "done" ? "\u2713 " : agent.status === "working" ? "\u25B6 " : ""}{cfg.label}</>
                       }
                     </span>
                     {/* Phase badge for team leads */}
@@ -1651,33 +1720,6 @@ export default function OfficePage() {
                         }}>{phase}</span>
                       );
                     })()}
-                    {agentState?.teamId && (agentState.isTeamLead || !Array.from(agents.values()).some(a => a.teamId === agentState.teamId && a.isTeamLead)) && (
-                      <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                        {teamBusy && (
-                          <span
-                            onClick={(e) => { e.stopPropagation(); handleStopTeam(); }}
-                            style={{
-                              fontSize: 9, fontWeight: 700, color: "#fff", cursor: "pointer",
-                              padding: "3px 6px", backgroundColor: "#e89030",
-                              fontFamily: "monospace", letterSpacing: "0.03em",
-                            }}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#d07820"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#e89030"; }}
-                          >STOP</span>
-                        )}
-                        <span
-                          onClick={(e) => { e.stopPropagation(); handleFireTeam(); }}
-                          style={{
-                            fontSize: 9, fontWeight: 700, color: "#fff", cursor: "pointer",
-                            padding: "3px 6px", backgroundColor: "#d04040",
-                            fontFamily: "monospace", letterSpacing: "0.03em",
-                          }}
-                          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#b83030"; }}
-                          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#d04040"; }}
-                        >FIRE</span>
-
-                      </div>
-                    )}
                     {!agentState?.teamId && (
                       <span
                         onClick={(e) => { e.stopPropagation(); handleFire(agent.agentId); }}
@@ -1687,7 +1729,7 @@ export default function OfficePage() {
                         }}
                         onMouseEnter={(e) => { e.currentTarget.style.color = "#ff4040"; }}
                         onMouseLeave={(e) => { e.currentTarget.style.color = "#c04040"; }}
-                      >✕</span>
+                      >{"\u2715"}</span>
                     )}
                   </button>
 
@@ -1713,9 +1755,9 @@ export default function OfficePage() {
                         </div>
                         <div style={{ display: "flex", gap: 12, fontSize: 10, color: "#7a6858", fontFamily: "monospace", flexWrap: "wrap" }}>
                           <span>{agentState.backend ?? "unknown"}</span>
-                          <span>PID {agentState.pid ?? "—"}</span>
+                          <span>PID {agentState.pid ?? "\u2014"}</span>
                           <span title={agentState.cwd ?? undefined} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 160 }}>
-                            {agentState.cwd ?? "—"}
+                            {agentState.cwd ?? "\u2014"}
                           </span>
                         </div>
                       </div>
@@ -1769,10 +1811,10 @@ export default function OfficePage() {
                           const phase = getAgentPhase(agent.agentId);
                           if (!phase) return null;
                           const PHASE_INFO: Record<string, { color: string; icon: string; hint: string }> = {
-                            create: { color: "#5aacff", icon: "💬", hint: "Chat with your team lead to define the project" },
-                            design: { color: "#e8b040", icon: "📋", hint: "Review the plan — approve it or give feedback" },
-                            execute: { color: "#e89030", icon: "⚡", hint: "Team is building your project" },
-                            complete: { color: "#48cc6a", icon: "✓", hint: "Review results — give feedback or end project" },
+                            create: { color: "#5aacff", icon: "\uD83D\uDCAC", hint: "Chat with your team lead to define the project" },
+                            design: { color: "#e8b040", icon: "\uD83D\uDCCB", hint: "Review the plan \u2014 approve it or give feedback" },
+                            execute: { color: "#e89030", icon: "\u26A1", hint: "Team is building your project" },
+                            complete: { color: "#48cc6a", icon: "\u2713", hint: "Review results \u2014 give feedback or end project" },
                           };
                           const info = PHASE_INFO[phase];
                           if (!info) return null;
@@ -1812,7 +1854,7 @@ export default function OfficePage() {
                             border: "1px solid #e89030",
                           }}>
                             <div style={{ fontSize: 11, fontWeight: "bold", color: "#e89030", marginBottom: 6, fontFamily: "monospace" }}>
-                              ▲ {agentState.pendingApproval.title}
+                              {"\u25B2"} {agentState.pendingApproval.title}
                             </div>
                             <div style={{ fontSize: 12, color: "#b89868", marginBottom: 10, lineHeight: 1.5 }}>
                               {agentState.pendingApproval.summary}
@@ -1821,11 +1863,11 @@ export default function OfficePage() {
                               <button
                                 onClick={() => handleApproval(agentState.pendingApproval!.approvalId, "yes")}
                                 style={{ flex: 1, padding: "8px", border: "1px solid #48cc6a", backgroundColor: "#143a14", color: "#48cc6a", cursor: "pointer", fontWeight: "bold", fontSize: 11, fontFamily: "monospace" }}
-                              >▶ Approve</button>
+                              >{"\u25B6"} Approve</button>
                               <button
                                 onClick={() => handleApproval(agentState.pendingApproval!.approvalId, "no")}
                                 style={{ flex: 1, padding: "8px", border: "1px solid #e04848", backgroundColor: "#3e1818", color: "#e04848", cursor: "pointer", fontWeight: "bold", fontSize: 11, fontFamily: "monospace" }}
-                              >✕ Reject</button>
+                              >{"\u2715"} Reject</button>
                             </div>
                           </div>
                         )}
@@ -1854,7 +1896,7 @@ export default function OfficePage() {
                                   width: "100%", padding: "9px 16px", border: "1px solid #e04848",
                                   backgroundColor: "#3e1818", color: "#e04848", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
                                 }}
-                              >✕ Cancel current work</button>
+                              >{"\u2715"} Cancel current work</button>
                             ) : cardPhase === "design" && !busy ? (
                               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                                 <button
@@ -1864,7 +1906,7 @@ export default function OfficePage() {
                                     backgroundColor: "#143a14", color: "#48cc6a", fontSize: 12, cursor: "pointer",
                                     fontWeight: 700, fontFamily: "monospace",
                                   }}
-                                >▶ Approve Plan</button>
+                                >{"\u25B6"} Approve Plan</button>
                                 <div style={{ display: "flex", gap: 6 }}>
                                   <input
                                     value={prompt}
@@ -1930,7 +1972,7 @@ export default function OfficePage() {
                                   width: "100%", padding: "9px 16px", border: "1px solid #e04848",
                                   backgroundColor: "#3e1818", color: "#e04848", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
                                 }}
-                              >✕ Cancel current work</button>
+                              >{"\u2715"} Cancel current work</button>
                             ) : (
                               <div style={{ display: "flex", gap: 6 }}>
                                 <input
@@ -1965,13 +2007,138 @@ export default function OfficePage() {
                   )}
                 </div>
               );
-            })}
+            };
+
+            return (<>
+
+            {/* -- Section 1: External -- */}
+            <AccordionHeader
+              label="External"
+              count={externalAgents.length}
+              isExpanded={expandedSection === "external"}
+              accentColor="#5aacff"
+              onToggle={() => setExpandedSection(expandedSection === "external" ? "agents" : "external")}
+            />
+            {expandedSection === "external" && (
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflowY: "auto" }}>
+                {externalAgents.length === 0 ? (
+                  <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 11, fontFamily: "monospace" }}>
+                    No external agents detected
+                  </div>
+                ) : (
+                  externalAgents.map((agent) => renderAgentRow(agent))
+                )}
+              </div>
+            )}
+
+            {/* -- Section 2: Agents (solo) -- */}
+            <AccordionHeader
+              label="Agents"
+              count={soloAgents.length}
+              isExpanded={expandedSection === "agents"}
+              onToggle={() => setExpandedSection(expandedSection === "agents" ? "team" : "agents")}
+              actions={
+                <span
+                  onClick={() => setShowHireModal(true)}
+                  style={{
+                    fontSize: 9, fontWeight: 700, cursor: "pointer",
+                    padding: "3px 6px",
+                    backgroundColor: "transparent", color: "#e8b040",
+                    border: "1px solid #e8b04060",
+                    fontFamily: "monospace",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(200,155,48,0.12)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                >+</span>
+              }
+            />
+            {expandedSection === "agents" && (
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflowY: "auto" }}>
+                {soloAgents.length === 0 ? (
+                  <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 11, fontFamily: "monospace" }}>
+                    No agents yet {"\u2014"} click [+] to hire one
+                  </div>
+                ) : (
+                  soloAgents.map((agent) => renderAgentRow(agent))
+                )}
+              </div>
+            )}
+
+            {/* -- Section 3: Team -- */}
+            <AccordionHeader
+              label="Team"
+              count={teamAgents.length}
+              isExpanded={expandedSection === "team"}
+              accentColor="#e89030"
+              onToggle={() => setExpandedSection(expandedSection === "team" ? "agents" : "team")}
+              actions={<>
+                {hasTeam && teamBusy && (
+                  <span
+                    onClick={handleStopTeam}
+                    style={{
+                      fontSize: 9, fontWeight: 700, color: "#fff", cursor: "pointer",
+                      padding: "3px 6px", backgroundColor: "#e89030",
+                      fontFamily: "monospace", letterSpacing: "0.03em",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#d07820"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#e89030"; }}
+                  >STOP</span>
+                )}
+                {hasTeam && (
+                  <span
+                    onClick={handleFireTeam}
+                    style={{
+                      fontSize: 9, fontWeight: 700, color: "#fff", cursor: "pointer",
+                      padding: "3px 6px", backgroundColor: "#d04040",
+                      fontFamily: "monospace", letterSpacing: "0.03em",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#b83030"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#d04040"; }}
+                  >{"\u2715"}</span>
+                )}
+                {!hasTeam && (
+                  <span
+                    onClick={() => setShowHireTeamModal(true)}
+                    style={{
+                      fontSize: 9, fontWeight: 700, cursor: "pointer",
+                      padding: "3px 6px",
+                      backgroundColor: "transparent", color: "#e89030",
+                      border: "1px solid #e8903060",
+                      fontFamily: "monospace",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(224,133,48,0.12)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                  >+</span>
+                )}
+              </>}
+            />
+            {expandedSection === "team" && (
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflowY: "auto" }}>
+                {teamAgents.length === 0 ? (
+                  <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 11, fontFamily: "monospace" }}>
+                    No team yet {"\u2014"} click [+] to hire a team
+                  </div>
+                ) : (
+                  <>
+                    {teamAgents.map((agent) => renderAgentRow(agent))}
+                    {/* Team Activity log */}
+                    {teamMessages.length > 0 && (
+                      <TeamActivityLog messages={teamMessages} agents={agents} assetsReady={assetsReady} onClear={clearTeamMessages} />
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+
+            </>);
+          })()}
+
           </div>
         </div>
       )}
 
       {/* ── Mobile: bottom agent bar ── */}
-      {isMobile && agentList.length > 0 && !isChatExpanded && sidebarTab !== "team" && (
+      {isMobile && agentList.length > 0 && !isChatExpanded && !mobileTeamOpen && (
         <div style={{
           position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 20,
           padding: "8px 12px",
@@ -1991,7 +2158,7 @@ export default function OfficePage() {
           >+</button>
           {/* Team button */}
           <button
-            onClick={() => setSidebarTab("team")}
+            onClick={() => setMobileTeamOpen(true)}
             style={{
               width: 44, height: 44, flexShrink: 0,
               border: "1px solid #e8903070", backgroundColor: "rgba(224,133,48,0.12)",
@@ -2283,14 +2450,14 @@ export default function OfficePage() {
       })()}
 
       {/* Mobile: Team chat fullscreen overlay */}
-      {isMobile && sidebarTab === "team" && (
+      {isMobile && mobileTeamOpen && (
         <div style={{
           position: "absolute", inset: 0, zIndex: 30,
           backgroundColor: "#1a1530",
           display: "flex", flexDirection: "column",
         }}>
           <div
-            onClick={() => setSidebarTab("agents")}
+            onClick={() => setMobileTeamOpen(false)}
             style={{
               padding: "12px 14px", borderBottom: "1px solid #2e2448",
               display: "flex", alignItems: "center", gap: 10, flexShrink: 0,
