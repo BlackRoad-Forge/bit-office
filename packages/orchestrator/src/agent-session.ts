@@ -521,20 +521,39 @@ export class AgentSession {
     let previewUrl: string | undefined;
     let previewPath: string | undefined;
 
-    // 1) PREVIEW_CMD: run a command (Python Flask, Node Express, etc.)
-    if (result.previewCmd && result.previewPort) {
-      previewUrl = previewServer.runCommand(result.previewCmd, cwd, result.previewPort);
-      if (previewUrl) return { previewUrl, previewPath: undefined };
+    // 1) PREVIEW_CMD: run a process
+    if (result.previewCmd) {
+      if (result.previewPort) {
+        // Web server: run command, proxy via port
+        previewUrl = previewServer.runCommand(result.previewCmd, cwd, result.previewPort);
+        if (previewUrl) return { previewUrl, previewPath: undefined };
+      } else {
+        // Desktop/CLI app: launch it (no browser preview)
+        previewServer.launchProcess(result.previewCmd, cwd);
+        return { previewUrl: undefined, previewPath: undefined };
+      }
     }
 
-    // 2) ENTRY_FILE from structured output (e.g. "dist/index.html")
-    if (result.entryFile && /\.html?$/i.test(result.entryFile)) {
-      previewPath = path.isAbsolute(result.entryFile)
-        ? result.entryFile
-        : path.join(cwd, result.entryFile);
-      if (existsSync(previewPath)) {
-        previewUrl = previewServer.serve(previewPath);
-        if (previewUrl) return { previewUrl, previewPath };
+    // 2) ENTRY_FILE from structured output
+    if (result.entryFile) {
+      if (/\.html?$/i.test(result.entryFile)) {
+        // Static HTML: serve via file server
+        previewPath = path.isAbsolute(result.entryFile)
+          ? result.entryFile
+          : path.join(cwd, result.entryFile);
+        if (existsSync(previewPath)) {
+          previewUrl = previewServer.serve(previewPath);
+          if (previewUrl) return { previewUrl, previewPath };
+        }
+      } else {
+        // Non-HTML entry file (e.g. game.py) — try to launch it
+        const ext = path.extname(result.entryFile).toLowerCase();
+        const runners: Record<string, string> = { ".py": "python3", ".js": "node", ".rb": "ruby", ".sh": "bash" };
+        const runner = runners[ext];
+        if (runner) {
+          previewServer.launchProcess(`${runner} ${result.entryFile}`, cwd);
+          return { previewUrl: undefined, previewPath: undefined };
+        }
       }
     }
 

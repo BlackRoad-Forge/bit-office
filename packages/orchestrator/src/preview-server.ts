@@ -65,6 +65,28 @@ class PreviewServer {
     }
   }
 
+  /**
+   * Mode 3: Launch a desktop/CLI process (no web preview URL).
+   * Used for Pygame, Tkinter, Electron, terminal apps, etc.
+   */
+  launchProcess(cmd: string, cwd: string): void {
+    this.stop();
+
+    try {
+      this.process = spawn(cmd, {
+        shell: true,
+        cwd,
+        stdio: "ignore",
+        detached: true,
+      });
+      this.process.unref();
+      this.currentDir = cwd;
+      console.log(`[PreviewServer] Launched "${cmd}" in ${cwd}`);
+    } catch (e) {
+      console.log(`[PreviewServer] Failed to launch process: ${e}`);
+    }
+  }
+
   /** Kill the current process */
   stop() {
     if (this.process) {

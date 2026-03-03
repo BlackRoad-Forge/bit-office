@@ -537,40 +537,56 @@ export class Orchestrator extends EventEmitter<OrchestratorEventMap> {
             }
           }
 
-          // Fallback: leader's PREVIEW_CMD (for Python/Node apps)
-          if (!event.result?.previewUrl && event.result?.previewCmd && event.result.previewPort) {
+          // Fallback: leader's PREVIEW_CMD
+          if (!event.result?.previewUrl && event.result?.previewCmd) {
             const projectDir = this.delegationRouter.getTeamProjectDir() ?? this.workspace;
-            const url = previewServer.runCommand(event.result.previewCmd, projectDir, event.result.previewPort);
-            if (url) {
-              event.result.previewUrl = url;
-              console.log(`[Orchestrator] Preview from leader PREVIEW_CMD: ${url}`);
+            if (event.result.previewPort) {
+              // Web server: run command, proxy via port
+              const url = previewServer.runCommand(event.result.previewCmd, projectDir, event.result.previewPort);
+              if (url) {
+                event.result.previewUrl = url;
+                console.log(`[Orchestrator] Preview from leader PREVIEW_CMD (port ${event.result.previewPort}): ${url}`);
+              }
+            } else {
+              // Desktop/CLI app: launch the process (no browser preview)
+              previewServer.launchProcess(event.result.previewCmd, projectDir);
+              console.log(`[Orchestrator] Launched app via PREVIEW_CMD: ${event.result.previewCmd}`);
             }
           }
 
-          // Fallback: leader's ENTRY_FILE (static HTML)
+          // Fallback: leader's ENTRY_FILE
           if (!event.result?.previewUrl && event.result?.entryFile) {
             const entryFile = event.result.entryFile;
+            const projectDir = this.delegationRouter.getTeamProjectDir() ?? this.workspace;
             if (/\.html?$/i.test(entryFile)) {
-              const projectDir = this.delegationRouter.getTeamProjectDir() ?? this.workspace;
+              // Static HTML: serve via file server
               const absPath = path.isAbsolute(entryFile)
                 ? entryFile
-                : path.join(event.result.projectDir
-                    ? path.resolve(this.workspace, event.result.projectDir)
-                    : projectDir, entryFile);
+                : path.join(projectDir, entryFile);
               const url = previewServer.serve(absPath);
               if (url) {
                 event.result.previewUrl = url;
                 event.result.previewPath = absPath;
                 console.log(`[Orchestrator] Preview from leader ENTRY_FILE: ${url}`);
               }
+            } else {
+              // Non-HTML entry file (e.g. game.py) — try to launch it
+              const ext = path.extname(entryFile).toLowerCase();
+              const runners: Record<string, string> = { ".py": "python3", ".js": "node", ".rb": "ruby", ".sh": "bash" };
+              const runner = runners[ext];
+              if (runner) {
+                previewServer.launchProcess(`${runner} ${entryFile}`, projectDir);
+                console.log(`[Orchestrator] Launched ${ext} app from ENTRY_FILE: ${runner} ${entryFile}`);
+              }
             }
           }
 
           // Fallback: scan accumulated changedFiles for .html
           if (!event.result?.previewUrl && event.result && this.teamChangedFiles.size > 0) {
+            const projectDir = this.delegationRouter.getTeamProjectDir() ?? this.workspace;
             const htmlFile = Array.from(this.teamChangedFiles).find(f => /\.html?$/i.test(f));
             if (htmlFile) {
-              const absPath = path.isAbsolute(htmlFile) ? htmlFile : path.join(this.workspace, htmlFile);
+              const absPath = path.isAbsolute(htmlFile) ? htmlFile : path.join(projectDir, htmlFile);
               const url = previewServer.serve(absPath);
               if (url) {
                 event.result.previewUrl = url;
@@ -581,21 +597,24 @@ export class Orchestrator extends EventEmitter<OrchestratorEventMap> {
           }
 
           // Last resort: scan project directory for common build output (Vite, CRA, etc.)
+          // Only scan if we have a specific project directory — never scan the entire workspace root
           if (!event.result?.previewUrl && event.result) {
-            const projectDir = this.delegationRouter.getTeamProjectDir() ?? this.workspace;
-            const candidates = [
-              "dist/index.html", "build/index.html", "out/index.html",   // common build dirs
-              "index.html", "public/index.html",                          // static projects
-            ];
-            for (const candidate of candidates) {
-              const absPath = path.join(projectDir, candidate);
-              if (existsSync(absPath)) {
-                const url = previewServer.serve(absPath);
-                if (url) {
-                  event.result.previewUrl = url;
-                  event.result.previewPath = absPath;
-                  console.log(`[Orchestrator] Preview from project scan: ${absPath}`);
-                  break;
+            const projectDir = this.delegationRouter.getTeamProjectDir();
+            if (projectDir) {
+              const candidates = [
+                "dist/index.html", "build/index.html", "out/index.html",   // common build dirs
+                "index.html", "public/index.html",                          // static projects
+              ];
+              for (const candidate of candidates) {
+                const absPath = path.join(projectDir, candidate);
+                if (existsSync(absPath)) {
+                  const url = previewServer.serve(absPath);
+                  if (url) {
+                    event.result.previewUrl = url;
+                    event.result.previewPath = absPath;
+                    console.log(`[Orchestrator] Preview from project scan: ${absPath}`);
+                    break;
+                  }
                 }
               }
             }
