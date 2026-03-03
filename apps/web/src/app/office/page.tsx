@@ -1584,52 +1584,6 @@ function TeamActivityLog({ messages, agents, assetsReady, onClear }: {
   );
 }
 
-function AccordionHeader({
-  label, count, isExpanded, onToggle, actions, accentColor,
-}: {
-  label: string; count: number; isExpanded: boolean; onToggle: () => void;
-  actions?: React.ReactNode;
-  accentColor?: string;
-}) {
-  const color = accentColor ?? "#e8b040";
-  return (
-    <button
-      onClick={onToggle}
-      style={{
-        display: "flex", alignItems: "center", gap: 8,
-        width: "100%", padding: "10px 12px",
-        backgroundColor: "transparent",
-        border: "none", borderBottom: "1px solid #2e2448",
-        borderLeft: `2px solid ${isExpanded ? color : color + "60"}`,
-        cursor: "pointer", textAlign: "left",
-        transition: "border-color 0.15s",
-      }}
-      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.03)"; }}
-      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
-    >
-      <span style={{ fontSize: 10, color: isExpanded ? color : "#7a6858", width: 12, textAlign: "center", flexShrink: 0 }}>
-        {isExpanded ? "\u25BC" : "\u25B6"}
-      </span>
-      <span style={{
-        fontSize: 11, fontWeight: 700, color: isExpanded ? color : "#b09878",
-        fontFamily: "'Press Start 2P', monospace", letterSpacing: "0.03em",
-      }}>{label}</span>
-      {count > 0 && (
-        <span style={{
-          fontSize: 9, padding: "1px 5px",
-          backgroundColor: "transparent", color: isExpanded ? color : "#9a8868",
-          border: `1px solid ${isExpanded ? color + "40" : "#3e3458"}`, fontFamily: "monospace",
-        }}>{count}</span>
-      )}
-      <div style={{ marginLeft: "auto", display: "flex", gap: 4, alignItems: "center" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {actions}
-      </div>
-    </button>
-  );
-}
-
 function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
   agentDefs: AgentDefinition[];
   onCreateTeam: (leadId: string, memberIds: string[], backends: Record<string, string>) => void;
@@ -2605,14 +2559,112 @@ export default function OfficePage() {
 
             return (<>
 
-            {/* -- Section 1: External -- */}
-            <AccordionHeader
-              label="External"
-              count={externalAgents.length}
-              isExpanded={expandedSection === "external"}
-              accentColor="#5aacff"
-              onToggle={() => setExpandedSection(expandedSection === "external" ? "agents" : "external")}
-            />
+            {/* -- Tab Bar -- */}
+            <div style={{ display: "flex", background: "linear-gradient(to bottom, rgba(40,30,65,0.6), transparent)", padding: "0 4px" }}>
+              {([
+                { key: "agents" as const, label: "Agents", count: soloAgents.length, color: "#e8b040" },
+                { key: "team" as const, label: "Team", count: teamAgents.length, color: "#e89030" },
+                { key: "external" as const, label: "External", count: externalAgents.length, color: "#5aacff" },
+              ]).map((tab) => {
+                const active = expandedSection === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setExpandedSection(tab.key)}
+                    style={{
+                      flex: 1, padding: "10px 0 8px", cursor: "pointer",
+                      backgroundColor: active ? tab.color + "30" : "rgba(255,255,255,0.05)",
+                      border: "none",
+                      borderBottom: active ? `2px solid ${tab.color}` : "2px solid transparent",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                      transition: "all 0.15s",
+                      borderRadius: "4px 4px 0 0",
+                    }}
+                    onMouseEnter={(e) => { if (!active) e.currentTarget.style.backgroundColor = "rgba(255,255,255,0.03)"; }}
+                    onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = "transparent"; }}
+                  >
+                    <span style={{
+                      fontSize: 10, fontWeight: 700,
+                      color: active ? "#fff" : "#7a6858",
+                      fontFamily: "'Press Start 2P', monospace", letterSpacing: "0.04em",
+                      textShadow: active ? `0 0 8px ${tab.color}60` : "none",
+                    }}>{tab.label}</span>
+                    {tab.count > 0 && (
+                      <span style={{
+                        fontSize: 9, padding: "1px 5px",
+                        backgroundColor: active ? tab.color + "20" : "transparent",
+                        color: active ? tab.color : "#9a8868",
+                        border: `1px solid ${active ? tab.color + "50" : "#3e3458"}`,
+                        borderRadius: 3,
+                        fontFamily: "monospace", fontWeight: 600,
+                      }}>{tab.count}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* -- Action Toolbar -- */}
+            {expandedSection === "agents" && (
+              <div style={{ display: "flex", gap: 8, padding: "8px 12px", borderBottom: "1px solid #2e2448", alignItems: "center" }}>
+                <span
+                  onClick={() => setShowHireModal(true)}
+                  style={{
+                    fontSize: 11, fontWeight: 700, cursor: "pointer",
+                    padding: "5px 10px", borderRadius: 3,
+                    backgroundColor: "transparent", color: "#e8b040",
+                    border: "1px solid #e8b04060",
+                    fontFamily: "monospace",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(200,155,48,0.15)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                >+ Hire</span>
+              </div>
+            )}
+            {expandedSection === "team" && (
+              <div style={{ display: "flex", gap: 8, padding: "8px 12px", borderBottom: "1px solid #2e2448", alignItems: "center" }}>
+                {!hasTeam && (
+                  <span
+                    onClick={() => setShowHireTeamModal(true)}
+                    style={{
+                      fontSize: 11, fontWeight: 700, cursor: "pointer",
+                      padding: "5px 10px", borderRadius: 3,
+                      backgroundColor: "transparent", color: "#e89030",
+                      border: "1px solid #e8903060",
+                      fontFamily: "monospace",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(224,133,48,0.15)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                  >+ Hire Team</span>
+                )}
+                {hasTeam && teamBusy && (
+                  <span
+                    onClick={handleStopTeam}
+                    style={{
+                      fontSize: 11, fontWeight: 700, color: "#fff", cursor: "pointer",
+                      padding: "5px 10px", borderRadius: 3, backgroundColor: "#e89030",
+                      fontFamily: "monospace", letterSpacing: "0.03em",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#d07820"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#e89030"; }}
+                  >STOP</span>
+                )}
+                {hasTeam && (
+                  <span
+                    onClick={handleFireTeam}
+                    style={{
+                      fontSize: 11, fontWeight: 700, color: "#fff", cursor: "pointer",
+                      padding: "5px 10px", borderRadius: 3, backgroundColor: "#d04040",
+                      fontFamily: "monospace", letterSpacing: "0.03em",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#b83030"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#d04040"; }}
+                  >{"\u2715"} Fire</span>
+                )}
+              </div>
+            )}
+
+            {/* -- Tab Content -- */}
             {expandedSection === "external" && (
               <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflowY: "auto" }}>
                 {externalAgents.length === 0 ? (
@@ -2624,93 +2676,22 @@ export default function OfficePage() {
                 )}
               </div>
             )}
-
-            {/* -- Section 2: Agents (solo) -- */}
-            <AccordionHeader
-              label="Agents"
-              count={soloAgents.length}
-              isExpanded={expandedSection === "agents"}
-              onToggle={() => setExpandedSection(expandedSection === "agents" ? "team" : "agents")}
-              actions={
-                <span
-                  onClick={() => setShowHireModal(true)}
-                  style={{
-                    fontSize: 9, fontWeight: 700, cursor: "pointer",
-                    padding: "3px 6px",
-                    backgroundColor: "transparent", color: "#e8b040",
-                    border: "1px solid #e8b04060",
-                    fontFamily: "monospace",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(200,155,48,0.12)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
-                >+</span>
-              }
-            />
             {expandedSection === "agents" && (
               <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflowY: "auto" }}>
                 {soloAgents.length === 0 ? (
                   <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 11, fontFamily: "monospace" }}>
-                    No agents yet {"\u2014"} click [+] to hire one
+                    No agents yet {"\u2014"} click [+ Hire] to hire one
                   </div>
                 ) : (
                   soloAgents.map((agent) => renderAgentRow(agent))
                 )}
               </div>
             )}
-
-            {/* -- Section 3: Team -- */}
-            <AccordionHeader
-              label="Team"
-              count={teamAgents.length}
-              isExpanded={expandedSection === "team"}
-              accentColor="#e89030"
-              onToggle={() => setExpandedSection(expandedSection === "team" ? "agents" : "team")}
-              actions={<>
-                {hasTeam && teamBusy && (
-                  <span
-                    onClick={handleStopTeam}
-                    style={{
-                      fontSize: 9, fontWeight: 700, color: "#fff", cursor: "pointer",
-                      padding: "3px 6px", backgroundColor: "#e89030",
-                      fontFamily: "monospace", letterSpacing: "0.03em",
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#d07820"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#e89030"; }}
-                  >STOP</span>
-                )}
-                {hasTeam && (
-                  <span
-                    onClick={handleFireTeam}
-                    style={{
-                      fontSize: 9, fontWeight: 700, color: "#fff", cursor: "pointer",
-                      padding: "3px 6px", backgroundColor: "#d04040",
-                      fontFamily: "monospace", letterSpacing: "0.03em",
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#b83030"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#d04040"; }}
-                  >{"\u2715"}</span>
-                )}
-                {!hasTeam && (
-                  <span
-                    onClick={() => setShowHireTeamModal(true)}
-                    style={{
-                      fontSize: 9, fontWeight: 700, cursor: "pointer",
-                      padding: "3px 6px",
-                      backgroundColor: "transparent", color: "#e89030",
-                      border: "1px solid #e8903060",
-                      fontFamily: "monospace",
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(224,133,48,0.12)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
-                  >+</span>
-                )}
-              </>}
-            />
             {expandedSection === "team" && (
               <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflowY: "auto" }}>
                 {teamAgents.length === 0 ? (
                   <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 11, fontFamily: "monospace" }}>
-                    No team yet {"\u2014"} click [+] to hire a team
+                    No team yet {"\u2014"} click [+ Hire Team] to hire a team
                   </div>
                 ) : (
                   <>
