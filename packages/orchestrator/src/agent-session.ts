@@ -223,7 +223,6 @@ export class AgentSession {
         resumeSessionId: this.sessionId ?? undefined,
         fullAccess,
         noTools: this._isTeamLead,
-        model: this._isTeamLead ? "sonnet" : undefined,
         verbose,
         skipResume: this._isTeamLead && this.hasHistory && phaseOverride !== "create" && phaseOverride !== "design" && phaseOverride !== "complete",
       });
