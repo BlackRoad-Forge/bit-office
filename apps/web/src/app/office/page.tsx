@@ -1325,15 +1325,6 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
           </>
         )}
 
-        {/* Create + Cancel */}
-        <button
-          onClick={onCreate}
-          style={{
-            width: "100%", marginBottom: 5, padding: "9px",
-            border: "1px solid #e8b04060", backgroundColor: "transparent",
-            color: "#e8b040", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "monospace",
-          }}
-        >+ Create Agent</button>
         <button
           onClick={onClose}
           style={{
@@ -2630,6 +2621,19 @@ export default function OfficePage() {
                   onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(200,155,48,0.15)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
                 >+ Hire</span>
+                <span style={{ flex: 1 }} />
+                <span
+                  onClick={() => { setEditingAgent(null); setShowCreateAgent(true); }}
+                  style={{
+                    fontSize: 11, fontWeight: 700, cursor: "pointer",
+                    padding: "5px 10px", borderRadius: 3,
+                    backgroundColor: "transparent", color: "#e8b040",
+                    border: "1px solid #e8b04060",
+                    fontFamily: "monospace",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "rgba(200,155,48,0.15)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; }}
+                >+ Create</span>
               </div>
             )}
             {expandedSection === "team" && (

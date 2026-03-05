@@ -685,8 +685,8 @@ export class AgentSession {
       return { summary: `Delegated tasks to ${delegationTargets.join(", ")}`, fullOutput, changedFiles, entryFile, projectDir };
     }
 
-    const lastChunk = meaningful.slice(-5).join("\n").trim();
-    const summary = lastChunk.slice(0, 500) || "Task completed";
+    const firstChunk = meaningful.slice(0, 5).join("\n").trim();
+    const summary = firstChunk.slice(0, 500) || "Task completed";
 
     return { summary, fullOutput, changedFiles, entryFile, projectDir };
   }
