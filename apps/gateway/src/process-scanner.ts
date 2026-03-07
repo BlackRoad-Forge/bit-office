@@ -51,7 +51,7 @@ function parseEtime(etime: string): number {
 /** Run a shell command and return stdout */
 function exec(cmd: string, args: string[]): Promise<string> {
   return new Promise((resolve) => {
-    execFile(cmd, args, { timeout: 5000, maxBuffer: 1024 * 512 }, (err, stdout) => {
+    execFile(cmd, args, { timeout: 5000, maxBuffer: 1024 * 1024 * 2 }, (err, stdout) => {
       resolve(err ? "" : stdout);
     });
   });
