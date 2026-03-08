@@ -10,7 +10,8 @@
 import JSZip from 'jszip'
 import type { OfficeLayout, PlacedFurniture, SpriteData, FloorColor, TileType as TileTypeVal } from '../types'
 import { TileType, TILE_SIZE } from '../types'
-import { registerCustomSprites } from './furnitureCatalog'
+import { registerCustomSprites, getCatalogEntry, FURNITURE_CATALOG } from './furnitureCatalog'
+import type { CatalogEntryWithCategory } from './furnitureCatalog'
 
 const PNG_ALPHA_THRESHOLD = 128
 
@@ -41,6 +42,13 @@ interface RoomJson {
     widthCells: number
     heightCells: number
   }>
+  objects?: Array<{
+    id: string
+    type: string
+    col: number
+    row: number
+    rotation?: number
+  }>
 }
 
 export interface RoomZipResult {
@@ -65,7 +73,9 @@ function loadImageFromBlob(blob: Blob): Promise<HTMLImageElement> {
 }
 
 /**
- * Convert an image to SpriteData, scaling to a target size.
+ * Convert an image to SpriteData, scaling to fit within target size
+ * while preserving the original aspect ratio. The image is bottom-aligned
+ * within the target bounds (transparent padding on top if needed).
  */
 function imageToSpriteData(img: HTMLImageElement, targetW: number, targetH: number): SpriteData {
   const canvas = document.createElement('canvas')
@@ -73,7 +83,15 @@ function imageToSpriteData(img: HTMLImageElement, targetW: number, targetH: numb
   canvas.height = targetH
   const ctx = canvas.getContext('2d')!
   ctx.imageSmoothingEnabled = false
-  ctx.drawImage(img, 0, 0, targetW, targetH)
+
+  // Scale to contain (preserve aspect ratio), bottom-aligned
+  const scale = Math.min(targetW / img.naturalWidth, targetH / img.naturalHeight)
+  const drawW = Math.round(img.naturalWidth * scale)
+  const drawH = Math.round(img.naturalHeight * scale)
+  const drawX = Math.round((targetW - drawW) / 2)
+  const drawY = targetH - drawH // bottom-aligned
+  ctx.drawImage(img, drawX, drawY, drawW, drawH)
+
   const imageData = ctx.getImageData(0, 0, targetW, targetH)
   const { data } = imageData
 
@@ -104,6 +122,17 @@ function mimeFromFilename(filename: string): string {
   if (ext === 'jpg' || ext === 'jpeg') return 'image/jpeg'
   if (ext === 'webp') return 'image/webp'
   return 'image/png'
+}
+
+/** Map rotation degrees to orientation string */
+function rotationToOrientation(rotation: number): string {
+  switch (rotation % 360) {
+    case 0: return 'front'
+    case 90: return 'right'
+    case 180: return 'back'
+    case 270: return 'left'
+    default: return 'front'
+  }
 }
 
 /** Map tileEditor cell types to bit-office TileType */
@@ -141,7 +170,7 @@ export async function loadRoomZip(file: File): Promise<RoomZipResult | null> {
   }
 
   // 2. Load tileset sprites and register them as custom furniture
-  const customSprites = new Map<string, { sprite: SpriteData; footprintW: number; footprintH: number; label: string }>()
+  const customSprites = new Map<string, { sprite: SpriteData; footprintW: number; footprintH: number; label: string; tag?: string }>()
 
   if (roomJson.tileset) {
     for (const tile of roomJson.tileset) {
@@ -159,6 +188,7 @@ export async function loadRoomZip(file: File): Promise<RoomZipResult | null> {
         footprintW: tile.gridW,
         footprintH: tile.gridH,
         label: tile.name,
+        tag: tile.tag,
       })
     }
     if (customSprites.size > 0) {
@@ -183,6 +213,49 @@ export async function loadRoomZip(file: File): Promise<RoomZipResult | null> {
     row: f.row,
   }))
 
+  // 6. Convert object markers (desk, chair, etc.) to placed furniture
+  //    First, register oriented catalog entries (e.g. chair-left, desk-back)
+  //    so that layoutToSeats can resolve orientation → facing direction.
+  if (roomJson.objects) {
+    const orientations = ['front', 'right', 'back', 'left'] as const
+    const neededBaseTypes = new Set(roomJson.objects.map((o) => o.type))
+    for (const baseType of neededBaseTypes) {
+      const baseEntry = getCatalogEntry(baseType)
+      if (!baseEntry) continue
+      for (const orient of orientations) {
+        // Always use suffixed type (e.g. chair-front, chair-left)
+        // so that each entry has its own orientation property.
+        const orientedType = `${baseType}-${orient}`
+        if (getCatalogEntry(orientedType)) continue // already exists
+        const entry: CatalogEntryWithCategory = {
+          ...baseEntry,
+          type: orientedType,
+          orientation: orient,
+          // Object markers are always 1x1 regardless of base entry footprint
+          footprintW: 1,
+          footprintH: 1,
+        }
+        FURNITURE_CATALOG.push(entry)
+      }
+    }
+
+    console.log('[roomZipLoader] Registered oriented catalog entries for:', [...neededBaseTypes])
+    for (const obj of roomJson.objects) {
+      const orientSuffix = rotationToOrientation(obj.rotation ?? 0)
+      // Always use suffixed type so orientation is preserved
+      const resolvedType = `${obj.type}-${orientSuffix}`
+      const entry = getCatalogEntry(resolvedType)
+      console.log(`[roomZipLoader] object ${obj.id}: type=${obj.type} rot=${obj.rotation} → ${resolvedType} (isDesk=${entry?.isDesk}, category=${entry?.category}, orientation=${entry?.orientation})`)
+
+      furniture.push({
+        uid: obj.id,
+        type: resolvedType,
+        col: obj.col,
+        row: obj.row,
+      })
+    }
+  }
+
   const layout: OfficeLayout = {
     version: 1,
     cols: roomJson.cols,
@@ -193,4 +266,18 @@ export async function loadRoomZip(file: File): Promise<RoomZipResult | null> {
   }
 
   return { layout, backgroundImage }
+}
+
+/** Load a room zip from a URL (e.g. /offices/default.zip) */
+export async function loadRoomZipFromUrl(url: string): Promise<RoomZipResult | null> {
+  const response = await fetch(url)
+  if (!response.ok) {
+    console.error(`[roomZipLoader] Failed to fetch ${url}: ${response.status}`)
+    return null
+  }
+  const arrayBuffer = await response.arrayBuffer()
+  // Create a File-like object from the ArrayBuffer
+  const blob = new Blob([arrayBuffer], { type: 'application/zip' })
+  const file = new File([blob], url.split('/').pop() || 'room.zip', { type: 'application/zip' })
+  return loadRoomZip(file)
 }

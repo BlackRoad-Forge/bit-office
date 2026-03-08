@@ -26,6 +26,7 @@ const ZoomControls = dynamic(() => import("@/components/office/ui/ZoomControls")
 const SettingsModal = dynamic(() => import("@/components/office/ui/SettingsModal"), { ssr: false });
 const BottomToolbar = dynamic(() => import("@/components/office/ui/BottomToolbar"), { ssr: false });
 const ProjectHistory = dynamic(() => import("@/components/office/ui/ProjectHistory"), { ssr: false });
+const OfficeSwitcher = dynamic(() => import("@/components/office/ui/OfficeSwitcher"), { ssr: false });
 
 const STATUS_CONFIG: Record<string, { color: string; label: string }> = {
   idle: { color: "#7a7060", label: "Idle" },
@@ -830,6 +831,111 @@ function SpriteAvatar({ palette, zoom = 3, ready }: { palette: number; zoom?: nu
   }, [palette, zoom, ready]);
 
   return <canvas ref={canvasRef} style={{ width: 16 * zoom, height: 32 * zoom, imageRendering: "pixelated" }} />;
+}
+
+/** Loading overlay with a random pixel character walking back and forth */
+function LoadingOverlay({ visible }: { visible: boolean }) {
+  const [charIdx, setCharIdx] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const [opacity, setOpacity] = useState(1);
+  const [removed, setRemoved] = useState(false);
+
+  // Pick random character only on client to avoid hydration mismatch
+  useEffect(() => {
+    setCharIdx(Math.floor(Math.random() * 6));
+    setMounted(true);
+  }, []);
+
+  // When visible goes true again (e.g. office switch), reset fade state & pick new char
+  useEffect(() => {
+    if (visible) {
+      setCharIdx(Math.floor(Math.random() * 6));
+      setOpacity(1);
+      setRemoved(false);
+    }
+  }, [visible]);
+
+  useEffect(() => {
+    if (!visible && mounted) {
+      // Fade out over 600ms
+      const t1 = setTimeout(() => setOpacity(0), 50);
+      const t2 = setTimeout(() => setRemoved(true), 700);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    }
+  }, [visible, mounted]);
+
+  if (removed || !mounted) return null;
+
+  const sheetUrl = `/assets/characters/char_${charIdx}.png`;
+  const zoom = 4;
+  const displayW = 16 * zoom; // 64
+  const displayH = 32 * zoom; // 128
+
+  return (
+    <div style={{
+      position: "absolute",
+      inset: 0,
+      zIndex: 50,
+      background: "#0e0c1a",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 16,
+      opacity,
+      transition: "opacity 0.6s ease",
+      pointerEvents: visible ? "auto" : "none",
+    }}>
+      <style>{`
+        @keyframes loading-walk-sprite {
+          0%   { background-position-x: 0px; }
+          25%  { background-position-x: -64px; }
+          50%  { background-position-x: -128px; }
+          75%  { background-position-x: -64px; }
+          100% { background-position-x: 0px; }
+        }
+        @keyframes loading-walk-move {
+          0%   { transform: translateX(-60px) scaleX(1); }
+          45%  { transform: translateX(60px) scaleX(1); }
+          50%  { transform: translateX(60px) scaleX(-1); }
+          95%  { transform: translateX(-60px) scaleX(-1); }
+          100% { transform: translateX(-60px) scaleX(1); }
+        }
+      `}</style>
+      <div style={{ position: "relative", width: displayW, height: displayH }}>
+        <div style={{
+          width: displayW,
+          height: displayH,
+          backgroundImage: `url(${sheetUrl})`,
+          backgroundSize: "448px 384px",
+          backgroundPositionY: "-256px",
+          imageRendering: "pixelated" as const,
+          animation: "loading-walk-sprite 0.5s steps(1) infinite, loading-walk-move 3s linear infinite",
+        }} />
+      </div>
+      <div style={{
+        fontFamily: "monospace",
+        fontSize: 12,
+        color: "#7a6858",
+        letterSpacing: "0.05em",
+      }}>
+        Loading office<span style={{ display: "inline-block", width: "1.5em", textAlign: "left" }}>
+          <LoadingDots />
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function LoadingDots() {
+  const [dots, setDots] = useState("");
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDots(prev => prev.length >= 3 ? "" : prev + ".");
+    }, 400);
+    return () => clearInterval(timer);
+  }, []);
+  return <>{dots}</>;
 }
 
 const BACKEND_OPTIONS = [
@@ -1750,6 +1856,9 @@ export default function OfficePage() {
   const [editMode, setEditMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showOfficeSwitcher, setShowOfficeSwitcher] = useState(false);
+  const [currentOfficeId, setCurrentOfficeId] = useState<string | null>(null);
+  const [showEditorControls, setShowEditorControls] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [, forceUpdate] = useState(0);
   const editorRef = useRef(new EditorState());
@@ -1868,13 +1977,32 @@ export default function OfficePage() {
     onExitEditMode: toggleEditMode,
   });
 
-  // Load saved layout on mount
-  const handleAssetsLoaded = useCallback(() => {
-    const saved = loadLayoutFromStorage();
-    if (saved && officeStateRef.current) {
-      const migrated = migrateLayoutColors(saved);
-      officeStateRef.current.setLayout(migrated);
-      forceUpdate((n) => n + 1);
+  // Load office zip on mount (always from /offices/)
+  const handleAssetsLoaded = useCallback(async () => {
+    const office = officeStateRef.current;
+    if (office) {
+      try {
+        const { loadDefaultOffice } = await import("@/components/office/ui/OfficeSwitcher");
+        const result = await loadDefaultOffice();
+        if (result) {
+          office.setBackgroundImage(result.backgroundImage);
+          handleImportLayout(result.layout);
+          setCurrentOfficeId(result.officeId);
+          // Auto-fit zoom
+          const canvas = document.querySelector('canvas');
+          if (canvas?.parentElement) {
+            const viewW = canvas.parentElement.clientWidth;
+            const viewH = canvas.parentElement.clientHeight;
+            const mapW = result.layout.cols * TILE_SIZE;
+            const mapH = result.layout.rows * TILE_SIZE;
+            const fitZoom = Math.min(viewW / mapW, viewH / mapH);
+            zoomRef.current = Math.max(ZOOM_MIN, Math.min(fitZoom, ZOOM_MAX));
+          }
+          panRef.current = { x: 0, y: 0 };
+        }
+      } catch (err) {
+        console.warn('[OfficePage] Failed to load default office zip:', err);
+      }
     }
     setAssetsReady(true);
   }, []);
@@ -2163,6 +2291,9 @@ export default function OfficePage() {
           onAssetsLoaded={handleAssetsLoaded}
         />
 
+        {/* Loading overlay — covers canvas until office ZIP is loaded */}
+        <LoadingOverlay visible={!assetsReady} />
+
         {/* Top-left status bar */}
         <div style={{
           position: "absolute", top: 0, left: 0, right: 0, zIndex: 10,
@@ -2293,6 +2424,8 @@ export default function OfficePage() {
             onToggleEditMode={toggleEditMode}
             onOpenSettings={() => setShowSettings(true)}
             onOpenHistory={() => setShowHistory(true)}
+            onOpenOfficeSwitcher={() => setShowOfficeSwitcher(true)}
+            showEditorControls={showEditorControls}
           />
         )}
 
@@ -3451,6 +3584,19 @@ export default function OfficePage() {
           onSoundEnabledChange={setSoundEnabled}
         />
       )}
+
+      <OfficeSwitcher
+        isOpen={showOfficeSwitcher}
+        onClose={() => setShowOfficeSwitcher(false)}
+        onSelect={(layout, backgroundImage) => {
+          setAssetsReady(false);
+          handleImportRoomZip(layout, backgroundImage);
+          try { const id = localStorage.getItem('office-selected-id'); if (id) setCurrentOfficeId(id); } catch {}
+          // Brief delay so the loading overlay shows the walking animation
+          setTimeout(() => setAssetsReady(true), 800);
+        }}
+        currentOfficeId={currentOfficeId}
+      />
 
       <ProjectHistory
         isOpen={showHistory}

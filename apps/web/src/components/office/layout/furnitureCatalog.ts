@@ -213,11 +213,23 @@ export function getCatalogByCategory(category: FurnitureCategory): CatalogEntryW
  * Register custom sprites (from room ZIP imports) into the catalog.
  * These use the 'misc' category and are not part of the built-in tileset.
  */
+/** Map a tile tag to catalog properties */
+function tagToCatalogProps(tag?: string): { isDesk: boolean; category: FurnitureCategory } {
+  const t = (tag ?? '').toLowerCase().trim()
+  if (t === 'desk' || t === 'table') return { isDesk: true, category: 'desks' }
+  if (t === 'chair' || t === 'seat' || t.includes('sofa') || t.includes('couch')) return { isDesk: false, category: 'chairs' }
+  if (t === 'storage' || t === 'shelf' || t === 'bookshelf') return { isDesk: false, category: 'storage' }
+  if (t === 'plant' || t === 'decor' || t === 'lamp') return { isDesk: false, category: 'decor' }
+  if (t === 'pc' || t === 'monitor' || t === 'computer') return { isDesk: false, category: 'electronics' }
+  return { isDesk: false, category: 'misc' }
+}
+
 export function registerCustomSprites(
-  sprites: Map<string, { sprite: SpriteData; footprintW: number; footprintH: number; label: string }>,
+  sprites: Map<string, { sprite: SpriteData; footprintW: number; footprintH: number; label: string; tag?: string }>,
 ): void {
   for (const [type, data] of sprites) {
     const existing = FURNITURE_CATALOG.findIndex((e) => e.type === type)
+    const props = tagToCatalogProps(data.tag)
     const entry: CatalogEntryWithCategory = {
       type,
       label: data.label,
@@ -225,7 +237,9 @@ export function registerCustomSprites(
       footprintH: data.footprintH,
       sprite: data.sprite,
       isDesk: false,
-      category: 'misc',
+      category: 'decor',
+      // Furniture sprites block their full footprint area.
+      // Users should arrange layout to avoid blocking paths.
     }
     if (existing >= 0) {
       FURNITURE_CATALOG[existing] = entry

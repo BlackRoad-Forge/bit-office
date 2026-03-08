@@ -7,6 +7,8 @@ interface BottomToolbarProps {
   onToggleEditMode: () => void
   onOpenSettings: () => void
   onOpenHistory?: () => void
+  onOpenOfficeSwitcher?: () => void
+  showEditorControls?: boolean
 }
 
 const panelStyle: React.CSSProperties = {
@@ -43,41 +45,60 @@ const btnActive: React.CSSProperties = {
   color: '#e8b040',
 }
 
-export default function BottomToolbar({ editMode, onToggleEditMode, onOpenSettings, onOpenHistory }: BottomToolbarProps) {
+export default function BottomToolbar({ editMode, onToggleEditMode, onOpenSettings, onOpenHistory, onOpenOfficeSwitcher, showEditorControls = true }: BottomToolbarProps) {
   const [hovered, setHovered] = useState<string | null>(null)
 
   return (
     <div style={panelStyle}>
-      <button
-        onClick={onToggleEditMode}
-        onMouseEnter={() => setHovered('edit')}
-        onMouseLeave={() => setHovered(null)}
-        style={
-          editMode
-            ? btnActive
-            : {
-                ...btnBase,
-                background: hovered === 'edit' ? 'rgba(200,155,48,0.08)' : btnBase.background,
-                color: hovered === 'edit' ? '#a08a6c' : btnBase.color,
-              }
-        }
-        title="Edit office layout"
-      >
-        Layout
-      </button>
-      <button
-        onClick={onOpenSettings}
-        onMouseEnter={() => setHovered('settings')}
-        onMouseLeave={() => setHovered(null)}
-        style={{
-          ...btnBase,
-          background: hovered === 'settings' ? 'rgba(200,155,48,0.08)' : btnBase.background,
-          color: hovered === 'settings' ? '#a08a6c' : btnBase.color,
-        }}
-        title="Settings"
-      >
-        Settings
-      </button>
+      {onOpenOfficeSwitcher && (
+        <button
+          onClick={onOpenOfficeSwitcher}
+          onMouseEnter={() => setHovered('office')}
+          onMouseLeave={() => setHovered(null)}
+          style={{
+            ...btnBase,
+            background: hovered === 'office' ? 'rgba(200,155,48,0.08)' : btnBase.background,
+            color: hovered === 'office' ? '#a08a6c' : btnBase.color,
+          }}
+          title="Switch office appearance"
+        >
+          Office
+        </button>
+      )}
+      {showEditorControls && (
+        <>
+          <button
+            onClick={onToggleEditMode}
+            onMouseEnter={() => setHovered('edit')}
+            onMouseLeave={() => setHovered(null)}
+            style={
+              editMode
+                ? btnActive
+                : {
+                    ...btnBase,
+                    background: hovered === 'edit' ? 'rgba(200,155,48,0.08)' : btnBase.background,
+                    color: hovered === 'edit' ? '#a08a6c' : btnBase.color,
+                  }
+            }
+            title="Edit office layout"
+          >
+            Layout
+          </button>
+          <button
+            onClick={onOpenSettings}
+            onMouseEnter={() => setHovered('settings')}
+            onMouseLeave={() => setHovered(null)}
+            style={{
+              ...btnBase,
+              background: hovered === 'settings' ? 'rgba(200,155,48,0.08)' : btnBase.background,
+              color: hovered === 'settings' ? '#a08a6c' : btnBase.color,
+            }}
+            title="Settings"
+          >
+            Settings
+          </button>
+        </>
+      )}
       {onOpenHistory && (
         <button
           onClick={onOpenHistory}

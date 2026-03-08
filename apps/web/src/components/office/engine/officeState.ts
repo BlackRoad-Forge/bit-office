@@ -348,7 +348,7 @@ export class OfficeState {
 
       // Temporarily unblock own seat so character can pathfind to it
       this.withOwnSeatUnblocked(ch, () =>
-        updateCharacter(ch, dt, this.walkableTiles, this.seats, this.tileMap, this.blockedTiles, this.characterScale)
+        updateCharacter(ch, dt, this.walkableTiles, this.seats, this.tileMap, this.blockedTiles, this.characterScale, () => this.findFreeRestSeat())
       )
 
       // Tick bubble timer
@@ -385,9 +385,18 @@ export class OfficeState {
 
   private findFreeSeat(): string | null {
     for (const [uid, seat] of this.seats) {
-      if (!seat.assigned) return uid
+      if (!seat.assigned && !seat.isRest) return uid
     }
     return null
+  }
+
+  /** Find a free rest seat (sofa, etc.) for idle characters */
+  findFreeRestSeat(): string | null {
+    const restSeats = [...this.seats.entries()].filter(([, s]) => s.isRest && !s.assigned)
+    if (restSeats.length === 0) return null
+    // Pick a random one
+    const [uid] = restSeats[Math.floor(Math.random() * restSeats.length)]
+    return uid
   }
 
   private pickDiversePalette(): { palette: number; hueShift: number } {
@@ -418,9 +427,16 @@ export class OfficeState {
 
   private withOwnSeatUnblocked<T>(ch: Character, fn: () => T): T {
     const key = this.ownSeatKey(ch)
+    // Also unblock rest seat target if character is heading to one
+    const restKey = ch.restSeatId ? (() => {
+      const rs = this.seats.get(ch.restSeatId!)
+      return rs ? `${rs.seatCol},${rs.seatRow}` : null
+    })() : null
     if (key) this.blockedTiles.delete(key)
+    if (restKey) this.blockedTiles.delete(restKey)
     const result = fn()
     if (key) this.blockedTiles.add(key)
+    if (restKey) this.blockedTiles.add(restKey)
     return result
   }
 

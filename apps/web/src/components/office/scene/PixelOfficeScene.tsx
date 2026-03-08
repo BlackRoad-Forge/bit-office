@@ -56,6 +56,8 @@ export default function PixelOfficeScene({
   // Stable callback refs
   const onAgentClickRef = useRef(onAgentClick);
   onAgentClickRef.current = onAgentClick;
+  const onAssetsLoadedRef = useRef(onAssetsLoaded);
+  onAssetsLoadedRef.current = onAssetsLoaded;
   const editModeRef = useRef(editMode);
   editModeRef.current = editMode;
 
@@ -105,17 +107,16 @@ export default function PixelOfficeScene({
         registerTilesetSprites(assets.tilesetSprites);
         loadedLayoutRef.current = assets.layout;
         setAssetsLoaded(true);
-        onAssetsLoaded?.();
       })
       .catch((err) => {
         console.warn("[PixelOfficeScene] Asset loading failed, using fallbacks:", err);
         if (!cancelled) {
           setAssetsLoaded(true);
-          onAssetsLoaded?.();
         }
       });
     return () => { cancelled = true; };
-  }, [onAssetsLoaded]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Init game loop once assets are loaded
   useEffect(() => {
@@ -123,9 +124,12 @@ export default function PixelOfficeScene({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Init state (use loaded layout JSON if available)
-    const officeState = new OfficeState(loadedLayoutRef.current ?? undefined);
+    // Init state — start with empty default, office zip will be loaded via onAssetsLoaded
+    const officeState = new OfficeState();
     officeStateRef.current = officeState;
+
+    // Now that OfficeState exists, notify parent to load office zip
+    onAssetsLoadedRef.current?.();
 
     // Setup canvas size
     resizeCanvas();

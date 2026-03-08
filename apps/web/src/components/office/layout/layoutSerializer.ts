@@ -44,16 +44,23 @@ export function layoutToFurnitureInstances(furniture: PlacedFurniture[]): Furnit
   for (const item of furniture) {
     const entry = getCatalogEntry(item.type)
     if (!entry) continue
+    // Object markers (from room objects array) are functional only — don't render
+    if (item.uid.startsWith('obj-')) continue
     const x = item.col * TILE_SIZE
     const y = item.row * TILE_SIZE
     const spriteH = entry.sprite.length
     let zY = y + spriteH
 
-    if (entry.category === 'chairs') {
+    // Room-imported decorative sprites: render behind characters at the same level
+    if (entry.backgroundTiles && entry.backgroundTiles >= entry.footprintH) {
+      zY = y
+    } else if (entry.category === 'chairs') {
       if (entry.orientation === 'back') {
         zY = (item.row + 1) * TILE_SIZE + 1
       } else {
-        zY = (item.row + 1) * TILE_SIZE
+        // Use the bottom of the footprint for z-sorting so characters
+        // sitting on multi-cell items (sofas) appear in front
+        zY = (item.row + entry.footprintH) * TILE_SIZE
       }
     }
 
@@ -116,62 +123,125 @@ function orientationToFacing(orientation: string): Direction {
   }
 }
 
-/** Generate seats from chair furniture. */
+/**
+ * Generate work seats from desk + chair combinations.
+ *
+ * Logic: find all D (desk) tiles first. For each desk, look for adjacent
+ * C (chair) tiles — if found, the chair becomes the seat with its facing
+ * direction. If a desk has no adjacent chair, the desk itself becomes
+ * a standing work seat facing down.
+ *
+ * Chairs (C) without an adjacent desk do NOT generate seats (e.g. sofas).
+ */
 export function layoutToSeats(furniture: PlacedFurniture[]): Map<string, Seat> {
   const seats = new Map<string, Seat>()
 
-  const deskTiles = new Set<string>()
+  // Collect all desk tiles → desk item uid
+  const deskTiles = new Map<string, PlacedFurniture>()
   for (const item of furniture) {
     const entry = getCatalogEntry(item.type)
     if (!entry || !entry.isDesk) continue
     for (let dr = 0; dr < entry.footprintH; dr++) {
       for (let dc = 0; dc < entry.footprintW; dc++) {
-        deskTiles.add(`${item.col + dc},${item.row + dr}`)
+        deskTiles.set(`${item.col + dc},${item.row + dr}`, item)
       }
     }
   }
 
-  const dirs: Array<{ dc: number; dr: number; facing: Direction }> = [
-    { dc: 0, dr: -1, facing: Direction.UP },
-    { dc: 0, dr: 1, facing: Direction.DOWN },
-    { dc: -1, dr: 0, facing: Direction.LEFT },
-    { dc: 1, dr: 0, facing: Direction.RIGHT },
-  ]
-
+  // Collect all chair tiles with their orientation
+  const chairTiles = new Map<string, { item: PlacedFurniture; facing: Direction }>()
   for (const item of furniture) {
     const entry = getCatalogEntry(item.type)
     if (!entry || entry.category !== 'chairs') continue
-
-    let seatCount = 0
     for (let dr = 0; dr < entry.footprintH; dr++) {
       for (let dc = 0; dc < entry.footprintW; dc++) {
-        const tileCol = item.col + dc
-        const tileRow = item.row + dr
-
-        let facingDir: Direction = Direction.DOWN
-        if (entry.orientation) {
-          facingDir = orientationToFacing(entry.orientation)
-        } else {
-          for (const d of dirs) {
-            if (deskTiles.has(`${tileCol + d.dc},${tileRow + d.dr}`)) {
-              facingDir = d.facing
-              break
-            }
-          }
-        }
-
-        const seatUid = seatCount === 0 ? item.uid : `${item.uid}:${seatCount}`
-        seats.set(seatUid, {
-          uid: seatUid,
-          seatCol: tileCol,
-          seatRow: tileRow,
-          facingDir,
-          assigned: false,
-        })
-        seatCount++
+        const key = `${item.col + dc},${item.row + dr}`
+        const facing = entry.orientation
+          ? orientationToFacing(entry.orientation)
+          : Direction.DOWN
+        chairTiles.set(key, { item, facing })
       }
     }
   }
+
+  console.log('[layoutToSeats] furniture count:', furniture.length)
+  console.log('[layoutToSeats] deskTiles:', [...deskTiles.keys()])
+  console.log('[layoutToSeats] chairTiles:', [...chairTiles.entries()].map(([k, v]) => `${k} → ${v.item.type} facing=${v.facing}`))
+
+  // Search radius: D and C can be up to SEARCH_RADIUS cells apart
+  // (furniture sprites often span multiple cells between D and C)
+  const SEARCH_RADIUS = 3
+
+  // For each desk, find the nearest chair within radius to create work seats
+  const usedChairs = new Set<string>()
+  const processedDesks = new Set<string>()
+
+  for (const [deskKey, deskItem] of deskTiles) {
+    if (processedDesks.has(deskItem.uid)) continue
+    const [dColStr, dRowStr] = deskKey.split(',')
+    const dCol = parseInt(dColStr)
+    const dRow = parseInt(dRowStr)
+
+    // Find nearest chair within radius (search closest first)
+    let bestChair: { key: string; item: PlacedFurniture; facing: Direction; facingDesk: Direction; dist: number } | null = null
+    for (let dist = 1; dist <= SEARCH_RADIUS; dist++) {
+      if (bestChair) break
+      const candidates: Array<{ dc: number; dr: number; facingDesk: Direction }> = [
+        { dc: 0, dr: -dist, facingDesk: Direction.DOWN },
+        { dc: 0, dr: dist, facingDesk: Direction.UP },
+        { dc: -dist, dr: 0, facingDesk: Direction.RIGHT },
+        { dc: dist, dr: 0, facingDesk: Direction.LEFT },
+      ]
+      for (const d of candidates) {
+        const chairKey = `${dCol + d.dc},${dRow + d.dr}`
+        const chair = chairTiles.get(chairKey)
+        if (chair && !usedChairs.has(chairKey)) {
+          bestChair = { key: chairKey, item: chair.item, facing: chair.facing, facingDesk: d.facingDesk, dist }
+          break
+        }
+      }
+    }
+
+    if (bestChair) {
+      usedChairs.add(bestChair.key)
+      console.log(`[layoutToSeats] desk ${deskKey} matched chair ${bestChair.key} type=${bestChair.item.type} facingDesk=${bestChair.facingDesk} dist=${bestChair.dist}`)
+      seats.set(bestChair.item.uid, {
+        uid: bestChair.item.uid,
+        seatCol: bestChair.item.col,
+        seatRow: bestChair.item.row,
+        facingDir: bestChair.facingDesk,
+        assigned: false,
+      })
+    } else {
+      // Desk with no nearby chair → standing work seat at desk position
+      console.log(`[layoutToSeats] desk ${deskKey} has no nearby chair, creating standing seat`)
+      seats.set(deskItem.uid, {
+        uid: deskItem.uid,
+        seatCol: dCol,
+        seatRow: dRow,
+        facingDir: Direction.DOWN,
+        assigned: false,
+      })
+    }
+    processedDesks.add(deskItem.uid)
+  }
+
+  // Generate rest seats for chairs NOT matched to any desk (e.g. sofas)
+  for (const [chairKey, chair] of chairTiles) {
+    if (usedChairs.has(chairKey)) continue
+    seats.set(chair.item.uid + ':rest', {
+      uid: chair.item.uid + ':rest',
+      seatCol: chair.item.col,
+      seatRow: chair.item.row,
+      facingDir: chair.facing,
+      assigned: false,
+      isRest: true,
+    })
+  }
+
+  const workSeats = [...seats.values()].filter(s => !s.isRest).length
+  const restSeats = [...seats.values()].filter(s => s.isRest).length
+  console.log(`[layoutToSeats] total seats: ${seats.size} (work: ${workSeats}, rest: ${restSeats})`)
 
   return seats
 }

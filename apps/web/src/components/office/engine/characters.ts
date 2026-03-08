@@ -94,6 +94,7 @@ export function updateCharacter(
   tileMap: TileTypeVal[][],
   blockedTiles: Set<string>,
   speedScale = 1,
+  findRestSeat?: () => string | null,
 ): void {
   ch.frameTimer += dt
 
@@ -122,7 +123,15 @@ export function updateCharacter(
     case CharacterState.IDLE: {
       ch.frame = 0
       if (ch.seatTimer < 0) ch.seatTimer = 0
+
+      // If becoming active, release rest seat and go to work
       if (ch.isActive) {
+        if (ch.restSeatId) {
+          const rs = seats.get(ch.restSeatId)
+          if (rs) rs.assigned = false
+          ch.restSeatId = null
+          ch.seatTimer = 0
+        }
         if (!ch.seatId) {
           ch.state = CharacterState.TYPE
           ch.frame = 0
@@ -147,9 +156,29 @@ export function updateCharacter(
         }
         break
       }
+
+      // Sitting on rest seat — wait before getting up
+      if (ch.restSeatId && ch.seatTimer > 0) {
+        ch.seatTimer -= dt
+        if (ch.seatTimer <= 0) {
+          ch.seatTimer = 0
+          const rs = seats.get(ch.restSeatId)
+          if (rs) rs.assigned = false
+          ch.restSeatId = null
+          ch.wanderTimer = randomRange(WANDER_PAUSE_MIN_SEC, WANDER_PAUSE_MAX_SEC)
+        }
+        break
+      }
+
       ch.wanderTimer -= dt
       if (ch.wanderTimer <= 0) {
+        // After enough wandering, go back to work seat
         if (ch.wanderCount >= ch.wanderLimit && ch.seatId) {
+          // If currently on a rest seat, release it
+          const curSeat = ch.restSeatId ? seats.get(ch.restSeatId) : null
+          if (curSeat) curSeat.assigned = false
+          ch.restSeatId = null
+
           const seat = seats.get(ch.seatId)
           if (seat) {
             const path = findPath(ch.tileCol, ch.tileRow, seat.seatCol, seat.seatRow, tileMap, blockedTiles)
@@ -163,6 +192,29 @@ export function updateCharacter(
             }
           }
         }
+
+        // 30% chance to go to a rest seat (sofa) instead of wandering
+        if (findRestSeat && !ch.restSeatId && Math.random() < 0.3) {
+          const restSeatId = findRestSeat()
+          if (restSeatId) {
+            const restSeat = seats.get(restSeatId)
+            if (restSeat) {
+              const path = findPath(ch.tileCol, ch.tileRow, restSeat.seatCol, restSeat.seatRow, tileMap, blockedTiles)
+              if (path.length > 0) {
+                restSeat.assigned = true
+                ch.restSeatId = restSeatId
+                ch.path = path
+                ch.moveProgress = 0
+                ch.state = CharacterState.WALK
+                ch.frame = 0
+                ch.frameTimer = 0
+                ch.wanderCount++
+                break
+              }
+            }
+          }
+        }
+
         if (walkableTiles.length > 0) {
           const target = walkableTiles[Math.floor(Math.random() * walkableTiles.length)]
           const path = findPath(ch.tileCol, ch.tileRow, target.col, target.row, tileMap, blockedTiles)
@@ -204,6 +256,20 @@ export function updateCharacter(
             }
           }
         } else {
+          // Check if arrived at rest seat (sofa)
+          if (ch.restSeatId) {
+            const restSeat = seats.get(ch.restSeatId)
+            if (restSeat && ch.tileCol === restSeat.seatCol && ch.tileRow === restSeat.seatRow) {
+              ch.state = CharacterState.IDLE
+              ch.dir = restSeat.facingDir
+              // Sit on sofa for a while before getting up
+              ch.seatTimer = randomRange(SEAT_REST_MIN_SEC, SEAT_REST_MAX_SEC)
+              ch.frame = 0
+              ch.frameTimer = 0
+              break
+            }
+          }
+          // Check if arrived at work seat
           if (ch.seatId) {
             const seat = seats.get(ch.seatId)
             if (seat && ch.tileCol === seat.seatCol && ch.tileRow === seat.seatRow) {
