@@ -1861,6 +1861,7 @@ export default function OfficePage() {
   const [currentOfficeId, setCurrentOfficeId] = useState<string | null>(null);
   const [showEditorControls, setShowEditorControls] = useState(false);
   const [testActive, setTestActive] = useState(false);
+  const showTestButton = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('test');
   const [mapAspect, setMapAspect] = useState(1); // cols/rows ratio for scene width
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [, forceUpdate] = useState(0);
@@ -2423,7 +2424,7 @@ export default function OfficePage() {
             onOpenOfficeSwitcher={() => setShowOfficeSwitcher(true)}
             showEditorControls={showEditorControls}
             testActive={testActive}
-            onToggleTest={() => {
+            onToggleTest={showTestButton ? () => {
               const office = officeStateRef.current;
               if (!office) return;
               if (office.hasTestCharacters()) {
@@ -2433,7 +2434,7 @@ export default function OfficePage() {
                 office.spawnTestCharacters();
                 setTestActive(true);
               }
-            }}
+            } : undefined}
           />
         )}
 
