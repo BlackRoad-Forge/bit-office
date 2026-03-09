@@ -203,6 +203,7 @@ HARD LIMITS:
 Code Quality (must check):
 - Correctness: crashes, broken logic, missing files, syntax errors.
 - Verify the deliverable can actually run: check that entry point exists, dependencies are declared, build output is present. For GUI/desktop apps, verify via code review and syntax checks — do NOT run them.
+- VERIFY WITH TOOLS, not just the developer's summary. Run "ls" to confirm reported files exist. If ENTRY_FILE is claimed, check the file is there and references valid scripts/styles. Do not trust STATUS: done at face value.
 - Do NOT flag security issues in prototypes — this is a demo, not production code.
 
 Feature Completeness (must check):
