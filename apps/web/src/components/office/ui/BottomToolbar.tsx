@@ -21,30 +21,31 @@ const panelStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   gap: 2,
-  background: '#1e1a30',
-  border: '1px solid #3d2e54',
-  borderRadius: 0,
+  background: 'rgba(20, 20, 25, 0.85)',
+  backdropFilter: 'blur(12px)',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  borderRadius: 8,
   padding: '3px 4px',
-  boxShadow: '2px 2px 0px rgba(0,0,0,0.6)',
+  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
 }
 
 const btnBase: React.CSSProperties = {
   padding: '5px 10px',
-  fontSize: '11px',
-  fontFamily: 'monospace',
-  color: '#7a6858',
+  fontSize: '12px',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  color: 'rgba(255, 255, 255, 0.5)',
   background: 'transparent',
   border: '1px solid transparent',
-  borderRadius: 0,
+  borderRadius: 4,
   cursor: 'pointer',
   letterSpacing: '0.03em',
 }
 
 const btnActive: React.CSSProperties = {
   ...btnBase,
-  background: 'rgba(200, 155, 48, 0.12)',
-  border: '1px solid #e8b04060',
-  color: '#e8b040',
+  background: 'rgba(130, 160, 255, 0.15)',
+  border: '1px solid rgba(130, 160, 255, 0.4)',
+  color: 'rgba(160, 185, 255, 0.9)',
 }
 
 export default function BottomToolbar({ editMode, onToggleEditMode, onOpenSettings, onOpenHistory, onOpenOfficeSwitcher, onToggleTest, testActive, showEditorControls = true }: BottomToolbarProps) {
@@ -59,8 +60,8 @@ export default function BottomToolbar({ editMode, onToggleEditMode, onOpenSettin
           onMouseLeave={() => setHovered(null)}
           style={{
             ...btnBase,
-            background: hovered === 'office' ? 'rgba(200,155,48,0.08)' : btnBase.background,
-            color: hovered === 'office' ? '#a08a6c' : btnBase.color,
+            background: hovered === 'office' ? 'rgba(255, 255, 255, 0.08)' : btnBase.background,
+            color: hovered === 'office' ? 'rgba(255, 255, 255, 0.8)' : btnBase.color,
           }}
           title="Switch office appearance"
         >
@@ -78,8 +79,8 @@ export default function BottomToolbar({ editMode, onToggleEditMode, onOpenSettin
                 ? btnActive
                 : {
                     ...btnBase,
-                    background: hovered === 'edit' ? 'rgba(200,155,48,0.08)' : btnBase.background,
-                    color: hovered === 'edit' ? '#a08a6c' : btnBase.color,
+                    background: hovered === 'edit' ? 'rgba(255, 255, 255, 0.08)' : btnBase.background,
+                    color: hovered === 'edit' ? 'rgba(255, 255, 255, 0.8)' : btnBase.color,
                   }
             }
             title="Edit office layout"
@@ -92,8 +93,8 @@ export default function BottomToolbar({ editMode, onToggleEditMode, onOpenSettin
             onMouseLeave={() => setHovered(null)}
             style={{
               ...btnBase,
-              background: hovered === 'settings' ? 'rgba(200,155,48,0.08)' : btnBase.background,
-              color: hovered === 'settings' ? '#a08a6c' : btnBase.color,
+              background: hovered === 'settings' ? 'rgba(255, 255, 255, 0.08)' : btnBase.background,
+              color: hovered === 'settings' ? 'rgba(255, 255, 255, 0.8)' : btnBase.color,
             }}
             title="Settings"
           >
@@ -108,8 +109,8 @@ export default function BottomToolbar({ editMode, onToggleEditMode, onOpenSettin
           onMouseLeave={() => setHovered(null)}
           style={{
             ...btnBase,
-            background: hovered === 'history' ? 'rgba(200,155,48,0.08)' : btnBase.background,
-            color: hovered === 'history' ? '#a08a6c' : btnBase.color,
+            background: hovered === 'history' ? 'rgba(255, 255, 255, 0.08)' : btnBase.background,
+            color: hovered === 'history' ? 'rgba(255, 255, 255, 0.8)' : btnBase.color,
           }}
           title="Project history"
         >
@@ -123,11 +124,11 @@ export default function BottomToolbar({ editMode, onToggleEditMode, onOpenSettin
           onMouseLeave={() => setHovered(null)}
           style={
             testActive
-              ? { ...btnActive, color: '#e85040', borderColor: '#e8504060', background: 'rgba(200, 48, 48, 0.12)' }
+              ? { ...btnActive, color: '#e85040', borderColor: 'rgba(232, 80, 64, 0.4)', background: 'rgba(200, 48, 48, 0.12)' }
               : {
                   ...btnBase,
-                  background: hovered === 'test' ? 'rgba(200,155,48,0.08)' : btnBase.background,
-                  color: hovered === 'test' ? '#a08a6c' : btnBase.color,
+                  background: hovered === 'test' ? 'rgba(255, 255, 255, 0.08)' : btnBase.background,
+                  color: hovered === 'test' ? 'rgba(255, 255, 255, 0.8)' : btnBase.color,
                 }
           }
           title="Fill all work seats with test characters"

@@ -69,7 +69,7 @@ function linkifyText(children: React.ReactNode): React.ReactNode {
             onClick={() => sendCommand({ type: "OPEN_FILE", path })}
             style={{
               color: "#e8b040", textDecoration: "underline", cursor: "pointer",
-              fontFamily: "monospace", fontSize: 13,
+              fontFamily: "monospace", fontSize: 14,
             }}
             title="Click to open"
           >{filePath}</span>
@@ -96,7 +96,7 @@ function ThinkingBubble({ logLine }: { logLine: string | null }) {
     <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 8 }}>
       <div style={{
         padding: "8px 12px",
-        backgroundColor: "#1e1a30", color: "#7a8a6a", fontSize: 11,
+        backgroundColor: "#1e1a30", color: "#7a8a6a", fontSize: 12,
         fontFamily: "monospace",
         border: "1px solid #3d2e54",
         borderLeft: "2px solid #e8b04060",
@@ -131,7 +131,7 @@ function PreviewOverlay({ url, onClose }: { url: string; onClose: () => void }) 
         padding: "0 12px", backgroundColor: "#1a1530", gap: 8,
       }}>
         <span style={{
-          flex: 1, color: "#888", fontSize: 13,
+          flex: 1, color: "#888", fontSize: 14,
           fontFamily: "monospace", overflow: "hidden",
           textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}>{url}</span>
@@ -140,7 +140,7 @@ function PreviewOverlay({ url, onClose }: { url: string; onClose: () => void }) 
           target="_blank"
           rel="noopener noreferrer"
           style={{
-            color: "#e8b040", fontSize: 11, textDecoration: "none",
+            color: "#e8b040", fontSize: 12, textDecoration: "none",
             padding: "2px 8px", border: "1px solid #3d2d10", fontFamily: "monospace",
           }}
         >Open in tab</a>
@@ -148,7 +148,7 @@ function PreviewOverlay({ url, onClose }: { url: string; onClose: () => void }) 
           onClick={onClose}
           style={{
             background: "none", border: "1px solid #444",
-            color: "#aaa", fontSize: 16, cursor: "pointer",
+            color: "#aaa", fontSize: 17, cursor: "pointer",
             borderRadius: 6, width: 28, height: 28,
             display: "flex", alignItems: "center", justifyContent: "center",
           }}
@@ -164,7 +164,7 @@ function PreviewOverlay({ url, onClose }: { url: string; onClose: () => void }) 
             borderTopColor: "#818cf8", borderRadius: "50%",
             animation: "preview-spin 0.8s linear infinite",
           }} />
-          <div style={{ color: "#888", fontSize: 14 }}>Starting server...</div>
+          <div style={{ color: "#888", fontSize: 15 }}>Starting server...</div>
           <style>{`@keyframes preview-spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       )}
@@ -283,12 +283,12 @@ function CelebrationModal({ previewUrl, previewPath, onPreview, onDismiss, previ
         maxWidth: 420, width: "90%", textAlign: "center",
         border: "2px solid #e8b040", boxShadow: "0 0 40px rgba(200,155,48,0.15), 4px 4px 0px rgba(0,0,0,0.5)",
       }}>
-        <div style={{ fontSize: 32, marginBottom: 10 }}>★</div>
-        <div className="px-font" style={{ color: "#e8b040", fontSize: 13, marginBottom: 10, letterSpacing: "0.05em" }}>
+        <div style={{ fontSize: 34, marginBottom: 10 }}>★</div>
+        <div className="px-font" style={{ color: "#e8b040", fontSize: 14, marginBottom: 10, letterSpacing: "0.05em" }}>
           Mission Complete!
         </div>
         <div style={{
-          color: "#9a8a68", fontSize: 13, marginBottom: 20, lineHeight: 1.7, fontFamily: "monospace",
+          color: "#9a8a68", fontSize: 14, marginBottom: 20, lineHeight: 1.7, fontFamily: "monospace",
         }}>
           Your task has been completed successfully. Ready for the next mission whenever you are.
         </div>
@@ -303,7 +303,7 @@ function CelebrationModal({ previewUrl, previewPath, onPreview, onDismiss, previ
               style={{
                 padding: "9px 20px", border: "1px solid #48cc6a",
                 backgroundColor: "#143a14", color: "#48cc6a",
-                fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "monospace",
+                fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "monospace",
               }}
             >
               ▶ Preview
@@ -319,7 +319,7 @@ function CelebrationModal({ previewUrl, previewPath, onPreview, onDismiss, previ
               style={{
                 padding: "9px 20px", border: "1px solid #5aacff",
                 backgroundColor: "#0f1e3a", color: "#5aacff",
-                fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "monospace",
+                fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "monospace",
               }}
             >
               ▶ Launch
@@ -330,7 +330,7 @@ function CelebrationModal({ previewUrl, previewPath, onPreview, onDismiss, previ
             style={{
               padding: "9px 20px",
               border: "1px solid #3d2e54", backgroundColor: "#1e1a30",
-              color: "#9a8a68", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
+              color: "#9a8a68", fontSize: 13, cursor: "pointer", fontFamily: "monospace",
             }}
           >
             OK
@@ -364,7 +364,7 @@ function ConfirmModal({ message, onConfirm, onCancel }: {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ color: "#eee", fontSize: 16, lineHeight: 1.6, marginBottom: 24 }}>
+        <div style={{ color: "#eee", fontSize: 17, lineHeight: 1.6, marginBottom: 24 }}>
           {message}
         </div>
         <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
@@ -373,7 +373,7 @@ function ConfirmModal({ message, onConfirm, onCancel }: {
             style={{
               padding: "9px 28px", borderRadius: 8,
               border: "1px solid #444", backgroundColor: "#2a2a3e",
-              color: "#aaa", fontSize: 14, cursor: "pointer",
+              color: "#aaa", fontSize: 15, cursor: "pointer",
             }}
           >
             No
@@ -383,7 +383,7 @@ function ConfirmModal({ message, onConfirm, onCancel }: {
             style={{
               padding: "9px 28px", borderRadius: 8, border: "none",
               backgroundColor: "#dc2626", color: "#fff",
-              fontSize: 14, fontWeight: 600, cursor: "pointer",
+              fontSize: 15, fontWeight: 600, cursor: "pointer",
             }}
           >
             Yes
@@ -438,13 +438,13 @@ const mdComponents: React.ComponentProps<typeof ReactMarkdown>["components"] = {
           onClick={() => sendCommand({ type: "OPEN_FILE", path: filePath })}
           style={{
             backgroundColor: "#1a1830", padding: "8px 10px", borderRadius: 6,
-            fontSize: 12, cursor: "pointer", border: "1px solid #2a2a4a",
+            fontSize: 13, cursor: "pointer", border: "1px solid #2a2a4a",
             display: "flex", alignItems: "center", gap: 8,
             whiteSpace: "pre-wrap", wordBreak: "break-all",
           }}
           title="Click to open"
         >
-          <span style={{ fontSize: 14 }}>&#x1F517;</span>
+          <span style={{ fontSize: 15 }}>&#x1F517;</span>
           <code style={{ fontFamily: "monospace", color: "#818cf8" }} {...props}>{text}</code>
         </pre>
       );
@@ -452,21 +452,21 @@ const mdComponents: React.ComponentProps<typeof ReactMarkdown>["components"] = {
     return isBlock ? (
       <pre style={{
         backgroundColor: "#1a1830", padding: "8px 10px", borderRadius: 6,
-        fontSize: 12, whiteSpace: "pre-wrap", wordBreak: "break-all",
+        fontSize: 13, whiteSpace: "pre-wrap", wordBreak: "break-all",
       }}>
         <code style={{ fontFamily: "monospace", color: "#a5b4fc" }} {...props}>{children}</code>
       </pre>
     ) : (
       <code style={{
         backgroundColor: "#1a1830", padding: "1px 5px", borderRadius: 4,
-        fontFamily: "monospace", color: "#a5b4fc", fontSize: 13,
+        fontFamily: "monospace", color: "#a5b4fc", fontSize: 14,
       }} {...props}>{children}</code>
     );
   },
   table({ children }) {
     return (
       <div style={{ overflowX: "auto", margin: "6px 0", WebkitOverflowScrolling: "touch" }}>
-        <table style={{ borderCollapse: "collapse", fontSize: 13, whiteSpace: "nowrap" }}>{children}</table>
+        <table style={{ borderCollapse: "collapse", fontSize: 14, whiteSpace: "nowrap" }}>{children}</table>
       </div>
     );
   },
@@ -500,7 +500,7 @@ function TokenBadge({ inputTokens, outputTokens }: { inputTokens: number; output
   if (inputTokens === 0 && outputTokens === 0) return null;
   return (
     <span style={{
-      fontSize: 8, padding: "1px 4px",
+      fontSize: 9, padding: "1px 4px",
       backgroundColor: "#48cc6a18", color: "#48cc6a",
       border: "1px solid #48cc6a40", fontFamily: "monospace",
       whiteSpace: "nowrap",
@@ -526,7 +526,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
       <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
         <div style={{
           maxWidth: "80%", padding: "8px 12px",
-          backgroundColor: "#382800", color: "#eddcb8", fontSize: 13, wordBreak: "break-word",
+          backgroundColor: "#382800", color: "#eddcb8", fontSize: 14, wordBreak: "break-word",
           border: "1px solid #e8b04050",
           borderLeft: "2px solid #e8b040",
         }}>
@@ -554,7 +554,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
           fontSize: isTeam ? 11 : 13, wordBreak: "break-word",
           fontFamily: "monospace",
         }} className="chat-markdown">
-          {isTeam && <span style={{ fontSize: 9, opacity: 0.6, marginRight: 4 }}>
+          {isTeam && <span style={{ fontSize: 10, opacity: 0.6, marginRight: 4 }}>
             {isDelegation ? "[delegation]" : isResult ? "[result]" : "[queued]"}
           </span>}
           <MdContent text={msg.text} />
@@ -600,16 +600,16 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
             borderBottom: "1px solid #48cc6a40",
             display: "flex", alignItems: "center", gap: 8,
           }}>
-            <span style={{ fontSize: 14 }}>✓</span>
+            <span style={{ fontSize: 15 }}>✓</span>
             <span style={{
-              fontSize: 11, fontWeight: 700, color: "#48cc6a",
+              fontSize: 12, fontWeight: 700, color: "#48cc6a",
               fontFamily: "monospace", letterSpacing: "0.08em",
             }}>PROJECT DELIVERED</span>
           </div>
 
           {/* Summary */}
           <div style={{ padding: "12px 14px" }} className="chat-markdown">
-            <div style={{ color: "#d8c8a8", fontSize: 13, lineHeight: 1.6 }}>
+            <div style={{ color: "#d8c8a8", fontSize: 14, lineHeight: 1.6 }}>
               <MdContent text={cleanSummary || "Project completed successfully."} />
             </div>
           </div>
@@ -622,13 +622,13 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
               display: "flex", gap: 16, flexWrap: "wrap",
             }}>
               {projectDir && (
-                <div style={{ fontSize: 11, fontFamily: "monospace" }}>
+                <div style={{ fontSize: 12, fontFamily: "monospace" }}>
                   <span style={{ color: "#7a8a6a" }}>Directory: </span>
                   <span style={{ color: "#e8b040" }}>{projectDir}</span>
                 </div>
               )}
               {entryFile && (
-                <div style={{ fontSize: 11, fontFamily: "monospace" }}>
+                <div style={{ fontSize: 12, fontFamily: "monospace" }}>
                   <span style={{ color: "#7a8a6a" }}>Entry: </span>
                   <span
                     style={{ color: "#e8b040", cursor: "pointer", textDecoration: "underline" }}
@@ -645,17 +645,17 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
               padding: "8px 14px",
               borderTop: "1px solid #48cc6a20",
             }}>
-              <div style={{ fontSize: 10, color: "#7a8a6a", marginBottom: 4, fontFamily: "monospace" }}>
+              <div style={{ fontSize: 11, color: "#7a8a6a", marginBottom: 4, fontFamily: "monospace" }}>
                 {changedFiles.length} FILES
               </div>
               {changedFiles.slice(0, 8).map((f, i) => (
                 <div key={i} style={{
-                  fontSize: 11, fontFamily: "monospace", color: "#b8a878",
+                  fontSize: 12, fontFamily: "monospace", color: "#b8a878",
                   padding: "1px 0",
                 }}>{f}</div>
               ))}
               {changedFiles.length > 8 && (
-                <div style={{ fontSize: 10, color: "#5a4838", fontFamily: "monospace" }}>
+                <div style={{ fontSize: 11, color: "#5a4838", fontFamily: "monospace" }}>
                   ...and {changedFiles.length - 8} more
                 </div>
               )}
@@ -678,7 +678,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
                   width: "100%", padding: "10px 16px",
                   backgroundColor: "#143a14", color: "#48cc6a",
                   border: "1px solid #48cc6a50", cursor: "pointer",
-                  fontSize: 12, fontWeight: 700, fontFamily: "monospace",
+                  fontSize: 13, fontWeight: 700, fontFamily: "monospace",
                 }}
               >
                 ▶ Preview Result
@@ -700,7 +700,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
                   width: "100%", padding: "10px 16px",
                   backgroundColor: "#0f1e3a", color: "#5aacff",
                   border: "1px solid #5aacff50", cursor: "pointer",
-                  fontSize: 12, fontWeight: 700, fontFamily: "monospace",
+                  fontSize: 13, fontWeight: 700, fontFamily: "monospace",
                 }}
               >
                 ▶ Launch App
@@ -712,7 +712,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
           <div style={{
             padding: "8px 14px",
             borderTop: "1px solid #48cc6a20",
-            fontSize: 11, color: "#5a7a5a", fontFamily: "monospace",
+            fontSize: 12, color: "#5a7a5a", fontFamily: "monospace",
           }}>
             Send feedback to request changes, or End Project to start fresh.
           </div>
@@ -725,7 +725,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
     <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 8 }}>
       <div style={{
         maxWidth: "85%", padding: "8px 12px",
-        backgroundColor: "#231e38", color: "#d8c8a8", fontSize: 13,
+        backgroundColor: "#231e38", color: "#d8c8a8", fontSize: 14,
         wordBreak: "break-word", overflow: "hidden", minWidth: 0,
         border: "1px solid #3d2e54",
         borderLeft: "2px solid #3d2e54",
@@ -741,11 +741,11 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
               borderRadius: 0,
             }}>
               <div style={{
-                fontSize: 10, fontWeight: 700, color: "#e8b040",
+                fontSize: 11, fontWeight: 700, color: "#e8b040",
                 fontFamily: "monospace", letterSpacing: "0.1em",
                 marginBottom: 8,
               }}>PROJECT PLAN</div>
-              <div style={{ color: "#eddcb8", fontSize: 12 }}>
+              <div style={{ color: "#eddcb8", fontSize: 13 }}>
                 <MdContent text={planContent} />
               </div>
             </div>
@@ -760,7 +760,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
               marginTop: 6, padding: "3px 8px",
               backgroundColor: "transparent", color: "#e8b040",
               border: "1px solid #e8b04040", cursor: "pointer",
-              fontSize: 10, fontFamily: "monospace",
+              fontSize: 11, fontFamily: "monospace",
             }}
           >
             {expanded ? "▲ Collapse" : "▼ Full output"}
@@ -769,7 +769,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
         {msg.result && msg.result.changedFiles.length > 0 && !planContent && (
           <div style={{
             marginTop: 8, padding: "6px 8px",
-            backgroundColor: "#1a1530", fontSize: 11, border: "1px solid #3d2e54",
+            backgroundColor: "#1a1530", fontSize: 12, border: "1px solid #3d2e54",
           }}>
             <div style={{ color: "#7a6858", marginBottom: 4, fontFamily: "monospace" }}>Changed {msg.result.changedFiles.length} files</div>
             {msg.result.changedFiles.slice(0, 5).map((f, i) => (
@@ -794,7 +794,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
               marginTop: 8, padding: "5px 12px",
               backgroundColor: "#143a14", color: "#48cc6a",
               border: "1px solid #48cc6a50", cursor: "pointer",
-              fontSize: 11, fontWeight: 700, fontFamily: "monospace",
+              fontSize: 12, fontWeight: 700, fontFamily: "monospace",
             }}
           >
             ▶ Preview
@@ -916,7 +916,7 @@ function LoadingOverlay({ visible }: { visible: boolean }) {
       </div>
       <div style={{
         fontFamily: "monospace",
-        fontSize: 12,
+        fontSize: 13,
         color: "#7a6858",
         letterSpacing: "0.05em",
       }}>
@@ -1077,13 +1077,13 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
           maxHeight: "90vh", overflowY: "auto",
         }}
       >
-        <h2 className="px-font" style={{ fontSize: 13, margin: "0 0 12px", textAlign: "center", color: "#e8b040", letterSpacing: "0.05em" }}>
+        <h2 className="px-font" style={{ fontSize: 14, margin: "0 0 12px", textAlign: "center", color: "#e8b040", letterSpacing: "0.05em" }}>
           {editAgent ? "Edit Agent" : "Create Agent"}
         </h2>
 
         {/* Avatar palette selector */}
         <div style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 11, color: "#7a6858", marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>AVATAR</div>
+          <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>AVATAR</div>
           <div style={{ display: "flex", gap: 4 }}>
             {[0, 1, 2, 3, 4, 5].map((p) => (
               <button
@@ -1103,13 +1103,13 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
 
         {/* Name */}
         <div style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: 11, color: "#7a6858", marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>NAME</div>
+          <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>NAME</div>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Agent name"
             style={{
-              width: "100%", padding: "7px 10px", fontSize: 13, fontFamily: "monospace",
+              width: "100%", padding: "7px 10px", fontSize: 14, fontFamily: "monospace",
               border: "1px solid #3d2e54", backgroundColor: "#14112a", color: "#eddcb8",
               boxSizing: "border-box",
             }}
@@ -1118,12 +1118,12 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
 
         {/* Role */}
         <div style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: 11, color: "#7a6858", marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>ROLE</div>
+          <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>ROLE</div>
           <select
             value={rolePresetIndex}
             onChange={(e) => handleRoleChange(Number(e.target.value))}
             style={{
-              width: "100%", padding: "7px 10px", fontSize: 13, fontFamily: "monospace",
+              width: "100%", padding: "7px 10px", fontSize: 14, fontFamily: "monospace",
               border: "1px solid #3d2e54", backgroundColor: "#14112a", color: "#eddcb8",
               boxSizing: "border-box", cursor: "pointer",
             }}
@@ -1139,7 +1139,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
               onChange={(e) => setCustomRole(e.target.value)}
               placeholder="e.g. Python Expert"
               style={{
-                width: "100%", padding: "7px 10px", fontSize: 13, fontFamily: "monospace",
+                width: "100%", padding: "7px 10px", fontSize: 14, fontFamily: "monospace",
                 border: "1px solid #3d2e54", backgroundColor: "#14112a", color: "#eddcb8",
                 boxSizing: "border-box", marginTop: 4,
               }}
@@ -1149,7 +1149,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
 
         {/* Skills */}
         <div style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: 11, color: "#7a6858", marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>SKILLS</div>
+          <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>SKILLS</div>
           {/* Suggested skill chips */}
           {suggestedSkills.length > 0 && (
             <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 }}>
@@ -1160,7 +1160,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
                     key={skill}
                     onClick={() => toggleSkill(skill)}
                     style={{
-                      padding: "4px 10px", fontSize: 12, fontFamily: "monospace",
+                      padding: "4px 10px", fontSize: 13, fontFamily: "monospace",
                       border: active ? "1px solid #e8b04080" : "1px solid #3d2e54",
                       backgroundColor: active ? "#382800" : "transparent",
                       color: active ? "#e8b040" : "#7a6858",
@@ -1181,7 +1181,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
                   <span
                     key={skill}
                     style={{
-                      padding: "4px 10px", fontSize: 12, fontFamily: "monospace",
+                      padding: "4px 10px", fontSize: 13, fontFamily: "monospace",
                       border: "1px solid #5aacff60", backgroundColor: "#182844",
                       color: "#5aacff", display: "flex", alignItems: "center", gap: 4,
                     }}
@@ -1189,7 +1189,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
                     {skill}
                     <span
                       onClick={() => toggleSkill(skill)}
-                      style={{ cursor: "pointer", fontSize: 14, lineHeight: 1, color: "#5aacff80" }}
+                      style={{ cursor: "pointer", fontSize: 15, lineHeight: 1, color: "#5aacff80" }}
                     >&times;</span>
                   </span>
                 ))}
@@ -1204,7 +1204,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomSkill(); } }}
               placeholder="Add custom skill..."
               style={{
-                flex: 1, padding: "6px 10px", fontSize: 12, fontFamily: "monospace",
+                flex: 1, padding: "6px 10px", fontSize: 13, fontFamily: "monospace",
                 border: "1px solid #3d2e54", backgroundColor: "#14112a", color: "#eddcb8",
                 boxSizing: "border-box",
               }}
@@ -1212,7 +1212,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
             <button
               onClick={addCustomSkill}
               style={{
-                padding: "5px 12px", fontSize: 14, fontWeight: 700,
+                padding: "5px 12px", fontSize: 15, fontWeight: 700,
                 border: "1px solid #3d2e54", backgroundColor: "transparent",
                 color: "#7a6858", cursor: "pointer", fontFamily: "monospace",
               }}
@@ -1222,14 +1222,14 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
 
         {/* Personality */}
         <div style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 11, color: "#7a6858", marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>PERSONALITY</div>
+          <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>PERSONALITY</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
             {PERSONALITY_PRESETS.map((p, i) => (
               <label
                 key={i}
                 style={{
                   display: "flex", alignItems: "center", gap: 6, padding: "4px 6px",
-                  cursor: "pointer", fontSize: 12, color: personalityMode === i ? "#eddcb8" : "#7a6858",
+                  cursor: "pointer", fontSize: 13, color: personalityMode === i ? "#eddcb8" : "#7a6858",
                   fontFamily: "monospace",
                 }}
               >
@@ -1246,7 +1246,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
             <label
               style={{
                 display: "flex", alignItems: "center", gap: 6, padding: "4px 6px",
-                cursor: "pointer", fontSize: 12, color: personalityMode === 4 ? "#eddcb8" : "#7a6858",
+                cursor: "pointer", fontSize: 13, color: personalityMode === 4 ? "#eddcb8" : "#7a6858",
                 fontFamily: "monospace",
               }}
             >
@@ -1266,7 +1266,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
                 placeholder="Describe the personality..."
                 rows={2}
                 style={{
-                  width: "100%", padding: "7px 10px", fontSize: 12, fontFamily: "monospace",
+                  width: "100%", padding: "7px 10px", fontSize: 13, fontFamily: "monospace",
                   border: "1px solid #3d2e54", backgroundColor: "#14112a", color: "#eddcb8",
                   resize: "vertical", boxSizing: "border-box", marginTop: 2,
                 }}
@@ -1281,7 +1281,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
             onClick={handleSave}
             style={{
               flex: 1, padding: "9px", border: "1px solid #e8b04060",
-              backgroundColor: "#382800", color: "#e8b040", fontSize: 13,
+              backgroundColor: "#382800", color: "#e8b040", fontSize: 14,
               fontWeight: 700, cursor: "pointer", fontFamily: "monospace",
               opacity: name.trim() ? 1 : 0.4,
             }}
@@ -1294,7 +1294,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
             style={{
               padding: "9px 16px",
               border: "1px solid #3d2e54", backgroundColor: "transparent",
-              color: "#6a5848", fontSize: 13, cursor: "pointer", fontFamily: "monospace",
+              color: "#6a5848", fontSize: 14, cursor: "pointer", fontFamily: "monospace",
             }}
           >Cancel</button>
         </div>
@@ -1336,18 +1336,18 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
           maxHeight: "90vh", overflowY: "auto",
         }}
       >
-        <h2 className="px-font" style={{ fontSize: 13, margin: "0 0 14px", textAlign: "center", color: "#e8b040", letterSpacing: "0.05em" }}>Hire Agent</h2>
+        <h2 className="px-font" style={{ fontSize: 14, margin: "0 0 14px", textAlign: "center", color: "#e8b040", letterSpacing: "0.05em" }}>Hire Agent</h2>
 
         {/* Backend selector */}
         <div style={{ marginBottom: 12 }}>
-          <div style={{ fontSize: 11, color: "#7a6858", marginBottom: 5, fontFamily: "monospace", letterSpacing: "0.05em" }}>AI BACKEND</div>
+          <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 5, fontFamily: "monospace", letterSpacing: "0.05em" }}>AI BACKEND</div>
           <div style={{ display: "flex", gap: 4 }}>
             {BACKEND_OPTIONS.map((b) => (
               <button
                 key={b.id}
                 onClick={() => setSelectedBackend(b.id)}
                 style={{
-                  flex: 1, padding: "6px 4px", fontSize: 12, fontWeight: 600,
+                  flex: 1, padding: "6px 4px", fontSize: 13, fontWeight: 600,
                   border: selectedBackend === b.id ? `1px solid ${b.color}` : "1px solid #3d2e54",
                   backgroundColor: selectedBackend === b.id ? b.color + "20" : "transparent",
                   color: selectedBackend === b.id ? b.color : "#6a5848",
@@ -1359,7 +1359,7 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
         </div>
 
         {/* Built-in agents */}
-        <div style={{ fontSize: 11, color: "#7a6858", marginBottom: 5, fontFamily: "monospace", letterSpacing: "0.05em" }}>BUILT-IN AGENTS</div>
+        <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 5, fontFamily: "monospace", letterSpacing: "0.05em" }}>BUILT-IN AGENTS</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 5, marginBottom: 10 }}>
           {builtinAgents.map((def) => (
             <button
@@ -1377,12 +1377,12 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
               }}
             >
               <SpriteAvatar palette={def.palette} zoom={2} ready={assetsReady} />
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#eddcb8", marginTop: 6, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{def.name}</div>
-              <div style={{ fontSize: 11, color: "#7a6858", marginTop: 2, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{def.role}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#eddcb8", marginTop: 6, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{def.name}</div>
+              <div style={{ fontSize: 12, color: "#7a6858", marginTop: 2, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{def.role}</div>
               {hoveredId === def.id && (
                 <span
                   onClick={(e) => { e.stopPropagation(); onEdit(def); }}
-                  style={{ position: "absolute", top: 4, right: 4, fontSize: 14, color: "#7a6858", cursor: "pointer", padding: "2px 4px" }}
+                  style={{ position: "absolute", top: 4, right: 4, fontSize: 15, color: "#7a6858", cursor: "pointer", padding: "2px 4px" }}
                   title="Edit"
                 >&#9998;</span>
               )}
@@ -1393,7 +1393,7 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
         {/* Custom agents */}
         {customAgents.length > 0 && (
           <>
-            <div style={{ fontSize: 11, color: "#7a6858", marginBottom: 5, fontFamily: "monospace", letterSpacing: "0.05em" }}>MY AGENTS</div>
+            <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 5, fontFamily: "monospace", letterSpacing: "0.05em" }}>MY AGENTS</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 5, marginBottom: 10 }}>
               {customAgents.map((def) => (
                 <button
@@ -1411,18 +1411,18 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
                   }}
                 >
                   <SpriteAvatar palette={def.palette} zoom={2} ready={assetsReady} />
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#eddcb8", marginTop: 6, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{def.name}</div>
-                  <div style={{ fontSize: 11, color: "#7a6858", marginTop: 2, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{def.role}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#eddcb8", marginTop: 6, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{def.name}</div>
+                  <div style={{ fontSize: 12, color: "#7a6858", marginTop: 2, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{def.role}</div>
                   {hoveredId === def.id && (
                     <span style={{ position: "absolute", top: 4, right: 4, display: "flex", gap: 2, alignItems: "center" }}>
                       <span
                         onClick={(e) => { e.stopPropagation(); onEdit(def); }}
-                        style={{ fontSize: 14, color: "#7a6858", cursor: "pointer", padding: "2px 4px" }}
+                        style={{ fontSize: 15, color: "#7a6858", cursor: "pointer", padding: "2px 4px" }}
                         title="Edit"
                       >&#9998;</span>
                       <span
                         onClick={(e) => { e.stopPropagation(); onDelete(def.id); }}
-                        style={{ fontSize: 15, color: "#e04848", cursor: "pointer", padding: "2px 4px", fontWeight: 700 }}
+                        style={{ fontSize: 16, color: "#e04848", cursor: "pointer", padding: "2px 4px", fontWeight: 700 }}
                         title="Delete"
                       >&times;</span>
                     </span>
@@ -1438,7 +1438,7 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
           style={{
             width: "100%", padding: "9px",
             border: "1px solid #3d2e54", backgroundColor: "transparent",
-            color: "#6a5848", fontSize: 13, cursor: "pointer", fontFamily: "monospace",
+            color: "#6a5848", fontSize: 14, cursor: "pointer", fontFamily: "monospace",
           }}
         >Cancel</button>
       </div>
@@ -1464,7 +1464,7 @@ function TeamChatView({ messages, agents, assetsReady }: {
 
   if (messages.length === 0) {
     return (
-      <div style={{ textAlign: "center", color: "#5a4838", padding: 30, fontSize: 11, fontFamily: "monospace" }}>
+      <div style={{ textAlign: "center", color: "#5a4838", padding: 30, fontSize: 12, fontFamily: "monospace" }}>
         No team activity yet. Hire a team and send a task to the Team Lead.
       </div>
     );
@@ -1488,22 +1488,22 @@ function TeamChatView({ messages, agents, assetsReady }: {
               {fromAgent?.palette !== undefined && (
                 <SpriteAvatar palette={fromAgent.palette} zoom={1} ready={assetsReady} />
               )}
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#eddcb8" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "#eddcb8" }}>
                 {msg.fromAgentName ?? msg.fromAgentId}
               </span>
               {msg.toAgentName && (
                 <>
-                  <span style={{ fontSize: 10, color: "#6a5848" }}>&rarr;</span>
+                  <span style={{ fontSize: 11, color: "#6a5848" }}>&rarr;</span>
                   {toAgent?.palette !== undefined && (
                     <SpriteAvatar palette={toAgent.palette} zoom={1} ready={assetsReady} />
                   )}
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#eddcb8" }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#eddcb8" }}>
                     {msg.toAgentName}
                   </span>
                 </>
               )}
               <span style={{
-                marginLeft: "auto", fontSize: 8, padding: "1px 4px",
+                marginLeft: "auto", fontSize: 9, padding: "1px 4px",
                 backgroundColor: cfg.border + "20", color: cfg.border,
                 border: `1px solid ${cfg.border}40`, fontFamily: "monospace",
               }}>
@@ -1511,12 +1511,12 @@ function TeamChatView({ messages, agents, assetsReady }: {
               </span>
             </div>
             <div style={{
-              fontSize: 11, color: "#b09878", wordBreak: "break-word",
+              fontSize: 12, color: "#b09878", wordBreak: "break-word",
               maxHeight: 120, overflow: "hidden", fontFamily: "monospace",
             }}>
               {msgText.slice(0, 300)}{msgText.length > 300 ? "..." : ""}
             </div>
-            <div style={{ fontSize: 9, color: "#5a4838", marginTop: 4, fontFamily: "monospace" }}>
+            <div style={{ fontSize: 10, color: "#5a4838", marginTop: 4, fontFamily: "monospace" }}>
               {new Date(msg.timestamp).toLocaleTimeString()}
             </div>
           </div>
@@ -1551,22 +1551,22 @@ function TeamActivityCard({ msg, agents, assetsReady, maxChars = 150, shadow }: 
         {fromAgent?.palette !== undefined && (
           <SpriteAvatar palette={fromAgent.palette} zoom={1} ready={assetsReady} />
         )}
-        <span style={{ fontSize: 11, fontWeight: 700, color: "#eddcb8" }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: "#eddcb8" }}>
           {msg.fromAgentName ?? msg.fromAgentId}
         </span>
         {msg.toAgentName && (
           <>
-            <span style={{ fontSize: 10, color: "#6a5848" }}>&rarr;</span>
+            <span style={{ fontSize: 11, color: "#6a5848" }}>&rarr;</span>
             {toAgent?.palette !== undefined && (
               <SpriteAvatar palette={toAgent.palette} zoom={1} ready={assetsReady} />
             )}
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#eddcb8" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#eddcb8" }}>
               {msg.toAgentName}
             </span>
           </>
         )}
         <span style={{
-          marginLeft: "auto", fontSize: 8, padding: "1px 4px",
+          marginLeft: "auto", fontSize: 9, padding: "1px 4px",
           backgroundColor: cfg.border + "20", color: cfg.border,
           border: `1px solid ${cfg.border}40`, fontFamily: "monospace",
         }}>
@@ -1574,7 +1574,7 @@ function TeamActivityCard({ msg, agents, assetsReady, maxChars = 150, shadow }: 
         </span>
       </div>
       <div style={{
-        fontSize: 11, color: "#b09878", wordBreak: "break-word",
+        fontSize: 12, color: "#b09878", wordBreak: "break-word",
         maxHeight: 80, overflow: "hidden", fontFamily: "monospace",
       }}>
         {msgText.slice(0, maxChars)}{msgText.length > maxChars ? "..." : ""}
@@ -1651,7 +1651,7 @@ function TeamActivityLog({ messages, agents, assetsReady, onClear }: {
         onClick={() => setCollapsed(!collapsed)}
         style={{
           padding: "4px 12px 6px",
-          fontSize: 9, color: "#6a5848", fontFamily: "monospace",
+          fontSize: 10, color: "#6a5848", fontFamily: "monospace",
           letterSpacing: "0.05em", textTransform: "uppercase",
           cursor: "pointer", display: "flex", alignItems: "center", gap: 6,
         }}
@@ -1662,7 +1662,7 @@ function TeamActivityLog({ messages, agents, assetsReady, onClear }: {
           <span
             onClick={(e) => { e.stopPropagation(); onClear(); }}
             style={{
-              marginLeft: "auto", fontSize: 8, padding: "1px 5px",
+              marginLeft: "auto", fontSize: 9, padding: "1px 5px",
               color: "#7a6858", border: "1px solid #3d2e5480",
               cursor: "pointer",
             }}
@@ -1729,9 +1729,9 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
           maxHeight: "90vh", overflowY: "auto",
         }}
       >
-        <h2 className="px-font" style={{ fontSize: 13, margin: "0 0 14px", textAlign: "center", color: "#e8b040", letterSpacing: "0.05em" }}>Hire Team</h2>
+        <h2 className="px-font" style={{ fontSize: 14, margin: "0 0 14px", textAlign: "center", color: "#e8b040", letterSpacing: "0.05em" }}>Hire Team</h2>
 
-        <div style={{ fontSize: 11, color: "#7a6858", marginBottom: 6, fontFamily: "monospace", letterSpacing: "0.05em" }}>SELECT TEAM MEMBERS</div>
+        <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 6, fontFamily: "monospace", letterSpacing: "0.05em" }}>SELECT TEAM MEMBERS</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 12 }}>
           {/* Fixed rows: leader and reviewer */}
           {fixedRows.map(({ def, label }) => (
@@ -1747,10 +1747,10 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
             >
               <SpriteAvatar palette={def.palette} zoom={2} ready={assetsReady} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#eddcb8" }}>
-                  {def.name} <span style={{ color: "#e89030", fontSize: 10, fontFamily: "monospace" }}>{label}</span>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#eddcb8" }}>
+                  {def.name} <span style={{ color: "#e89030", fontSize: 11, fontFamily: "monospace" }}>{label}</span>
                 </div>
-                <div style={{ fontSize: 12, color: "#7a6858" }}>{def.role}</div>
+                <div style={{ fontSize: 13, color: "#7a6858" }}>{def.role}</div>
               </div>
               <select
                 value={backends[def.id] ?? "claude"}
@@ -1758,7 +1758,7 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
                 onChange={(e) => setBackends((prev) => ({ ...prev, [def.id]: e.target.value }))}
                 style={{
                   padding: "3px 6px", border: "1px solid #3d2e54",
-                  backgroundColor: "#1a1530", color: "#9a8a68", fontSize: 11, cursor: "pointer", fontFamily: "monospace",
+                  backgroundColor: "#1a1530", color: "#9a8a68", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
                 }}
               >
                 {BACKEND_OPTIONS.map((b) => (
@@ -1769,7 +1769,7 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
           ))}
 
           {/* Dev cards — single select grid */}
-          <div style={{ fontSize: 11, color: "#7a6858", marginTop: 4, marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>DEV AGENT (pick 1)</div>
+          <div style={{ fontSize: 12, color: "#7a6858", marginTop: 4, marginBottom: 4, fontFamily: "monospace", letterSpacing: "0.05em" }}>DEV AGENT (pick 1)</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 5 }}>
             {devAgents.map((def) => {
               const selected = selectedDevId === def.id;
@@ -1789,15 +1789,15 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
                   }}
                 >
                   <SpriteAvatar palette={def.palette} zoom={2} ready={assetsReady} />
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#eddcb8", marginTop: 6, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{def.name}</div>
-                  <div style={{ fontSize: 11, color: "#7a6858", marginTop: 2, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{def.role}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#eddcb8", marginTop: 6, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{def.name}</div>
+                  <div style={{ fontSize: 12, color: "#7a6858", marginTop: 2, width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{def.role}</div>
                   <select
                     value={backends[def.id] ?? "claude"}
                     onClick={(e) => { e.stopPropagation(); setSelectedDevId(def.id); }}
                     onChange={(e) => { setSelectedDevId(def.id); setBackends((prev) => ({ ...prev, [def.id]: e.target.value })); }}
                     style={{
                       marginTop: 6, padding: "3px 6px", border: "1px solid #3d2e54",
-                      backgroundColor: "#1a1530", color: "#9a8a68", fontSize: 11, cursor: "pointer", fontFamily: "monospace",
+                      backgroundColor: "#1a1530", color: "#9a8a68", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
                     }}
                   >
                     {BACKEND_OPTIONS.map((b) => (
@@ -1815,7 +1815,7 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
             onClick={handleCreate}
             style={{
               flex: 1, padding: "9px", border: "1px solid #e8b04060",
-              backgroundColor: "#382800", color: "#e8b040", fontSize: 13,
+              backgroundColor: "#382800", color: "#e8b040", fontSize: 14,
               fontWeight: 700, cursor: "pointer", fontFamily: "monospace",
               opacity: leader ? 1 : 0.4,
             }}
@@ -1826,7 +1826,7 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
             style={{
               padding: "9px 16px",
               border: "1px solid #3d2e54", backgroundColor: "transparent",
-              color: "#6a5848", fontSize: 13, cursor: "pointer", fontFamily: "monospace",
+              color: "#6a5848", fontSize: 14, cursor: "pointer", fontFamily: "monospace",
             }}
           >Cancel</button>
         </div>
@@ -2297,9 +2297,9 @@ export default function OfficePage() {
           pointerEvents: "none",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, pointerEvents: "auto" }}>
-            <h1 className="px-font" style={{ fontSize: 11, margin: 0, color: "#e8b040", textShadow: "2px 2px 0px rgba(0,0,0,0.8), 0 0 12px rgba(200,155,48,0.3)", letterSpacing: "0.05em" }}>Bit Office</h1>
+            <h1 className="px-font" style={{ fontSize: 12, margin: 0, color: "#e8b040", textShadow: "2px 2px 0px rgba(0,0,0,0.8), 0 0 12px rgba(200,155,48,0.3)", letterSpacing: "0.05em" }}>Bit Office</h1>
             <span style={{
-              fontSize: 9, padding: "3px 7px",
+              fontSize: 10, padding: "3px 7px",
               border: `1px solid ${connected ? "#2a5c2a" : "#5c1a1a"}`,
               backgroundColor: connected ? "#143a14" : "#3e1818",
               color: connected ? "#48cc6a" : "#e04848",
@@ -2309,7 +2309,7 @@ export default function OfficePage() {
             </span>
             {editMode && (
               <span style={{
-                fontSize: 9, padding: "3px 7px",
+                fontSize: 10, padding: "3px 7px",
                 border: "1px solid #5a3a10",
                 backgroundColor: "#1a0e00", color: "#e8b040",
                 fontFamily: "monospace",
@@ -2319,7 +2319,7 @@ export default function OfficePage() {
             )}
             {isSpectator && (
               <span style={{
-                fontSize: 9, padding: "3px 7px",
+                fontSize: 10, padding: "3px 7px",
                 border: "1px solid #3b82f6",
                 backgroundColor: "#1a2744", color: "#7ab8f5",
                 fontFamily: "monospace", letterSpacing: "0.05em",
@@ -2329,7 +2329,7 @@ export default function OfficePage() {
             )}
             {isCollaborator && (
               <span style={{
-                fontSize: 9, padding: "3px 7px",
+                fontSize: 10, padding: "3px 7px",
                 border: "1px solid #a855f7",
                 backgroundColor: "#2d1a44", color: "#c084fc",
                 fontFamily: "monospace", letterSpacing: "0.05em",
@@ -2342,7 +2342,7 @@ export default function OfficePage() {
                 <span
                   onClick={() => setShowShareMenu(!showShareMenu)}
                   style={{
-                    fontSize: 9, padding: "3px 7px", cursor: "pointer",
+                    fontSize: 10, padding: "3px 7px", cursor: "pointer",
                     border: "1px solid #a855f760",
                     backgroundColor: showShareMenu ? "#a855f720" : "transparent", color: "#c084fc",
                     fontFamily: "monospace", letterSpacing: "0.05em",
@@ -2362,7 +2362,7 @@ export default function OfficePage() {
                       onClick={() => handleCreateShareLink("collaborator")}
                       style={{
                         padding: "8px 12px", border: "none", backgroundColor: "transparent",
-                        color: "#c084fc", fontSize: 11, cursor: "pointer", textAlign: "left",
+                        color: "#c084fc", fontSize: 12, cursor: "pointer", textAlign: "left",
                         fontFamily: "monospace",
                       }}
                       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#a855f720"; }}
@@ -2372,7 +2372,7 @@ export default function OfficePage() {
                       onClick={() => handleCreateShareLink("spectator")}
                       style={{
                         padding: "8px 12px", border: "none", backgroundColor: "transparent",
-                        color: "#7ab8f5", fontSize: 11, cursor: "pointer", textAlign: "left",
+                        color: "#7ab8f5", fontSize: 12, cursor: "pointer", textAlign: "left",
                         fontFamily: "monospace",
                       }}
                       onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#3b82f620"; }}
@@ -2502,25 +2502,25 @@ export default function OfficePage() {
                   >
                     <SpriteAvatar palette={agent.palette ?? 0} zoom={2} ready={assetsReady} />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: "#eddcb8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 4 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#eddcb8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 4 }}>
                         {agent.name}
                         {agent.isTeamLead && (
                           <span style={{
-                            fontSize: 8, padding: "1px 4px",
+                            fontSize: 9, padding: "1px 4px",
                             backgroundColor: "#e8903028", color: "#e89030",
                             border: "1px solid #e8903060", fontFamily: "monospace", letterSpacing: "0.05em",
                           }}>LEAD</span>
                         )}
                         {isTeamMember && (
                           <span style={{
-                            fontSize: 8, padding: "1px 4px",
+                            fontSize: 9, padding: "1px 4px",
                             backgroundColor: "#e8b04020", color: "#e8b040",
                             border: "1px solid #e8b04050", fontFamily: "monospace", letterSpacing: "0.05em",
                           }}>TEAM</span>
                         )}
                         {agent.backend && (
                           <span style={{
-                            fontSize: 8, padding: "1px 4px",
+                            fontSize: 9, padding: "1px 4px",
                             backgroundColor: (BACKEND_OPTIONS.find((b) => b.id === agent.backend)?.color ?? "#666") + "18",
                             color: BACKEND_OPTIONS.find((b) => b.id === agent.backend)?.color ?? "#666",
                             border: `1px solid ${(BACKEND_OPTIONS.find((b) => b.id === agent.backend)?.color ?? "#666")}40`,
@@ -2529,14 +2529,14 @@ export default function OfficePage() {
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: 10, color: "#7a6858", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}
+                      <div style={{ fontSize: 11, color: "#7a6858", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}
                         title={isExternal && agentState?.cwd ? agentState.cwd : undefined}
                       >
                         {isExternal && agentState?.cwd ? agentState.cwd.split("/").pop() : agent.role}
                       </div>
                     </div>
                     <span style={{
-                      fontSize: 9, padding: "2px 5px",
+                      fontSize: 10, padding: "2px 5px",
                       backgroundColor: (agent.isTeamLead && agent.status === "done" ? "#48cc6a" : cfg.color) + "18",
                       color: agent.isTeamLead && agent.status === "done" ? "#48cc6a" : cfg.color,
                       border: `1px solid ${(agent.isTeamLead && agent.status === "done" ? "#48cc6a" : cfg.color)}40`,
@@ -2554,7 +2554,7 @@ export default function OfficePage() {
                       const PHASE_COLORS: Record<string, string> = { create: "#5aacff", design: "#e8b040", execute: "#e89030", complete: "#48cc6a" };
                       return (
                         <span style={{
-                          fontSize: 8, padding: "1px 4px",
+                          fontSize: 9, padding: "1px 4px",
                           backgroundColor: (PHASE_COLORS[phase] ?? "#888") + "18",
                           color: PHASE_COLORS[phase] ?? "#888",
                           border: `1px solid ${(PHASE_COLORS[phase] ?? "#888")}40`,
@@ -2567,7 +2567,7 @@ export default function OfficePage() {
                       <span
                         onClick={(e) => { e.stopPropagation(); handleFire(agent.agentId); }}
                         style={{
-                          fontSize: 10, color: "#c04040", cursor: "pointer", lineHeight: 1,
+                          fontSize: 11, color: "#c04040", cursor: "pointer", lineHeight: 1,
                           padding: "4px", flexShrink: 0,
                         }}
                         onMouseEnter={(e) => { e.currentTarget.style.color = "#ff4040"; }}
@@ -2593,10 +2593,10 @@ export default function OfficePage() {
                         borderBottom: "1px solid #272040",
                         flexShrink: 0,
                       }}>
-                        <div style={{ fontSize: 10, color: "#5aacff", marginBottom: 6, fontFamily: "monospace", letterSpacing: "0.05em" }}>
+                        <div style={{ fontSize: 11, color: "#5aacff", marginBottom: 6, fontFamily: "monospace", letterSpacing: "0.05em" }}>
                           EXTERNAL PROCESS
                         </div>
-                        <div style={{ display: "flex", gap: 12, fontSize: 10, color: "#7a6858", fontFamily: "monospace", flexWrap: "wrap" }}>
+                        <div style={{ display: "flex", gap: 12, fontSize: 11, color: "#7a6858", fontFamily: "monospace", flexWrap: "wrap" }}>
                           <span>{agentState.backend ?? "unknown"}</span>
                           <span>PID {agentState.pid ?? "\u2014"}</span>
                           <span title={agentState.cwd ?? undefined} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 160 }}>
@@ -2612,7 +2612,7 @@ export default function OfficePage() {
                         minHeight: 0,
                       }}>
                         {agentState.messages.length === 0 && (
-                          <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 12 }}>
+                          <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 13 }}>
                             Waiting for output...
                           </div>
                         )}
@@ -2625,7 +2625,7 @@ export default function OfficePage() {
                       <div style={{
                         padding: "8px 10px",
                         backgroundColor: "#182844", border: "1px solid #3b82f640",
-                        fontSize: 11, color: "#7ab8f5", fontFamily: "monospace",
+                        fontSize: 12, color: "#7ab8f5", fontFamily: "monospace",
                         textAlign: "center", flexShrink: 0,
                       }}>
                         Read-only — this process is running externally
@@ -2667,17 +2667,17 @@ export default function OfficePage() {
                               backgroundColor: info.color + "10",
                               border: `1px solid ${info.color}30`,
                               display: "flex", alignItems: "center", gap: 6,
-                              fontSize: 11, fontFamily: "monospace",
+                              fontSize: 12, fontFamily: "monospace",
                             }}>
                               <span>{info.icon}</span>
-                              <span style={{ color: info.color, fontWeight: 700, textTransform: "uppercase", fontSize: 9, letterSpacing: "0.05em" }}>{phase}</span>
+                              <span style={{ color: info.color, fontWeight: 700, textTransform: "uppercase", fontSize: 10, letterSpacing: "0.05em" }}>{phase}</span>
                               <span style={{ color: "#7a6858" }}>{info.hint}</span>
                             </div>
                           );
                         })()}
 
                         {agentState.messages.length === 0 && (
-                          <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 12 }}>
+                          <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 13 }}>
                             {isTeamMember ? "This agent is managed by the Team Lead" : "Send a message to get started"}
                           </div>
                         )}
@@ -2696,21 +2696,21 @@ export default function OfficePage() {
                             backgroundColor: "#261a00",
                             border: "1px solid #e89030",
                           }}>
-                            <div style={{ fontSize: 11, fontWeight: "bold", color: "#e89030", marginBottom: 6, fontFamily: "monospace" }}>
+                            <div style={{ fontSize: 12, fontWeight: "bold", color: "#e89030", marginBottom: 6, fontFamily: "monospace" }}>
                               {"\u25B2"} {agentState.pendingApproval.title}
                             </div>
-                            <div style={{ fontSize: 12, color: "#b89868", marginBottom: 10, lineHeight: 1.5 }}>
+                            <div style={{ fontSize: 13, color: "#b89868", marginBottom: 10, lineHeight: 1.5 }}>
                               {agentState.pendingApproval.summary}
                             </div>
                             {isOwner && (
                               <div style={{ display: "flex", gap: 6 }}>
                                 <button
                                   onClick={() => handleApproval(agentState.pendingApproval!.approvalId, "yes")}
-                                  style={{ flex: 1, padding: "8px", border: "1px solid #48cc6a", backgroundColor: "#143a14", color: "#48cc6a", cursor: "pointer", fontWeight: "bold", fontSize: 11, fontFamily: "monospace" }}
+                                  style={{ flex: 1, padding: "8px", border: "1px solid #48cc6a", backgroundColor: "#143a14", color: "#48cc6a", cursor: "pointer", fontWeight: "bold", fontSize: 12, fontFamily: "monospace" }}
                                 >{"\u25B6"} Approve</button>
                                 <button
                                   onClick={() => handleApproval(agentState.pendingApproval!.approvalId, "no")}
-                                  style={{ flex: 1, padding: "8px", border: "1px solid #e04848", backgroundColor: "#3e1818", color: "#e04848", cursor: "pointer", fontWeight: "bold", fontSize: 11, fontFamily: "monospace" }}
+                                  style={{ flex: 1, padding: "8px", border: "1px solid #e04848", backgroundColor: "#3e1818", color: "#e04848", cursor: "pointer", fontWeight: "bold", fontSize: 12, fontFamily: "monospace" }}
                                 >{"\u2715"} Reject</button>
                               </div>
                             )}
@@ -2726,9 +2726,9 @@ export default function OfficePage() {
                           padding: "6px 10px", borderTop: "1px solid #2e2448",
                           backgroundColor: "#1a1530", maxHeight: 120, overflowY: "auto",
                         }}>
-                          <div style={{ fontSize: 9, color: "#a855f7", fontFamily: "monospace", marginBottom: 4, letterSpacing: "0.05em" }}>SUGGESTIONS</div>
+                          <div style={{ fontSize: 10, color: "#a855f7", fontFamily: "monospace", marginBottom: 4, letterSpacing: "0.05em" }}>SUGGESTIONS</div>
                           {suggestions.slice(-10).map((s, i) => (
-                            <div key={i} style={{ fontSize: 11, color: "#c084fc", marginBottom: 2, lineHeight: 1.4 }}>
+                            <div key={i} style={{ fontSize: 12, color: "#c084fc", marginBottom: 2, lineHeight: 1.4 }}>
                               <span style={{ color: "#7c3aed", fontWeight: 600 }}>{s.author}:</span> {s.text}
                             </div>
                           ))}
@@ -2745,7 +2745,7 @@ export default function OfficePage() {
                             <div style={{
                               padding: "8px 10px", borderTop: "1px solid #2e2448",
                               backgroundColor: "#182844", flexShrink: 0,
-                              fontSize: 11, color: "#7ab8f5", fontFamily: "monospace", textAlign: "center",
+                              fontSize: 12, color: "#7ab8f5", fontFamily: "monospace", textAlign: "center",
                             }}>
                               Watching — read-only mode
                             </div>
@@ -2768,7 +2768,7 @@ export default function OfficePage() {
                                   maxLength={500}
                                   style={{
                                     flex: 1, padding: "9px 12px", border: "1px solid #7c3aed40",
-                                    backgroundColor: "#16122a", color: "#c084fc", fontSize: 13, outline: "none",
+                                    backgroundColor: "#16122a", color: "#c084fc", fontSize: 14, outline: "none",
                                   }}
                                 />
                                 <button
@@ -2778,7 +2778,7 @@ export default function OfficePage() {
                                     padding: "9px 14px", border: "none",
                                     backgroundColor: suggestText.trim() ? "#a855f7" : "#272040",
                                     color: suggestText.trim() ? "#fff" : "#5a4838",
-                                    fontSize: 12, cursor: suggestText.trim() ? "pointer" : "default",
+                                    fontSize: 13, cursor: suggestText.trim() ? "pointer" : "default",
                                     fontWeight: 700, fontFamily: "monospace",
                                   }}
                                 >Suggest</button>
@@ -2794,7 +2794,7 @@ export default function OfficePage() {
                           }}>
                             {isTeamMember ? (
                               <div style={{
-                                textAlign: "center", color: "#5a4838", fontSize: 11, padding: "8px 0", fontFamily: "monospace",
+                                textAlign: "center", color: "#5a4838", fontSize: 12, padding: "8px 0", fontFamily: "monospace",
                               }}>
                                 Tasks are assigned by the Team Lead
                               </div>
@@ -2803,7 +2803,7 @@ export default function OfficePage() {
                                 onClick={async () => { if (await confirm("Cancel current work?")) handleCancel(); }}
                                 style={{
                                   width: "100%", padding: "9px 16px", border: "1px solid #e04848",
-                                  backgroundColor: "#3e1818", color: "#e04848", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
+                                  backgroundColor: "#3e1818", color: "#e04848", fontSize: 13, cursor: "pointer", fontFamily: "monospace",
                                 }}
                               >{"\u2715"} Cancel current work</button>
                             ) : cardPhase === "execute" && !busy ? (
@@ -2816,7 +2816,7 @@ export default function OfficePage() {
                                     placeholder="Send a message..."
                                     style={{
                                       flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
-                                      backgroundColor: "#16122a", color: "#eddcb8", fontSize: 13, outline: "none",
+                                      backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
                                     }}
                                   />
                                   <button
@@ -2826,7 +2826,7 @@ export default function OfficePage() {
                                       padding: "9px 14px", border: "none",
                                       backgroundColor: prompt.trim() ? "#e8b040" : "#272040",
                                       color: prompt.trim() ? "#16122a" : "#5a4838",
-                                      fontSize: 12, cursor: prompt.trim() ? "pointer" : "default",
+                                      fontSize: 13, cursor: prompt.trim() ? "pointer" : "default",
                                       fontWeight: 700, fontFamily: "monospace",
                                     }}
                                   >Send</button>
@@ -2835,7 +2835,7 @@ export default function OfficePage() {
                                   onClick={async () => { if (await confirm("End this project and start a new one?")) handleEndProject(); }}
                                   style={{
                                     width: "100%", padding: "9px 16px", border: "1px solid #e89030",
-                                    backgroundColor: "#261a00", color: "#e89030", fontSize: 12, cursor: "pointer",
+                                    backgroundColor: "#261a00", color: "#e89030", fontSize: 13, cursor: "pointer",
                                     fontWeight: 700, fontFamily: "monospace",
                                   }}
                                 >End Project</button>
@@ -2846,7 +2846,7 @@ export default function OfficePage() {
                                   onClick={handleApprovePlan}
                                   style={{
                                     width: "100%", padding: "9px 16px", border: "1px solid #48cc6a",
-                                    backgroundColor: "#143a14", color: "#48cc6a", fontSize: 12, cursor: "pointer",
+                                    backgroundColor: "#143a14", color: "#48cc6a", fontSize: 13, cursor: "pointer",
                                     fontWeight: 700, fontFamily: "monospace",
                                   }}
                                 >{"\u25B6"} Approve Plan</button>
@@ -2858,7 +2858,7 @@ export default function OfficePage() {
                                     placeholder="Or give feedback..."
                                     style={{
                                       flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
-                                      backgroundColor: "#16122a", color: "#eddcb8", fontSize: 13, outline: "none",
+                                      backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
                                     }}
                                   />
                                   <button
@@ -2868,7 +2868,7 @@ export default function OfficePage() {
                                       padding: "9px 14px", border: "none",
                                       backgroundColor: prompt.trim() ? "#e8b040" : "#272040",
                                       color: prompt.trim() ? "#16122a" : "#5a4838",
-                                      fontSize: 12, cursor: prompt.trim() ? "pointer" : "default",
+                                      fontSize: 13, cursor: prompt.trim() ? "pointer" : "default",
                                       fontWeight: 700, fontFamily: "monospace",
                                     }}
                                   >Send</button>
@@ -2884,7 +2884,7 @@ export default function OfficePage() {
                                     placeholder="Request changes..."
                                     style={{
                                       flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
-                                      backgroundColor: "#16122a", color: "#eddcb8", fontSize: 13, outline: "none",
+                                      backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
                                     }}
                                   />
                                   <button
@@ -2894,7 +2894,7 @@ export default function OfficePage() {
                                       padding: "9px 14px", border: "none",
                                       backgroundColor: prompt.trim() ? "#e8b040" : "#272040",
                                       color: prompt.trim() ? "#16122a" : "#5a4838",
-                                      fontSize: 12, cursor: prompt.trim() ? "pointer" : "default",
+                                      fontSize: 13, cursor: prompt.trim() ? "pointer" : "default",
                                       fontWeight: 700, fontFamily: "monospace",
                                     }}
                                   >Send</button>
@@ -2903,7 +2903,7 @@ export default function OfficePage() {
                                   onClick={async () => { if (await confirm("End this project and start a new one?")) handleEndProject(); }}
                                   style={{
                                     width: "100%", padding: "9px 16px", border: "1px solid #e89030",
-                                    backgroundColor: "#261a00", color: "#e89030", fontSize: 12, cursor: "pointer",
+                                    backgroundColor: "#261a00", color: "#e89030", fontSize: 13, cursor: "pointer",
                                     fontWeight: 700, fontFamily: "monospace",
                                   }}
                                 >End Project</button>
@@ -2913,7 +2913,7 @@ export default function OfficePage() {
                                 onClick={async () => { if (await confirm("Cancel current work?")) handleCancel(); }}
                                 style={{
                                   width: "100%", padding: "9px 16px", border: "1px solid #e04848",
-                                  backgroundColor: "#3e1818", color: "#e04848", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
+                                  backgroundColor: "#3e1818", color: "#e04848", fontSize: 13, cursor: "pointer", fontFamily: "monospace",
                                 }}
                               >{"\u2715"} Cancel current work</button>
                             ) : (
@@ -2925,7 +2925,7 @@ export default function OfficePage() {
                                   placeholder="Send a message..."
                                   style={{
                                     flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
-                                    backgroundColor: "#16122a", color: "#eddcb8", fontSize: 13, outline: "none",
+                                    backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
                                   }}
                                   autoFocus
                                 />
@@ -2936,7 +2936,7 @@ export default function OfficePage() {
                                     padding: "9px 14px", border: "none",
                                     backgroundColor: prompt.trim() ? "#e8b040" : "#272040",
                                     color: prompt.trim() ? "#16122a" : "#5a4838",
-                                    fontSize: 12, cursor: prompt.trim() ? "pointer" : "default",
+                                    fontSize: 13, cursor: prompt.trim() ? "pointer" : "default",
                                     fontWeight: 700, fontFamily: "monospace",
                                     transition: "background-color 0.1s",
                                   }}
@@ -2967,7 +2967,7 @@ export default function OfficePage() {
                     key={tab.key}
                     onClick={() => setExpandedSection(tab.key)}
                     style={{
-                      flex: 1, padding: "10px 0 8px", cursor: "pointer",
+                      flex: 1, padding: "12px 0 10px", cursor: "pointer",
                       backgroundColor: active ? tab.color + "30" : "rgba(255,255,255,0.05)",
                       border: "none",
                       borderBottom: active ? `2px solid ${tab.color}` : "2px solid transparent",
@@ -2979,19 +2979,19 @@ export default function OfficePage() {
                     onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = "transparent"; }}
                   >
                     <span style={{
-                      fontSize: 10, fontWeight: 700,
-                      color: active ? "#fff" : "#7a6858",
-                      fontFamily: "'Press Start 2P', monospace", letterSpacing: "0.04em",
+                      fontSize: 13, fontWeight: 700,
+                      color: active ? "#fff" : "rgba(255, 255, 255, 0.45)",
+                      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", letterSpacing: "0.02em",
                       textShadow: active ? `0 0 8px ${tab.color}60` : "none",
                     }}>{tab.label}</span>
                     {tab.count > 0 && (
                       <span style={{
-                        fontSize: 9, padding: "1px 5px",
+                        fontSize: 10, padding: "2px 6px",
                         backgroundColor: active ? tab.color + "20" : "transparent",
-                        color: active ? tab.color : "#9a8868",
-                        border: `1px solid ${active ? tab.color + "50" : "#3e3458"}`,
-                        borderRadius: 3,
-                        fontFamily: "monospace", fontWeight: 600,
+                        color: active ? tab.color : "rgba(255, 255, 255, 0.35)",
+                        border: `1px solid ${active ? tab.color + "50" : "rgba(255, 255, 255, 0.1)"}`,
+                        borderRadius: 4,
+                        fontWeight: 600,
                       }}>{tab.count}</span>
                     )}
                   </button>
@@ -3005,7 +3005,7 @@ export default function OfficePage() {
                 <span
                   onClick={() => setShowHireModal(true)}
                   style={{
-                    fontSize: 11, fontWeight: 700, cursor: "pointer",
+                    fontSize: 12, fontWeight: 700, cursor: "pointer",
                     padding: "5px 10px", borderRadius: 3,
                     backgroundColor: "transparent", color: "#e8b040",
                     border: "1px solid #e8b04060",
@@ -3018,7 +3018,7 @@ export default function OfficePage() {
                 <span
                   onClick={() => { setEditingAgent(null); setShowCreateAgent(true); }}
                   style={{
-                    fontSize: 11, fontWeight: 700, cursor: "pointer",
+                    fontSize: 12, fontWeight: 700, cursor: "pointer",
                     padding: "5px 10px", borderRadius: 3,
                     backgroundColor: "transparent", color: "#e8b040",
                     border: "1px solid #e8b04060",
@@ -3035,7 +3035,7 @@ export default function OfficePage() {
                   <span
                     onClick={() => setShowHireTeamModal(true)}
                     style={{
-                      fontSize: 11, fontWeight: 700, cursor: "pointer",
+                      fontSize: 12, fontWeight: 700, cursor: "pointer",
                       padding: "5px 10px", borderRadius: 3,
                       backgroundColor: "transparent", color: "#e89030",
                       border: "1px solid #e8903060",
@@ -3049,7 +3049,7 @@ export default function OfficePage() {
                   <span
                     onClick={handleStopTeam}
                     style={{
-                      fontSize: 11, fontWeight: 700, color: "#fff", cursor: "pointer",
+                      fontSize: 12, fontWeight: 700, color: "#fff", cursor: "pointer",
                       padding: "5px 10px", borderRadius: 3, backgroundColor: "#e89030",
                       fontFamily: "monospace", letterSpacing: "0.03em",
                     }}
@@ -3061,7 +3061,7 @@ export default function OfficePage() {
                   <span
                     onClick={handleFireTeam}
                     style={{
-                      fontSize: 11, fontWeight: 700, color: "#fff", cursor: "pointer",
+                      fontSize: 12, fontWeight: 700, color: "#fff", cursor: "pointer",
                       padding: "5px 10px", borderRadius: 3, backgroundColor: "#d04040",
                       fontFamily: "monospace", letterSpacing: "0.03em",
                     }}
@@ -3076,7 +3076,7 @@ export default function OfficePage() {
             {expandedSection === "external" && (
               <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflowY: "auto" }}>
                 {externalAgents.length === 0 ? (
-                  <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 11, fontFamily: "monospace" }}>
+                  <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 12, fontFamily: "monospace" }}>
                     No external agents detected
                   </div>
                 ) : (
@@ -3087,7 +3087,7 @@ export default function OfficePage() {
             {expandedSection === "agents" && (
               <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflowY: "auto" }}>
                 {soloAgents.length === 0 ? (
-                  <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 11, fontFamily: "monospace" }}>
+                  <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 12, fontFamily: "monospace" }}>
                     No agents yet {"\u2014"} click [+ Hire] to hire one
                   </div>
                 ) : (
@@ -3098,7 +3098,7 @@ export default function OfficePage() {
             {expandedSection === "team" && (
               <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflowY: "auto" }}>
                 {teamAgents.length === 0 ? (
-                  <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 11, fontFamily: "monospace" }}>
+                  <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 12, fontFamily: "monospace" }}>
                     No team yet {"\u2014"} click [+ Hire Team] to hire a team
                   </div>
                 ) : (
@@ -3136,7 +3136,7 @@ export default function OfficePage() {
               style={{
                 width: 44, height: 44, flexShrink: 0,
                 border: "1px solid #e8b04060", backgroundColor: "rgba(200,155,48,0.12)",
-                color: "#e8b040", fontSize: 20, cursor: "pointer",
+                color: "#e8b040", fontSize: 22, cursor: "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}
             >+</button>
@@ -3147,7 +3147,7 @@ export default function OfficePage() {
             style={{
               width: 44, height: 44, flexShrink: 0,
               border: "1px solid #e8903070", backgroundColor: "rgba(224,133,48,0.12)",
-              color: "#e89030", fontSize: 10, fontWeight: 700, cursor: "pointer",
+              color: "#e89030", fontSize: 11, fontWeight: 700, cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontFamily: "monospace",
             }}
@@ -3205,23 +3205,23 @@ export default function OfficePage() {
                 cursor: "pointer",
               }}
             >
-              <span style={{ fontSize: 14, color: "#7a6858", marginRight: 4 }}>&larr;</span>
+              <span style={{ fontSize: 15, color: "#7a6858", marginRight: 4 }}>&larr;</span>
               <SpriteAvatar palette={agentState.palette ?? 0} zoom={2} ready={assetsReady} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#eddcb8", display: "flex", alignItems: "center", gap: 4 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#eddcb8", display: "flex", alignItems: "center", gap: 4 }}>
                   {agentState.name}
                   {agentState.isTeamLead && (
-                    <span style={{ fontSize: 8, padding: "1px 4px", backgroundColor: "#e8903028", color: "#e89030", border: "1px solid #e8903060", fontFamily: "monospace" }}>LEAD</span>
+                    <span style={{ fontSize: 9, padding: "1px 4px", backgroundColor: "#e8903028", color: "#e89030", border: "1px solid #e8903060", fontFamily: "monospace" }}>LEAD</span>
                   )}
                   {mobileIsTeamMember && (
-                    <span style={{ fontSize: 8, padding: "1px 4px", backgroundColor: "#e8b04020", color: "#e8b040", border: "1px solid #e8b04050", fontFamily: "monospace" }}>TEAM</span>
+                    <span style={{ fontSize: 9, padding: "1px 4px", backgroundColor: "#e8b04020", color: "#e8b040", border: "1px solid #e8b04050", fontFamily: "monospace" }}>TEAM</span>
                   )}
                   {/* TODO: token usage display disabled for now */}
                 </div>
-                <div style={{ fontSize: 10, color: "#7a6858" }}>{agentState.role}</div>
+                <div style={{ fontSize: 11, color: "#7a6858" }}>{agentState.role}</div>
               </div>
               <span style={{
-                fontSize: 9, padding: "2px 6px",
+                fontSize: 10, padding: "2px 6px",
                 backgroundColor: cfg.color + "18", color: cfg.color,
                 border: `1px solid ${cfg.color}40`,
                 flexShrink: 0, fontFamily: "monospace",
@@ -3253,17 +3253,17 @@ export default function OfficePage() {
                     backgroundColor: info.color + "10",
                     border: `1px solid ${info.color}30`,
                     display: "flex", alignItems: "center", gap: 6,
-                    fontSize: 10, fontFamily: "monospace",
+                    fontSize: 11, fontFamily: "monospace",
                   }}>
                     <span>{info.icon}</span>
-                    <span style={{ color: info.color, fontWeight: 700, textTransform: "uppercase", fontSize: 8, letterSpacing: "0.05em" }}>{phase}</span>
+                    <span style={{ color: info.color, fontWeight: 700, textTransform: "uppercase", fontSize: 9, letterSpacing: "0.05em" }}>{phase}</span>
                     <span style={{ color: "#7a6858" }}>{info.hint}</span>
                   </div>
                 );
               })()}
 
               {agentState.messages.length === 0 && (
-                <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 12, fontFamily: "monospace" }}>
+                <div style={{ textAlign: "center", color: "#5a4838", padding: 20, fontSize: 13, fontFamily: "monospace" }}>
                   {mobileIsTeamMember ? "This agent is managed by the Team Lead" : "Send a message to get started"}
                 </div>
               )}
@@ -3281,20 +3281,20 @@ export default function OfficePage() {
                   marginBottom: 8, padding: 12,
                   backgroundColor: "#261a00", border: "1px solid #e89030",
                 }}>
-                  <div style={{ fontSize: 11, fontWeight: "bold", color: "#e89030", marginBottom: 6, fontFamily: "monospace" }}>
+                  <div style={{ fontSize: 12, fontWeight: "bold", color: "#e89030", marginBottom: 6, fontFamily: "monospace" }}>
                     ▲ {agentState.pendingApproval.title}
                   </div>
-                  <div style={{ fontSize: 12, color: "#b89868", marginBottom: 10, lineHeight: 1.5 }}>
+                  <div style={{ fontSize: 13, color: "#b89868", marginBottom: 10, lineHeight: 1.5 }}>
                     {agentState.pendingApproval.summary}
                   </div>
                   <div style={{ display: "flex", gap: 6 }}>
                     <button
                       onClick={() => handleApproval(agentState.pendingApproval!.approvalId, "yes")}
-                      style={{ flex: 1, padding: "8px", border: "1px solid #48cc6a", backgroundColor: "#143a14", color: "#48cc6a", cursor: "pointer", fontWeight: "bold", fontSize: 11, fontFamily: "monospace" }}
+                      style={{ flex: 1, padding: "8px", border: "1px solid #48cc6a", backgroundColor: "#143a14", color: "#48cc6a", cursor: "pointer", fontWeight: "bold", fontSize: 12, fontFamily: "monospace" }}
                     >▶ Approve</button>
                     <button
                       onClick={() => handleApproval(agentState.pendingApproval!.approvalId, "no")}
-                      style={{ flex: 1, padding: "8px", border: "1px solid #e04848", backgroundColor: "#3e1818", color: "#e04848", cursor: "pointer", fontWeight: "bold", fontSize: 11, fontFamily: "monospace" }}
+                      style={{ flex: 1, padding: "8px", border: "1px solid #e04848", backgroundColor: "#3e1818", color: "#e04848", cursor: "pointer", fontWeight: "bold", fontSize: 12, fontFamily: "monospace" }}
                     >✕ Reject</button>
                   </div>
                 </div>
@@ -3309,9 +3309,9 @@ export default function OfficePage() {
                 padding: "6px 10px", borderTop: "1px solid #2e2448",
                 backgroundColor: "#1a1530", maxHeight: 80, overflowY: "auto",
               }}>
-                <div style={{ fontSize: 9, color: "#a855f7", fontFamily: "monospace", marginBottom: 4, letterSpacing: "0.05em" }}>SUGGESTIONS</div>
+                <div style={{ fontSize: 10, color: "#a855f7", fontFamily: "monospace", marginBottom: 4, letterSpacing: "0.05em" }}>SUGGESTIONS</div>
                 {suggestions.slice(-5).map((s, i) => (
-                  <div key={i} style={{ fontSize: 10, color: "#c084fc", marginBottom: 2, lineHeight: 1.3 }}>
+                  <div key={i} style={{ fontSize: 11, color: "#c084fc", marginBottom: 2, lineHeight: 1.3 }}>
                     <span style={{ color: "#7c3aed", fontWeight: 600 }}>{s.author}:</span> {s.text}
                   </div>
                 ))}
@@ -3328,7 +3328,7 @@ export default function OfficePage() {
                   <div style={{
                     padding: "8px 10px", borderTop: "1px solid #2e2448",
                     backgroundColor: "#182844", flexShrink: 0,
-                    fontSize: 11, color: "#7ab8f5", fontFamily: "monospace", textAlign: "center",
+                    fontSize: 12, color: "#7ab8f5", fontFamily: "monospace", textAlign: "center",
                   }}>
                     Watching — read-only mode
                   </div>
@@ -3351,7 +3351,7 @@ export default function OfficePage() {
                         maxLength={500}
                         style={{
                           flex: 1, padding: "9px 12px", border: "1px solid #7c3aed40",
-                          backgroundColor: "#16122a", color: "#c084fc", fontSize: 13, outline: "none",
+                          backgroundColor: "#16122a", color: "#c084fc", fontSize: 14, outline: "none",
                         }}
                       />
                       <button
@@ -3361,7 +3361,7 @@ export default function OfficePage() {
                           padding: "9px 14px", border: "none",
                           backgroundColor: suggestText.trim() ? "#a855f7" : "#272040",
                           color: suggestText.trim() ? "#fff" : "#5a4838",
-                          fontSize: 12, cursor: suggestText.trim() ? "pointer" : "default",
+                          fontSize: 13, cursor: suggestText.trim() ? "pointer" : "default",
                           fontWeight: 700, fontFamily: "monospace",
                         }}
                       >Suggest</button>
@@ -3377,7 +3377,7 @@ export default function OfficePage() {
                 }}>
                   {mobileIsTeamMember ? (
                     <div style={{
-                      textAlign: "center", color: "#5a4838", fontSize: 11, padding: "8px 0", fontFamily: "monospace",
+                      textAlign: "center", color: "#5a4838", fontSize: 12, padding: "8px 0", fontFamily: "monospace",
                     }}>
                       Tasks are assigned by the Team Lead
                     </div>
@@ -3386,7 +3386,7 @@ export default function OfficePage() {
                       onClick={async () => { if (await confirm("Cancel current work?")) handleCancel(); }}
                       style={{
                         width: "100%", padding: "9px 16px", border: "1px solid #e04848",
-                        backgroundColor: "#3e1818", color: "#e04848", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
+                        backgroundColor: "#3e1818", color: "#e04848", fontSize: 13, cursor: "pointer", fontFamily: "monospace",
                       }}
                     >✕ Cancel current work</button>
                   ) : mobilePhase === "execute" && !busy ? (
@@ -3399,7 +3399,7 @@ export default function OfficePage() {
                           placeholder="Send a message..."
                           style={{
                             flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
-                            backgroundColor: "#16122a", color: "#eddcb8", fontSize: 13, outline: "none",
+                            backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
                           }}
                         />
                         <button
@@ -3409,7 +3409,7 @@ export default function OfficePage() {
                             padding: "9px 14px", border: "none",
                             backgroundColor: prompt.trim() ? "#e8b040" : "#272040",
                             color: prompt.trim() ? "#16122a" : "#5a4838",
-                            fontSize: 12, cursor: prompt.trim() ? "pointer" : "default",
+                            fontSize: 13, cursor: prompt.trim() ? "pointer" : "default",
                             fontWeight: 700, fontFamily: "monospace",
                           }}
                         >Send</button>
@@ -3418,7 +3418,7 @@ export default function OfficePage() {
                         onClick={async () => { if (await confirm("End this project and start a new one?")) handleEndProject(); }}
                         style={{
                           width: "100%", padding: "9px 16px", border: "1px solid #e89030",
-                          backgroundColor: "#261a00", color: "#e89030", fontSize: 12, cursor: "pointer",
+                          backgroundColor: "#261a00", color: "#e89030", fontSize: 13, cursor: "pointer",
                           fontWeight: 700, fontFamily: "monospace",
                         }}
                       >End Project</button>
@@ -3429,7 +3429,7 @@ export default function OfficePage() {
                         onClick={handleApprovePlan}
                         style={{
                           width: "100%", padding: "9px 16px", border: "1px solid #48cc6a",
-                          backgroundColor: "#143a14", color: "#48cc6a", fontSize: 12, cursor: "pointer",
+                          backgroundColor: "#143a14", color: "#48cc6a", fontSize: 13, cursor: "pointer",
                           fontWeight: 700, fontFamily: "monospace",
                         }}
                       >▶ Approve Plan</button>
@@ -3441,7 +3441,7 @@ export default function OfficePage() {
                           placeholder="Or give feedback..."
                           style={{
                             flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
-                            backgroundColor: "#16122a", color: "#eddcb8", fontSize: 13, outline: "none",
+                            backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
                           }}
                         />
                         <button
@@ -3451,7 +3451,7 @@ export default function OfficePage() {
                             padding: "9px 14px", border: "none",
                             backgroundColor: prompt.trim() ? "#e8b040" : "#272040",
                             color: prompt.trim() ? "#16122a" : "#5a4838",
-                            fontSize: 12, cursor: prompt.trim() ? "pointer" : "default",
+                            fontSize: 13, cursor: prompt.trim() ? "pointer" : "default",
                             fontWeight: 700, fontFamily: "monospace",
                           }}
                         >Send</button>
@@ -3467,7 +3467,7 @@ export default function OfficePage() {
                           placeholder="Request changes..."
                           style={{
                             flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
-                            backgroundColor: "#16122a", color: "#eddcb8", fontSize: 13, outline: "none",
+                            backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
                           }}
                         />
                         <button
@@ -3477,7 +3477,7 @@ export default function OfficePage() {
                             padding: "9px 14px", border: "none",
                             backgroundColor: prompt.trim() ? "#e8b040" : "#272040",
                             color: prompt.trim() ? "#16122a" : "#5a4838",
-                            fontSize: 12, cursor: prompt.trim() ? "pointer" : "default",
+                            fontSize: 13, cursor: prompt.trim() ? "pointer" : "default",
                             fontWeight: 700, fontFamily: "monospace",
                           }}
                         >Send</button>
@@ -3486,7 +3486,7 @@ export default function OfficePage() {
                         onClick={async () => { if (await confirm("End this project and start a new one?")) handleEndProject(); }}
                         style={{
                           width: "100%", padding: "9px 16px", border: "1px solid #e89030",
-                          backgroundColor: "#261a00", color: "#e89030", fontSize: 12, cursor: "pointer",
+                          backgroundColor: "#261a00", color: "#e89030", fontSize: 13, cursor: "pointer",
                           fontWeight: 700, fontFamily: "monospace",
                         }}
                       >End Project</button>
@@ -3496,7 +3496,7 @@ export default function OfficePage() {
                       onClick={async () => { if (await confirm("Cancel current work?")) handleCancel(); }}
                       style={{
                         width: "100%", padding: "9px 16px", border: "1px solid #e04848",
-                        backgroundColor: "#3e1818", color: "#e04848", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
+                        backgroundColor: "#3e1818", color: "#e04848", fontSize: 13, cursor: "pointer", fontFamily: "monospace",
                       }}
                     >✕ Cancel current work</button>
                   ) : (
@@ -3508,7 +3508,7 @@ export default function OfficePage() {
                         placeholder="Send a message..."
                         style={{
                           flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
-                          backgroundColor: "#16122a", color: "#eddcb8", fontSize: 13, outline: "none",
+                          backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
                         }}
                         autoFocus
                       />
@@ -3519,7 +3519,7 @@ export default function OfficePage() {
                           padding: "9px 14px", border: "none",
                           backgroundColor: prompt.trim() ? "#e8b040" : "#272040",
                           color: prompt.trim() ? "#16122a" : "#5a4838",
-                          fontSize: 12, cursor: prompt.trim() ? "pointer" : "default",
+                          fontSize: 13, cursor: prompt.trim() ? "pointer" : "default",
                           fontWeight: 700, fontFamily: "monospace",
                         }}
                       >Send</button>
@@ -3547,9 +3547,9 @@ export default function OfficePage() {
               backgroundColor: "#1e1a30", cursor: "pointer",
             }}
           >
-            <span style={{ fontSize: 14, color: "#7a6858", marginRight: 4 }}>&larr;</span>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#eddcb8" }}>Team Chat</div>
-            <span style={{ fontSize: 10, color: "#7a6858", fontFamily: "monospace" }}>{teamMessages.length} messages</span>
+            <span style={{ fontSize: 15, color: "#7a6858", marginRight: 4 }}>&larr;</span>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#eddcb8" }}>Team Chat</div>
+            <span style={{ fontSize: 11, color: "#7a6858", fontFamily: "monospace" }}>{teamMessages.length} messages</span>
           </div>
           <TeamChatView messages={teamMessages} agents={agents} assetsReady={assetsReady} />
         </div>
@@ -3644,14 +3644,14 @@ export default function OfficePage() {
             backgroundColor: "#1e1a30", border: "1px solid #3d2e54",
             padding: 24, maxWidth: 420, width: "90%",
           }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#eddcb8", marginBottom: 12 }}>Share Link Created</div>
-            <div style={{ fontSize: 11, color: "#7a6858", marginBottom: 8 }}>Link copied to clipboard!</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#eddcb8", marginBottom: 12 }}>Share Link Created</div>
+            <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 8 }}>Link copied to clipboard!</div>
             <input
               readOnly
               value={shareUrl}
               style={{
                 width: "100%", padding: "8px 10px", border: "1px solid #3d2e54",
-                backgroundColor: "#16122a", color: "#eddcb8", fontSize: 11,
+                backgroundColor: "#16122a", color: "#eddcb8", fontSize: 12,
                 fontFamily: "monospace", outline: "none",
               }}
               onFocus={(e) => e.target.select()}
@@ -3660,7 +3660,7 @@ export default function OfficePage() {
               onClick={() => setShareUrl(null)}
               style={{
                 marginTop: 12, padding: "8px 20px", border: "none",
-                backgroundColor: "#e8b040", color: "#16122a", fontSize: 12,
+                backgroundColor: "#e8b040", color: "#16122a", fontSize: 13,
                 cursor: "pointer", fontWeight: 700, fontFamily: "monospace",
               }}
             >OK</button>

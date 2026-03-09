@@ -21,11 +21,11 @@ const menuItemBase: React.CSSProperties = {
   justifyContent: 'space-between',
   width: '100%',
   padding: '6px 10px',
-  fontSize: '13px',
+  fontSize: '15px',
   color: 'rgba(255, 255, 255, 0.8)',
   background: 'transparent',
   border: 'none',
-  borderRadius: 0,
+  borderRadius: 4,
   cursor: 'pointer',
   textAlign: 'left',
 }
@@ -123,11 +123,12 @@ export default function SettingsModal({
           left: '50%',
           transform: 'translate(-50%, -50%)',
           zIndex: 100,
-          background: '#1e1e2e',
-          border: '2px solid #4a4a6a',
-          borderRadius: 0,
+          background: 'rgba(20, 20, 25, 0.92)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: 10,
           padding: '4px',
-          boxShadow: '2px 2px 0px #0a0a14',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
           minWidth: 200,
         }}
       >
@@ -138,11 +139,11 @@ export default function SettingsModal({
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '4px 10px',
-            borderBottom: '1px solid #4a4a6a',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
             marginBottom: '4px',
           }}
         >
-          <span style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.9)' }}>Settings</span>
+          <span style={{ fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)' }}>Settings</span>
           <button
             onClick={onClose}
             onMouseEnter={() => setHovered('close')}
@@ -150,9 +151,9 @@ export default function SettingsModal({
             style={{
               background: hovered === 'close' ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
               border: 'none',
-              borderRadius: 0,
+              borderRadius: 4,
               color: 'rgba(255, 255, 255, 0.6)',
-              fontSize: '14px',
+              fontSize: '15px',
               cursor: 'pointer',
               padding: '0 4px',
               lineHeight: 1,
@@ -216,13 +217,13 @@ export default function SettingsModal({
               width: 14,
               height: 14,
               border: '2px solid rgba(255, 255, 255, 0.5)',
-              borderRadius: 0,
+              borderRadius: 3,
               background: soundEnabled ? 'rgba(90, 140, 255, 0.8)' : 'transparent',
               flexShrink: 0,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '10px',
+              fontSize: '11px',
               lineHeight: 1,
               color: '#fff',
             }}

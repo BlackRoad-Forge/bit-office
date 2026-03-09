@@ -126,11 +126,12 @@ export default function OfficeSwitcher({ isOpen, onClose, onSelect, currentOffic
           left: '50%',
           transform: 'translate(-50%, -50%)',
           zIndex: 100,
-          background: '#1e1e2e',
-          border: '2px solid #4a4a6a',
-          borderRadius: 0,
+          background: 'rgba(20, 20, 25, 0.92)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: 12,
           padding: 0,
-          boxShadow: '2px 2px 0px #0a0a14',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
           width: 480,
           maxWidth: '90vw',
           maxHeight: '80vh',
@@ -145,10 +146,10 @@ export default function OfficeSwitcher({ isOpen, onClose, onSelect, currentOffic
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '8px 12px',
-            borderBottom: '1px solid #4a4a6a',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           }}
         >
-          <span style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.9)', fontFamily: 'monospace' }}>
+          <span style={{ fontSize: '15px', color: 'rgba(255, 255, 255, 0.9)', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
             Switch Office
           </span>
           <button
@@ -159,7 +160,7 @@ export default function OfficeSwitcher({ isOpen, onClose, onSelect, currentOffic
               background: hovered === 'close' ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
               border: 'none',
               color: 'rgba(255, 255, 255, 0.6)',
-              fontSize: '14px',
+              fontSize: '15px',
               cursor: 'pointer',
               padding: '0 4px',
               lineHeight: 1,
@@ -178,7 +179,7 @@ export default function OfficeSwitcher({ isOpen, onClose, onSelect, currentOffic
           }}
         >
           {offices.length === 0 && (
-            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, fontFamily: 'monospace', padding: 20, textAlign: 'center', gridColumn: '1 / -1' }}>
+            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, padding: 20, textAlign: 'center', gridColumn: '1 / -1' }}>
               Loading...
             </div>
           )}
@@ -201,9 +202,9 @@ export default function OfficeSwitcher({ isOpen, onClose, onSelect, currentOffic
                     ? 'rgba(255, 255, 255, 0.06)'
                     : 'transparent',
                   border: isCurrent
-                    ? '2px solid #e8b040'
+                    ? '2px solid rgba(130, 160, 255, 0.6)'
                     : '2px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: 0,
+                  borderRadius: 8,
                   padding: 0,
                   cursor: loading ? 'wait' : 'pointer',
                   overflow: 'hidden',
@@ -242,9 +243,9 @@ export default function OfficeSwitcher({ isOpen, onClose, onSelect, currentOffic
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#e8b040',
-                        fontSize: 12,
-                        fontFamily: 'monospace',
+                        color: 'rgba(160, 185, 255, 0.9)',
+                        fontSize: 13,
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
                       }}
                     >
                       Loading...
@@ -255,9 +256,9 @@ export default function OfficeSwitcher({ isOpen, onClose, onSelect, currentOffic
                 <div
                   style={{
                     padding: '5px 4px',
-                    fontSize: 10,
-                    fontFamily: 'monospace',
-                    color: isCurrent ? '#e8b040' : 'rgba(255, 255, 255, 0.6)',
+                    fontSize: 11,
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                    color: isCurrent ? 'rgba(160, 185, 255, 0.9)' : 'rgba(255, 255, 255, 0.6)',
                     textAlign: 'center',
                     width: '100%',
                   }}

@@ -76,26 +76,26 @@ function ProjectViewer({ events, name, preview, onBack, onPreview }: {
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div style={{
         padding: "12px 16px",
-        borderBottom: "1px solid #3d2e54",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
         display: "flex", alignItems: "center", gap: 10,
       }}>
         <button
           onClick={onBack}
           style={{
-            background: "none", border: "1px solid #3d2e54", color: "#9a8a68",
-            padding: "4px 10px", cursor: "pointer", fontSize: 11, fontFamily: "monospace",
+            background: "none", border: "1px solid rgba(255, 255, 255, 0.12)", color: "rgba(255, 255, 255, 0.5)",
+            padding: "4px 10px", cursor: "pointer", fontSize: 15, borderRadius: 4,
           }}
         >
           &lt; Back
         </button>
-        <span style={{ color: "#eddcb8", fontSize: 13, fontWeight: 700, flex: 1 }}>{name}</span>
+        <span style={{ color: "rgba(255, 255, 255, 0.9)", fontSize: 15, fontWeight: 600, flex: 1 }}>{name}</span>
         {preview && onPreview && (
           <button
             onClick={() => onPreview(preview)}
             style={{
-              background: "rgba(90, 172, 255, 0.15)", border: "1px solid #5aacff60",
+              background: "rgba(90, 172, 255, 0.15)", border: "1px solid rgba(90, 172, 255, 0.3)",
               color: "#5aacff", padding: "4px 12px", cursor: "pointer",
-              fontSize: 11, fontFamily: "monospace", borderRadius: 0,
+              fontSize: 15, borderRadius: 4,
             }}
           >
             Preview
@@ -104,7 +104,7 @@ function ProjectViewer({ events, name, preview, onBack, onPreview }: {
       </div>
       <div style={{ flex: 1, overflow: "auto", padding: "12px 16px" }}>
         {messages.length === 0 && (
-          <div style={{ color: "#5a4a38", fontSize: 12, textAlign: "center", padding: 40 }}>
+          <div style={{ color: "rgba(255, 255, 255, 0.3)", fontSize: 15, textAlign: "center", padding: 40 }}>
             No messages in this project
           </div>
         )}
@@ -112,18 +112,18 @@ function ProjectViewer({ events, name, preview, onBack, onPreview }: {
           <div key={msg.id} style={{ marginBottom: 10 }}>
             <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
               <span style={{
-                color: msg.type === "delegation" ? "#5aacff" : msg.type === "status" ? "#9a8a68" : "#48cc6a",
-                fontSize: 11, fontWeight: 700, fontFamily: "monospace",
+                color: msg.type === "delegation" ? "#5aacff" : msg.type === "status" ? "rgba(255, 255, 255, 0.5)" : "#48cc6a",
+                fontSize: 15, fontWeight: 600,
               }}>
                 {msg.agent.replace(/^agent-/, "").slice(0, 8)}
               </span>
-              <span style={{ color: "#5a4a38", fontSize: 10 }}>
+              <span style={{ color: "rgba(255, 255, 255, 0.3)", fontSize: 10 }}>
                 {msg.type}
               </span>
             </div>
             <div style={{
-              color: "#c8b898", fontSize: 12, lineHeight: 1.6,
-              fontFamily: "monospace", marginTop: 2,
+              color: "rgba(255, 255, 255, 0.6)", fontSize: 15, lineHeight: 1.6,
+              marginTop: 2,
               whiteSpace: "pre-wrap", wordBreak: "break-word",
             }}>
               {msg.text.slice(0, 1000)}
@@ -187,7 +187,8 @@ export default function ProjectHistory({ isOpen, onClose, onPreview }: {
     >
       <div
         style={{
-          backgroundColor: "#1e1a30", border: "1px solid #3d2e54",
+          backgroundColor: "rgba(20, 20, 25, 0.92)", backdropFilter: "blur(16px)",
+          border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: 12,
           width: "90%", maxWidth: 600, height: "70vh",
           display: "flex", flexDirection: "column",
         }}
@@ -196,17 +197,17 @@ export default function ProjectHistory({ isOpen, onClose, onPreview }: {
         {/* Header */}
         <div style={{
           padding: "14px 18px",
-          borderBottom: "1px solid #3d2e54",
+          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
           display: "flex", justifyContent: "space-between", alignItems: "center",
         }}>
-          <span className="px-font" style={{ color: "#e8b040", fontSize: 13, letterSpacing: "0.05em" }}>
+          <span style={{ color: "rgba(255, 255, 255, 0.9)", fontSize: 15, fontWeight: 600 }}>
             Project History
           </span>
           <button
             onClick={onClose}
             style={{
-              background: "none", border: "none", color: "#5a4a38",
-              fontSize: 18, cursor: "pointer", lineHeight: 1,
+              background: "none", border: "none", color: "rgba(255, 255, 255, 0.4)",
+              fontSize: 20, cursor: "pointer", lineHeight: 1,
             }}
           >
             x
@@ -226,7 +227,7 @@ export default function ProjectHistory({ isOpen, onClose, onPreview }: {
           ) : (
             <div style={{ padding: "12px 0" }}>
               {projectList.length === 0 ? (
-                <div style={{ color: "#5a4a38", fontSize: 12, textAlign: "center", padding: 40, fontFamily: "monospace" }}>
+                <div style={{ color: "rgba(255, 255, 255, 0.3)", fontSize: 15, textAlign: "center", padding: 40 }}>
                   No archived projects yet.
                   <br />
                   Projects are saved when you click End Project.
@@ -238,8 +239,7 @@ export default function ProjectHistory({ isOpen, onClose, onPreview }: {
                     style={{
                       display: "flex", alignItems: "center",
                       padding: "12px 18px",
-                      borderBottom: "1px solid #2a2240",
-                      fontFamily: "monospace",
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
                     }}
                   >
                     <button
@@ -247,21 +247,21 @@ export default function ProjectHistory({ isOpen, onClose, onPreview }: {
                       style={{
                         flex: 1, textAlign: "left",
                         backgroundColor: "transparent",
-                        border: "none", cursor: "pointer", color: "#c8b898",
-                        fontFamily: "monospace", padding: 0,
+                        border: "none", cursor: "pointer", color: "rgba(255, 255, 255, 0.6)",
+                        padding: 0,
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.parentElement!.style.backgroundColor = "#2a2240"; }}
+                      onMouseEnter={(e) => { e.currentTarget.parentElement!.style.backgroundColor = "rgba(255, 255, 255, 0.04)"; }}
                       onMouseLeave={(e) => { e.currentTarget.parentElement!.style.backgroundColor = "transparent"; }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: "#eddcb8" }}>
+                        <span style={{ fontSize: 15, fontWeight: 600, color: "rgba(255, 255, 255, 0.9)" }}>
                           {p.name}
                         </span>
-                        <span style={{ fontSize: 10, color: "#5a4a38" }}>
+                        <span style={{ fontSize: 15, color: "rgba(255, 255, 255, 0.3)" }}>
                           {formatDuration(p.startedAt, p.endedAt)}
                         </span>
                       </div>
-                      <div style={{ fontSize: 11, color: "#7a6858", marginTop: 4 }}>
+                      <div style={{ fontSize: 15, color: "rgba(255, 255, 255, 0.4)", marginTop: 4 }}>
                         {formatDate(p.startedAt)} &middot; {p.agentNames.join(", ")} &middot; {p.eventCount} events
                       </div>
                     </button>
@@ -269,9 +269,9 @@ export default function ProjectHistory({ isOpen, onClose, onPreview }: {
                       <button
                         onClick={(e) => { e.stopPropagation(); handlePreview(p.preview!); }}
                         style={{
-                          background: "rgba(90, 172, 255, 0.12)", border: "1px solid #5aacff40",
+                          background: "rgba(90, 172, 255, 0.12)", border: "1px solid rgba(90, 172, 255, 0.3)",
                           color: "#5aacff", padding: "6px 12px", cursor: "pointer",
-                          fontSize: 10, fontFamily: "monospace", borderRadius: 0,
+                          fontSize: 15, borderRadius: 4,
                           marginLeft: 10, whiteSpace: "nowrap", flexShrink: 0,
                         }}
                         onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(90, 172, 255, 0.25)"; }}
