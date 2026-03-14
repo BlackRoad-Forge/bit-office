@@ -57,6 +57,34 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           .px-font {
             font-family: 'Press Start 2P', monospace;
           }
+          .chat-markdown h1, .chat-markdown h2, .chat-markdown h3,
+          .chat-markdown h4, .chat-markdown h5, .chat-markdown h6 {
+            font-size: inherit !important; font-weight: 400 !important; margin: 0 !important; padding: 0 !important;
+            line-height: inherit !important; color: inherit !important;
+          }
+          .chat-markdown strong, .chat-markdown b {
+            font-weight: 400 !important; color: inherit !important;
+          }
+          .chat-markdown em, .chat-markdown i {
+            font-style: normal !important; color: inherit !important;
+          }
+          .chat-markdown code {
+            font-size: inherit !important; font-family: inherit !important;
+            background: none !important; padding: 0 !important; border: none !important;
+            color: #7a9a7a !important;
+          }
+          .chat-markdown pre {
+            margin: 2px 0 !important; padding: 4px 6px !important;
+            background: #0e0e14 !important; border: none !important; overflow-x: auto;
+          }
+          .chat-markdown pre code {
+            color: #7a8a6a !important;
+          }
+          .chat-markdown p { margin: 0 0 2px !important; }
+          .chat-markdown ul, .chat-markdown ol { margin: 2px 0 !important; padding-left: 16px !important; }
+          .chat-markdown li { margin: 0 !important; }
+          .chat-markdown a { color: #7a9a7a !important; text-decoration: none !important; }
+          .chat-markdown a:hover { text-decoration: underline !important; }
           @keyframes px-blink {
             0%, 49% { opacity: 1; }
             50%, 100% { opacity: 0; }

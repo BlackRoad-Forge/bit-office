@@ -690,289 +690,87 @@ function MdContent({ text }: { text: string }) {
 }
 
 function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: { msg: ChatMessage; onPreview?: (url: string) => void; isTeamLead?: boolean; isTeamMember?: boolean; teamPhase?: string | null }) {
-  const [expanded, setExpanded] = useState(false);
+  const ts = new Date(msg.timestamp).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const T = "font-size:11px;font-family:'SF Mono',Menlo,Consolas,monospace;font-weight:400;line-height:1.45;";
 
+  // ── User input ──
   if (msg.role === "user") {
     return (
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
-        <div style={{
-          maxWidth: "80%", padding: "8px 12px",
-          backgroundColor: "#382800", color: "#eddcb8", fontSize: 14, wordBreak: "break-word",
-          border: "1px solid #e8b04050",
-          borderLeft: "2px solid #e8b040",
-        }}>
-          {linkifyText(msg.text)}
-        </div>
+      <div style={{ marginBottom: 2, fontSize: 11, fontFamily: "'SF Mono',Menlo,Consolas,monospace", fontWeight: 400, lineHeight: 1.45 }}>
+        <span style={{ color: "#444" }}>{ts}</span>
+        <span style={{ color: "#18ff62", marginLeft: 6 }}>&gt;</span>
+        <span style={{ color: "#b0b0a0", marginLeft: 5, wordBreak: "break-word" }}>{linkifyText(msg.text)}</span>
       </div>
     );
   }
 
+  // ── System ──
   if (msg.role === "system") {
     const isDelegation = msg.text.startsWith("Delegated to ");
     const isResult = msg.text.startsWith("Result from ");
     const isQueued = msg.text.startsWith("Task queued ");
-    const isTeam = isDelegation || isResult || isQueued;
-
-    const bg = isDelegation ? "#182844" : isResult ? "#143822" : isQueued ? "#282010" : "#3e1818";
-    const border = isDelegation ? "#5aacff44" : isResult ? "#48cc6a44" : isQueued ? "#e8b04044" : "#e0484844";
-    const color = isDelegation ? "#7ab8f5" : isResult ? "#7ad89a" : isQueued ? "#e8b040" : "#c87070";
+    const tag = isDelegation ? "delegate" : isResult ? "result" : isQueued ? "queued" : "sys";
 
     return (
-      <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 8 }}>
-        <div style={{
-          maxWidth: "80%", padding: "8px 12px",
-          backgroundColor: bg, border: `1px solid ${border}`, color,
-          fontSize: isTeam ? 11 : 13, wordBreak: "break-word",
-          fontFamily: "monospace",
-        }} className="chat-markdown">
-          {isTeam && <span style={{ fontSize: 10, opacity: 0.6, marginRight: 4 }}>
-            {isDelegation ? "[delegation]" : isResult ? "[result]" : "[queued]"}
-          </span>}
-          <MdContent text={msg.text} />
-        </div>
+      <div style={{ marginBottom: 2, fontSize: 11, fontFamily: "'SF Mono',Menlo,Consolas,monospace", fontWeight: 400, lineHeight: 1.45 }}>
+        <span style={{ color: "#444" }}>{ts}</span>
+        <span style={{ color: "#18ff62", marginLeft: 6, opacity: 0.6 }}>[{tag}]</span>
+        <span style={{ color: "#666", marginLeft: 5, wordBreak: "break-word" }} className="chat-markdown"><MdContent text={msg.text} /></span>
       </div>
     );
   }
 
+  // ── Agent ──
   const hasFullOutput = !!(msg.result?.fullOutput && msg.result.fullOutput !== msg.text && msg.result.fullOutput.length > msg.text.length + 20);
-
-  // Detect [PLAN]...[/PLAN] blocks
   const planMatch = msg.text.match(/\[PLAN\]([\s\S]*?)\[\/PLAN\]/i);
   const planContent = planMatch?.[1]?.trim();
   const textWithoutPlan = planContent ? msg.text.replace(/\[PLAN\][\s\S]*?\[\/PLAN\]/i, "").trim() : null;
+  const displayText = hasFullOutput ? (msg.result?.fullOutput ?? msg.text) : msg.text;
 
-  // ── Completion Card: fixed-format delivery for team lead isFinalResult ──
+  // Completion
   if (isTeamLead && msg.isFinalResult && msg.result) {
     const r = msg.result;
-    // Strip structured markers from the summary for display
-    const cleanSummary = r.summary
-      .replace(/ENTRY_FILE:\s*.+/gi, "")
-      .replace(/PROJECT_DIR:\s*.+/gi, "")
-      .replace(/SUMMARY:\s*/gi, "")
-      .trim();
+    const cleanSummary = r.summary.replace(/ENTRY_FILE:\s*.+/gi, "").replace(/PROJECT_DIR:\s*.+/gi, "").replace(/SUMMARY:\s*/gi, "").trim();
     const entryFile = r.entryFile ?? r.summary.match(/ENTRY_FILE:\s*(.+)/i)?.[1]?.trim();
     const projectDir = r.projectDir ?? r.summary.match(/PROJECT_DIR:\s*(.+)/i)?.[1]?.trim();
-
-    // Build file tree from changedFiles
     const changedFiles = r.changedFiles ?? [];
-
     return (
-      <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 8 }}>
-        <div style={{
-          maxWidth: "90%", width: "100%",
-          border: "2px solid #48cc6a",
-          backgroundColor: "#0a1f12",
-          overflow: "hidden",
-        }}>
-          {/* Header */}
-          <div style={{
-            padding: "10px 14px",
-            backgroundColor: "#143a14",
-            borderBottom: "1px solid #48cc6a40",
-            display: "flex", alignItems: "center", gap: 8,
-          }}>
-            <span style={{ fontSize: 15 }}>✓</span>
-            <span style={{
-              fontSize: 12, fontWeight: 700, color: "#48cc6a",
-              fontFamily: "monospace", letterSpacing: "0.08em",
-            }}>PROJECT DELIVERED</span>
-          </div>
-
-          {/* Summary */}
-          <div style={{ padding: "12px 14px" }} className="chat-markdown">
-            <div style={{ color: "#d8c8a8", fontSize: 14, lineHeight: 1.6 }}>
-              <MdContent text={cleanSummary || "Project completed successfully."} />
-            </div>
-          </div>
-
-          {/* Project info */}
-          {(projectDir || entryFile) && (
-            <div style={{
-              padding: "8px 14px",
-              borderTop: "1px solid #48cc6a20",
-              display: "flex", gap: 16, flexWrap: "wrap",
-            }}>
-              {projectDir && (
-                <div style={{ fontSize: 12, fontFamily: "monospace" }}>
-                  <span style={{ color: "#7a8a6a" }}>Directory: </span>
-                  <span style={{ color: "#e8b040" }}>{projectDir}</span>
-                </div>
-              )}
-              {entryFile && (
-                <div style={{ fontSize: 12, fontFamily: "monospace" }}>
-                  <span style={{ color: "#7a8a6a" }}>Entry: </span>
-                  <span
-                    style={{ color: "#e8b040", cursor: "pointer", textDecoration: "underline" }}
-                    onClick={() => sendCommand({ type: "OPEN_FILE", path: entryFile })}
-                  >{entryFile}</span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Changed files */}
-          {changedFiles.length > 0 && (
-            <div style={{
-              padding: "8px 14px",
-              borderTop: "1px solid #48cc6a20",
-            }}>
-              <div style={{ fontSize: 11, color: "#7a8a6a", marginBottom: 4, fontFamily: "monospace" }}>
-                {changedFiles.length} FILES
-              </div>
-              {changedFiles.slice(0, 8).map((f, i) => (
-                <div key={i} style={{
-                  fontSize: 12, fontFamily: "monospace", color: "#b8a878",
-                  padding: "1px 0",
-                }}>{f}</div>
-              ))}
-              {changedFiles.length > 8 && (
-                <div style={{ fontSize: 11, color: "#5a4838", fontFamily: "monospace" }}>
-                  ...and {changedFiles.length - 8} more
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Preview button — for web projects (has URL, cmd+port, or static path) */}
-          {hasWebPreview(r) && onPreview && (
-            <div style={{
-              padding: "10px 14px",
-              borderTop: "1px solid #48cc6a20",
-            }}>
-              <button
-                onClick={() => {
-                  const cmd = buildPreviewCommand(r);
-                  if (cmd) sendCommand(cmd);
-                  const url = computePreviewUrl(r);
-                  if (url) onPreview(url);
-                }}
-                style={{
-                  width: "100%", padding: "10px 16px",
-                  backgroundColor: "#143a14", color: "#48cc6a",
-                  border: "1px solid #48cc6a50", cursor: "pointer",
-                  fontSize: 13, fontWeight: 700, fontFamily: "monospace",
-                }}
-              >
-                ▶ Preview Result
-              </button>
-            </div>
-          )}
-          {/* Launch button — for desktop/CLI apps (no web preview but has a runnable command) */}
-          {!hasWebPreview(r) && buildPreviewCommand(r) && (
-            <div style={{
-              padding: "10px 14px",
-              borderTop: "1px solid #48cc6a20",
-            }}>
-              <button
-                onClick={() => {
-                  const cmd = buildPreviewCommand(r);
-                  if (cmd) sendCommand(cmd);
-                }}
-                style={{
-                  width: "100%", padding: "10px 16px",
-                  backgroundColor: "#0f1e3a", color: "#5aacff",
-                  border: "1px solid #5aacff50", cursor: "pointer",
-                  fontSize: 13, fontWeight: 700, fontFamily: "monospace",
-                }}
-              >
-                ▶ Launch App
-              </button>
-            </div>
-          )}
-
-          {/* Footer prompt */}
-          <div style={{
-            padding: "8px 14px",
-            borderTop: "1px solid #48cc6a20",
-            fontSize: 12, color: "#5a7a5a", fontFamily: "monospace",
-          }}>
-            Send feedback to request changes, or End Project to start fresh.
-          </div>
-        </div>
+      <div style={{ marginBottom: 3, fontSize: 11, fontFamily: "'SF Mono',Menlo,Consolas,monospace", fontWeight: 400, lineHeight: 1.45 }}>
+        <span style={{ color: "#444" }}>{ts}</span>
+        <span style={{ color: "#18ff62", marginLeft: 6 }}>[done]</span>
+        <div style={{ marginLeft: 14, marginTop: 1, color: "#8a8a7a", wordBreak: "break-word" }} className="chat-markdown"><MdContent text={cleanSummary || "completed."} /></div>
+        {(projectDir || entryFile) && <div style={{ marginLeft: 14, color: "#555", fontSize: 10 }}>
+          {projectDir && <span>dir:{projectDir} </span>}
+          {entryFile && <span style={{ cursor: "pointer", textDecoration: "underline", color: "#18ff62" }} onClick={() => sendCommand({ type: "OPEN_FILE", path: entryFile })}>entry:{entryFile}</span>}
+        </div>}
+        {changedFiles.length > 0 && <div style={{ marginLeft: 14, fontSize: 10, color: "#444" }}>{changedFiles.length} files changed</div>}
+        {hasWebPreview(r) && onPreview && <span onClick={() => { const cmd = buildPreviewCommand(r); if (cmd) sendCommand(cmd); const url = computePreviewUrl(r); if (url) onPreview(url); }} style={{ marginLeft: 14, color: "#18ff62", cursor: "pointer", fontSize: 10, opacity: 0.7 }}>[preview]</span>}
+        {!hasWebPreview(r) && buildPreviewCommand(r) && <span onClick={() => { const cmd = buildPreviewCommand(r); if (cmd) sendCommand(cmd); }} style={{ marginLeft: 14, color: "#18ff62", cursor: "pointer", fontSize: 10, opacity: 0.7 }}>[launch]</span>}
       </div>
     );
   }
 
   return (
-    <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 8 }}>
-      <div style={{
-        maxWidth: "85%", padding: "8px 12px",
-        backgroundColor: "#231e38", color: "#d8c8a8", fontSize: 14,
-        wordBreak: "break-word", overflow: "hidden", minWidth: 0,
-        border: "1px solid #3d2e54",
-        borderLeft: "2px solid #3d2e54",
-      }} className="chat-markdown">
+    <div style={{ marginBottom: 3, fontSize: 11, fontFamily: "'SF Mono',Menlo,Consolas,monospace", fontWeight: 400, lineHeight: 1.45 }}>
+      <span style={{ color: "#444" }}>{ts}</span>
+      <span style={{ color: "#18ff62", marginLeft: 6, opacity: 0.7 }}>[agent]</span>
+      <div style={{ marginLeft: 14, marginTop: 1, color: "#8a8a7a", wordBreak: "break-word" }} className="chat-markdown">
         {planContent ? (
           <>
             {textWithoutPlan && <MdContent text={textWithoutPlan} />}
-            <div style={{
-              marginTop: textWithoutPlan ? 8 : 0,
-              padding: "10px 12px",
-              border: "2px solid #e8b040",
-              backgroundColor: "#261a00",
-              borderRadius: 0,
-            }}>
-              <div style={{
-                fontSize: 11, fontWeight: 700, color: "#e8b040",
-                fontFamily: "monospace", letterSpacing: "0.1em",
-                marginBottom: 8,
-              }}>PROJECT PLAN</div>
-              <div style={{ color: "#eddcb8", fontSize: 13 }}>
-                <MdContent text={planContent} />
-              </div>
+            <div style={{ marginTop: 3, paddingLeft: 8, borderLeft: "1px solid #18ff6230" }}>
+              <span style={{ color: "#18ff62", fontSize: 10, opacity: 0.5 }}>[plan]</span>
+              <div style={{ color: "#8a8a7a" }}><MdContent text={planContent} /></div>
             </div>
           </>
         ) : (
-          <MdContent text={expanded && msg.result?.fullOutput ? msg.result.fullOutput : msg.text} />
-        )}
-        {hasFullOutput && !planContent && (
-          <button
-            onClick={() => setExpanded(!expanded)}
-            style={{
-              marginTop: 6, padding: "3px 8px",
-              backgroundColor: "transparent", color: "#e8b040",
-              border: "1px solid #e8b04040", cursor: "pointer",
-              fontSize: 11, fontFamily: "monospace",
-            }}
-          >
-            {expanded ? "▲ Collapse" : "▼ Full output"}
-          </button>
+          <MdContent text={displayText} />
         )}
         {msg.result && msg.result.changedFiles.length > 0 && !planContent && (
-          <div style={{
-            marginTop: 8, padding: "6px 8px",
-            backgroundColor: "#1a1530", fontSize: 12, border: "1px solid #3d2e54",
-          }}>
-            <div style={{ color: "#7a6858", marginBottom: 4, fontFamily: "monospace" }}>Changed {msg.result.changedFiles.length} files</div>
-            {msg.result.changedFiles.slice(0, 5).map((f, i) => (
-              <div key={i} style={{ fontFamily: "monospace", color: "#e8b040", opacity: 0.8 }}>{f}</div>
-            ))}
-            {msg.result.changedFiles.length > 5 && (
-              <div style={{ color: "#7a6858", fontFamily: "monospace" }}>...and {msg.result.changedFiles.length - 5} more</div>
-            )}
-          </div>
+          <div style={{ fontSize: 10, color: "#444", marginTop: 2 }}>{msg.result.changedFiles.length} files: {msg.result.changedFiles.slice(0, 3).join(", ")}{msg.result.changedFiles.length > 3 ? ` +${msg.result.changedFiles.length - 3}` : ""}</div>
         )}
-        {/* Preview: for solo agents (non-team-lead), show based on result data */}
-        {msg.result && hasWebPreview(msg.result) && onPreview
-          && !isTeamMember && !isTeamLead
-        && (
-          <button
-            onClick={() => {
-              const r = msg.result!;
-              const cmd = buildPreviewCommand(r);
-              if (cmd) sendCommand(cmd);
-              const url = computePreviewUrl(r);
-              if (url) setTimeout(() => onPreview(url), r.previewUrl ? 0 : 1500);
-            }}
-            style={{
-              marginTop: 8, padding: "5px 12px",
-              backgroundColor: "#143a14", color: "#48cc6a",
-              border: "1px solid #48cc6a50", cursor: "pointer",
-              fontSize: 12, fontWeight: 700, fontFamily: "monospace",
-            }}
-          >
-            ▶ Preview
-          </button>
+        {msg.result && hasWebPreview(msg.result) && onPreview && !isTeamMember && !isTeamLead && (
+          <span onClick={() => { const r = msg.result!; const cmd = buildPreviewCommand(r); if (cmd) sendCommand(cmd); const url = computePreviewUrl(r); if (url) setTimeout(() => onPreview(url), r.previewUrl ? 0 : 1500); }} style={{ color: "#18ff62", cursor: "pointer", fontSize: 10, opacity: 0.7 }}>[preview]</span>
         )}
       </div>
     </div>
@@ -3055,7 +2853,7 @@ export default function OfficePage() {
                     <div style={{
                       flex: 1,
                       display: "flex", flexDirection: "column",
-                      backgroundColor: "#1a1530",
+                      backgroundColor: "#0a0a10",
                       minHeight: 0,
                       height: "calc(100vh - 200px)",
                       maxHeight: "calc(100vh - 160px)",
@@ -3081,7 +2879,7 @@ export default function OfficePage() {
 
                       {/* Scrollable messages */}
                       <div style={{
-                        flex: 1, overflowY: "auto", padding: "12px 14px",
+                        flex: 1, overflowY: "auto", padding: "8px 10px",
                         display: "flex", flexDirection: "column",
                         minHeight: 0,
                       }}>
@@ -3116,7 +2914,7 @@ export default function OfficePage() {
                       flex: 1,
                       display: "flex",
                       flexDirection: "column",
-                      backgroundColor: "#1a1530",
+                      backgroundColor: "#0a0a10",
                       minHeight: 0,
                       height: "calc(100vh - 200px)",
                       maxHeight: "calc(100vh - 160px)",
@@ -3124,7 +2922,7 @@ export default function OfficePage() {
                     }}>
                       {/* Messages */}
                       <div style={{
-                        flex: 1, overflowY: "auto", padding: "12px 14px",
+                        flex: 1, overflowY: "auto", padding: "8px 10px",
                         display: "flex", flexDirection: "column",
                         minHeight: 0,
                       }}>
@@ -3304,47 +3102,32 @@ export default function OfficePage() {
                               }}>
                                 Tasks are assigned by the Team Lead
                               </div>
-                            ) : cardPhase === "execute" && busy ? (
-                              <button
-                                onClick={async () => { if (await confirm("Cancel current work?")) handleCancel(); }}
-                                style={{
-                                  width: "100%", padding: "9px 16px", border: "1px solid #e04848",
-                                  backgroundColor: "#3e1818", color: "#e04848", fontSize: 13, cursor: "pointer", fontFamily: "monospace",
-                                }}
-                              >{"\u2715"} Cancel current work</button>
-                            ) : cardPhase === "execute" && !busy ? (
-                              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                                <div style={{ display: "flex", gap: 6 }}>
+                            ) : cardPhase === "execute" ? (
+                              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                                <div style={{ display: "flex", gap: 0, alignItems: "center" }}>
+                                  <span style={{ color: busy ? "#333" : "#18ff62", fontSize: 11, fontFamily: "'SF Mono',Menlo,Consolas,monospace", padding: "7px 0 7px 8px", flexShrink: 0 }}>&gt;</span>
                                   <input
                                     value={prompt}
                                     onChange={(e) => setPrompt(e.target.value)}
-                                    onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && handleRunTask()}
-                                    placeholder="Send a message..."
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Escape" && busy) { handleCancel(); return; }
+                                      if (e.key === "Enter" && !e.nativeEvent.isComposing) handleRunTask();
+                                    }}
+                                    placeholder={busy ? "ESC stop | type to continue" : ""}
                                     style={{
-                                      flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
-                                      backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
+                                      flex: 1, padding: "7px 6px", border: "none",
+                                      backgroundColor: "transparent", color: "#b0b0a0", fontSize: 11, outline: "none",
+                                      fontFamily: "'SF Mono',Menlo,Consolas,monospace", fontWeight: 400,
                                     }}
                                   />
-                                  <button
-                                    onClick={handleRunTask}
-                                    disabled={!prompt.trim() && pendingImages.length === 0}
-                                    style={{
-                                      padding: "9px 14px", border: "none",
-                                      backgroundColor: (prompt.trim() || pendingImages.length > 0) ? "#e8b040" : "#272040",
-                                      color: (prompt.trim() || pendingImages.length > 0) ? "#16122a" : "#5a4838",
-                                      fontSize: 13, cursor: (prompt.trim() || pendingImages.length > 0) ? "pointer" : "default",
-                                      fontWeight: 700, fontFamily: "monospace",
-                                    }}
-                                  >Send</button>
+                                  {busy && <span style={{ color: "#333", fontSize: 9, fontFamily: "'SF Mono',Menlo,Consolas,monospace", padding: "0 6px", flexShrink: 0 }}>working</span>}
                                 </div>
-                                <button
-                                  onClick={async () => { if (await confirm("End this project and start a new one?")) handleEndProject(); }}
-                                  style={{
-                                    width: "100%", padding: "9px 16px", border: "1px solid #e89030",
-                                    backgroundColor: "#261a00", color: "#e89030", fontSize: 13, cursor: "pointer",
-                                    fontWeight: 700, fontFamily: "monospace",
-                                  }}
-                                >End Project</button>
+                                {!busy && (
+                                  <span
+                                    onClick={async () => { if (await confirm("End project?")) handleEndProject(); }}
+                                    style={{ padding: "0 8px 4px", color: "#333", fontSize: 9, cursor: "pointer", fontFamily: "'SF Mono',Menlo,Consolas,monospace" }}
+                                  >end project</span>
+                                )}
                               </div>
                             ) : cardPhase === "design" && !busy ? (
                               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -3414,39 +3197,25 @@ export default function OfficePage() {
                                   }}
                                 >End Project</button>
                               </div>
-                            ) : isAgentBusy ? (
-                              <button
-                                onClick={async () => { if (await confirm("Cancel current work?")) handleCancel(); }}
-                                style={{
-                                  width: "100%", padding: "9px 16px", border: "1px solid #e04848",
-                                  backgroundColor: "#3e1818", color: "#e04848", fontSize: 13, cursor: "pointer", fontFamily: "monospace",
-                                }}
-                              >{"\u2715"} Cancel current work</button>
                             ) : (
-                              <div style={{ display: "flex", gap: 6 }}>
+                              <div style={{ display: "flex", gap: 0, alignItems: "center" }}>
+                                <span style={{ color: isAgentBusy ? "#333" : "#18ff62", fontSize: 11, fontFamily: "'SF Mono',Menlo,Consolas,monospace", padding: "7px 0 7px 8px", flexShrink: 0 }}>&gt;</span>
                                 <input
                                   value={prompt}
                                   onChange={(e) => setPrompt(e.target.value)}
-                                  onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && handleRunTask()}
-                                  placeholder="Send a message..."
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Escape" && isAgentBusy) { handleCancel(); return; }
+                                    if (e.key === "Enter" && !e.nativeEvent.isComposing) handleRunTask();
+                                  }}
+                                  placeholder={isAgentBusy ? "ESC stop | type to continue" : ""}
                                   style={{
-                                    flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
-                                    backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
+                                    flex: 1, padding: "7px 6px", border: "none",
+                                    backgroundColor: "transparent", color: "#b0b0a0", fontSize: 11, outline: "none",
+                                    fontFamily: "'SF Mono',Menlo,Consolas,monospace", fontWeight: 400,
                                   }}
                                   autoFocus
                                 />
-                                <button
-                                  onClick={handleRunTask}
-                                  disabled={!prompt.trim() && pendingImages.length === 0}
-                                  style={{
-                                    padding: "9px 14px", border: "none",
-                                    backgroundColor: (prompt.trim() || pendingImages.length > 0) ? "#e8b040" : "#272040",
-                                    color: (prompt.trim() || pendingImages.length > 0) ? "#16122a" : "#5a4838",
-                                    fontSize: 13, cursor: (prompt.trim() || pendingImages.length > 0) ? "pointer" : "default",
-                                    fontWeight: 700, fontFamily: "monospace",
-                                    transition: "background-color 0.1s",
-                                  }}
-                                >Send</button>
+                                {isAgentBusy && <span style={{ color: "#333", fontSize: 9, fontFamily: "'SF Mono',Menlo,Consolas,monospace", padding: "0 6px", flexShrink: 0 }}>working</span>}
                               </div>
                             )}
                           </div>
@@ -3753,7 +3522,7 @@ export default function OfficePage() {
 
             {/* Messages */}
             <div style={{
-              flex: 1, overflowY: "auto", padding: "12px 14px",
+              flex: 1, overflowY: "auto", padding: "8px 10px",
               display: "flex", flexDirection: "column",
             }}>
               {/* Phase banner for team leads (mobile) */}
