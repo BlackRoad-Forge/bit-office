@@ -1479,7 +1479,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
 
 function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, assetsReady }: {
   agentDefs: AgentDefinition[];
-  onHire: (def: AgentDefinition, backend: string) => void;
+  onHire: (def: AgentDefinition, backend: string, workDir?: string) => void;
   onCreate: () => void;
   onEdit: (def: AgentDefinition) => void;
   onDelete: (id: string) => void;
@@ -1488,6 +1488,8 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
 }) {
   const [selectedBackend, setSelectedBackend] = useState("claude");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [workDir, setWorkDir] = useState<string>("");
+  const folderInputRef = useRef<HTMLInputElement>(null);
 
   // Leaders can only work in teams, not as solo agents
   const builtinAgents = agentDefs.filter((a) => a.isBuiltin && a.teamRole !== "leader");
@@ -1532,13 +1534,60 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
           </div>
         </div>
 
+        {/* Working directory picker */}
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 5, fontFamily: "monospace", letterSpacing: "0.05em" }}>WORKING DIRECTORY</div>
+          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            <input
+              ref={folderInputRef}
+              type="text"
+              value={workDir}
+              onChange={(e) => setWorkDir(e.target.value)}
+              placeholder="Default (built-in workspace)"
+              style={{
+                flex: 1, padding: "6px 8px", fontSize: 12,
+                border: "1px solid #3d2e54", backgroundColor: "#1a1530",
+                color: "#eddcb8", fontFamily: "monospace",
+                outline: "none",
+              }}
+            />
+            <button
+              onClick={() => {
+                const input = document.createElement("input");
+                input.type = "file";
+                input.setAttribute("webkitdirectory", "");
+                input.setAttribute("directory", "");
+                input.onchange = () => {
+                  const files = input.files;
+                  if (files && files.length > 0) {
+                    // Extract the common directory path from the selected folder
+                    const path = files[0].webkitRelativePath;
+                    const dir = path.split("/")[0];
+                    setWorkDir(dir);
+                  }
+                };
+                input.click();
+              }}
+              style={{
+                padding: "6px 10px", border: "1px solid #3d2e54",
+                backgroundColor: "#1a1530", color: "#9a8a68",
+                fontSize: 12, cursor: "pointer", fontFamily: "monospace",
+                whiteSpace: "nowrap",
+              }}
+            >Browse</button>
+          </div>
+          <div style={{ fontSize: 10, color: "#5a4a38", marginTop: 3, fontFamily: "monospace" }}>
+            Paste full path or leave empty for default
+          </div>
+        </div>
+
         {/* Built-in agents */}
         <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 5, fontFamily: "monospace", letterSpacing: "0.05em" }}>BUILT-IN AGENTS</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 5, marginBottom: 10 }}>
           {builtinAgents.map((def) => (
             <button
               key={def.id}
-              onClick={() => onHire(def, selectedBackend)}
+              onClick={() => onHire(def, selectedBackend, workDir || undefined)}
               onMouseEnter={(e) => { setHoveredId(def.id); e.currentTarget.style.borderColor = "#e8b04040"; }}
               onMouseLeave={(e) => { setHoveredId(null); e.currentTarget.style.borderColor = "#3d2e54"; }}
               title={def.skills ? `Skills: ${def.skills}` : undefined}
@@ -1572,7 +1621,7 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
               {customAgents.map((def) => (
                 <button
                   key={def.id}
-                  onClick={() => onHire(def, selectedBackend)}
+                  onClick={() => onHire(def, selectedBackend, workDir || undefined)}
                   onMouseEnter={(e) => { setHoveredId(def.id); e.currentTarget.style.borderColor = "#e8b04040"; }}
                   onMouseLeave={(e) => { setHoveredId(null); e.currentTarget.style.borderColor = "#3d2e54"; }}
                   title={def.skills ? `Skills: ${def.skills}` : undefined}
@@ -1862,7 +1911,7 @@ function TeamActivityLog({ messages, agents, assetsReady, onClear }: {
 
 function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
   agentDefs: AgentDefinition[];
-  onCreateTeam: (leadId: string, memberIds: string[], backends: Record<string, string>) => void;
+  onCreateTeam: (leadId: string, memberIds: string[], backends: Record<string, string>, workDir?: string) => void;
   onClose: () => void;
   assetsReady?: boolean;
 }) {
@@ -1872,13 +1921,14 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
 
   const [selectedDevId, setSelectedDevId] = useState<string>(devAgents[0]?.id ?? "");
   const [backends, setBackends] = useState<Record<string, string>>({});
+  const [workDir, setWorkDir] = useState<string>("");
 
   const handleCreate = () => {
     if (!leader) return;
     const memberIds: string[] = [];
     if (selectedDevId) memberIds.push(selectedDevId);
     if (reviewer) memberIds.push(reviewer.id);
-    onCreateTeam(leader.id, memberIds, backends);
+    onCreateTeam(leader.id, memberIds, backends, workDir || undefined);
   };
 
   // Fixed rows (leader + reviewer) + toggleable dev rows
@@ -1904,6 +1954,51 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
         }}
       >
         <h2 className="px-font" style={{ fontSize: 14, margin: "0 0 14px", textAlign: "center", color: "#e8b040", letterSpacing: "0.05em" }}>Hire Team</h2>
+
+        {/* Working directory picker */}
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 5, fontFamily: "monospace", letterSpacing: "0.05em" }}>PROJECT DIRECTORY</div>
+          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            <input
+              type="text"
+              value={workDir}
+              onChange={(e) => setWorkDir(e.target.value)}
+              placeholder="Default (built-in workspace)"
+              style={{
+                flex: 1, padding: "6px 8px", fontSize: 12,
+                border: "1px solid #3d2e54", backgroundColor: "#1a1530",
+                color: "#eddcb8", fontFamily: "monospace",
+                outline: "none",
+              }}
+            />
+            <button
+              onClick={() => {
+                const input = document.createElement("input");
+                input.type = "file";
+                input.setAttribute("webkitdirectory", "");
+                input.setAttribute("directory", "");
+                input.onchange = () => {
+                  const files = input.files;
+                  if (files && files.length > 0) {
+                    const path = files[0].webkitRelativePath;
+                    const dir = path.split("/")[0];
+                    setWorkDir(dir);
+                  }
+                };
+                input.click();
+              }}
+              style={{
+                padding: "6px 10px", border: "1px solid #3d2e54",
+                backgroundColor: "#1a1530", color: "#9a8a68",
+                fontSize: 12, cursor: "pointer", fontFamily: "monospace",
+                whiteSpace: "nowrap",
+              }}
+            >Browse</button>
+          </div>
+          <div style={{ fontSize: 10, color: "#5a4a38", marginTop: 3, fontFamily: "monospace" }}>
+            Paste full path — team projects will be created here
+          </div>
+        </div>
 
         <div style={{ fontSize: 12, color: "#7a6858", marginBottom: 6, fontFamily: "monospace", letterSpacing: "0.05em" }}>SELECT TEAM MEMBERS</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 12 }}>
@@ -2093,6 +2188,9 @@ function runDemoScript(onDone: () => void) {
     onDone();
   });
 }
+
+// Per-agent working directory map (persists across renders, not in state to avoid re-renders)
+const agentWorkDirMap = new Map<string, string>();
 
 export default function OfficePage() {
   const router = useRouter();
@@ -2342,20 +2440,24 @@ export default function OfficePage() {
     }
   }, [agents]);
 
-  const handleHire = useCallback((def: AgentDefinition, backend: string) => {
+  const handleHire = useCallback((def: AgentDefinition, backend: string, workDir?: string) => {
     const existing = Array.from(agents.values()).filter(
       (a) => a.name === def.name || a.name.match(new RegExp(`^${def.name} \\d+$`))
     );
     const displayName = existing.length === 0 ? def.name : `${def.name} ${existing.length + 1}`;
     const agentId = `agent-${nanoid(6)}`;
-    sendCommand({ type: "CREATE_AGENT", agentId, name: displayName, role: def.skills ? `${def.role} — ${def.skills}` : def.role, palette: def.palette, personality: def.personality, backend });
+    sendCommand({ type: "CREATE_AGENT", agentId, name: displayName, role: def.skills ? `${def.role} — ${def.skills}` : def.role, palette: def.palette, personality: def.personality, backend, workDir });
+    // Store workDir locally so RUN_TASK can pass it as repoPath
+    if (workDir) {
+      agentWorkDirMap.set(agentId, workDir);
+    }
     setSelectedAgent(agentId);
     setChatOpen(true);
     setShowHireModal(false);
   }, [agents]);
 
-  const handleCreateTeam = useCallback((leadId: string, memberIds: string[], backends: Record<string, string>) => {
-    sendCommand({ type: "CREATE_TEAM", leadId, memberIds, backends });
+  const handleCreateTeam = useCallback((leadId: string, memberIds: string[], backends: Record<string, string>, workDir?: string) => {
+    sendCommand({ type: "CREATE_TEAM", leadId, memberIds, backends, workDir });
     setShowHireTeamModal(false);
     setExpandedSection("team");
     setSelectedAgent(null);
@@ -2423,11 +2525,13 @@ export default function OfficePage() {
     if (agent?.isExternal) return; // External agents are read-only
     const taskId = nanoid();
     addUserMessage(selectedAgent, taskId, prompt.trim());
+    const repoPath = agentWorkDirMap.get(selectedAgent);
     sendCommand({
       type: "RUN_TASK",
       agentId: selectedAgent,
       taskId,
       prompt: prompt.trim(),
+      repoPath,
       name: agent?.name,
       role: agent?.role,
       personality: agent?.personality,
@@ -2725,7 +2829,49 @@ export default function OfficePage() {
       </div>}
 
       {/* ── Right Sidebar (desktop only) — takes remaining space after game scene ── */}
-      {!isMobile && (
+      {!isMobile && <>
+        {/* Console mode toggle button — positioned outside sidebar so overflow:hidden doesn't clip it */}
+        <button
+          onClick={() => setConsoleMode(!consoleMode)}
+          style={{
+            position: "fixed",
+            right: consoleMode ? "calc(100vw - 28px)" : "35vw",
+            top: "50%",
+            transform: "translateY(-50%)",
+            zIndex: 30,
+            width: 28,
+            height: 56,
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 0,
+            background: "linear-gradient(90deg, #2a2444 0%, #1e1a30 100%)",
+            borderRadius: consoleMode ? "0 10px 10px 0" : "10px 0 0 10px",
+            borderTop: "1px solid #3d2e54",
+            borderBottom: "1px solid #3d2e54",
+            borderLeft: consoleMode ? "none" : "1px solid #3d2e54",
+            borderRight: consoleMode ? "1px solid #3d2e54" : "none",
+            boxShadow: "-2px 0 8px rgba(0,0,0,0.3)",
+            color: "#e8b040",
+            fontSize: 14,
+            transition: "right 0.3s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "linear-gradient(135deg, #3a3460 0%, #2a2444 100%)";
+            e.currentTarget.style.color = "#f0c860";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "linear-gradient(90deg, #2a2444 0%, #1e1a30 100%)";
+            e.currentTarget.style.color = "#e8b040";
+          }}
+          title={consoleMode ? "Back to Office" : "Console Mode"}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ transform: consoleMode ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
+            <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
         <div style={{
           width: consoleMode ? "100vw" : "35vw",
           minWidth: 260,
@@ -2736,55 +2882,8 @@ export default function OfficePage() {
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          position: "relative",
           transition: "width 0.3s ease",
         }}>
-          {/* Console mode toggle button — left edge */}
-          <button
-            onClick={() => setConsoleMode(!consoleMode)}
-            style={{
-              position: "absolute",
-              left: consoleMode ? 8 : -16,
-              top: "50%",
-              transform: "translateY(-50%)",
-              zIndex: 30,
-              width: 32,
-              height: 56,
-              border: "none",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: 0,
-              background: consoleMode
-                ? "linear-gradient(135deg, #2a2444 0%, #1e1a30 100%)"
-                : "linear-gradient(90deg, #2a2444 0%, #1e1a30 60%)",
-              borderRadius: consoleMode ? "6px" : "12px 0 0 12px",
-              borderTop: "1px solid #3d2e54",
-              borderBottom: "1px solid #3d2e54",
-              borderLeft: "1px solid #3d2e54",
-              borderRight: consoleMode ? "1px solid #3d2e54" : "none",
-              boxShadow: "-2px 0 8px rgba(0,0,0,0.3)",
-              color: "#e8b040",
-              fontSize: 14,
-              transition: "left 0.3s ease, border-radius 0.3s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "linear-gradient(135deg, #3a3460 0%, #2a2444 100%)";
-              e.currentTarget.style.color = "#f0c860";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = consoleMode
-                ? "linear-gradient(135deg, #2a2444 0%, #1e1a30 100%)"
-                : "linear-gradient(90deg, #2a2444 0%, #1e1a30 60%)";
-              e.currentTarget.style.color = "#e8b040";
-            }}
-            title={consoleMode ? "Back to Office" : "Console Mode"}
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ transform: consoleMode ? "rotate(0deg)" : "rotate(180deg)", transition: "transform 0.3s ease" }}>
-              <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
           {/* Accordion sections */}
           <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" }}>
 
@@ -3464,7 +3563,7 @@ export default function OfficePage() {
 
           </div>
         </div>
-      )}
+      </>}
 
       {/* ── Mobile: bottom agent bar ── */}
       {isMobile && agentList.length > 0 && !isChatExpanded && !mobileTeamOpen && (

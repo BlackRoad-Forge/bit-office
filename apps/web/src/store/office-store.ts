@@ -22,6 +22,7 @@ interface AgentState {
   isExternal?: boolean;
   pid?: number;
   cwd?: string;
+  workDir?: string;
   startedAt?: number;
   status: AgentStatus;
   currentTaskId: string | null;

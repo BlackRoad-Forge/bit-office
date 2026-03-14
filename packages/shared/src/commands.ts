@@ -39,6 +39,7 @@ export const CreateAgentCommand = z.object({
   personality: z.string().optional(),
   backend: z.string().optional(),
   teamId: z.string().optional(),
+  workDir: z.string().optional(),
 });
 
 export const FireAgentCommand = z.object({
@@ -56,6 +57,7 @@ export const CreateTeamCommand = z.object({
   leadId: z.string(),
   memberIds: z.array(z.string()),
   backends: z.record(z.string(), z.string()).optional(),
+  workDir: z.string().optional(),
 });
 
 export const ServePreviewCommand = z.object({

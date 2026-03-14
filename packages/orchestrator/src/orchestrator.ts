@@ -57,11 +57,22 @@ export class Orchestrator extends EventEmitter<OrchestratorEventMap> {
     this.promptEngine = new PromptEngine(opts.promptsDir);
     this.promptEngine.init();
 
+    // Worktree (must be before delegation router which needs these values)
+    if (opts.worktree === false) {
+      this.worktreeEnabled = false;
+      this.worktreeMerge = false;
+    } else {
+      this.worktreeEnabled = true;
+      this.worktreeMerge = opts.worktree?.mergeOnComplete ?? true;
+    }
+
     // Delegation
     this.delegationRouter = new DelegationRouter(
       this.agentManager,
       this.promptEngine,
       (e) => this.emitEvent(e),
+      this.worktreeEnabled,
+      this.worktreeMerge,
     );
 
     // Retry
@@ -70,15 +81,6 @@ export class Orchestrator extends EventEmitter<OrchestratorEventMap> {
     } else {
       const r = opts.retry ?? {};
       this.retryTracker = new RetryTracker(r.maxRetries, r.escalateToLeader);
-    }
-
-    // Worktree
-    if (opts.worktree === false) {
-      this.worktreeEnabled = false;
-      this.worktreeMerge = false;
-    } else {
-      this.worktreeEnabled = true;
-      this.worktreeMerge = opts.worktree?.mergeOnComplete ?? true;
     }
   }
 

@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import path from "path";
 import { CONFIG } from "./config.js";
+import { createWorktree, mergeWorktree, removeWorktree, removeWorktreeOnly, checkConflicts } from "./worktree.js";
 import type { AgentManager } from "./agent-manager.js";
 import type { AgentSession } from "./agent-session.js";
 import type { PromptEngine } from "./prompt-templates.js";
@@ -56,15 +57,21 @@ export class DelegationRouter {
   private agentManager: AgentManager;
   private promptEngine: PromptEngine;
   private emitEvent: (event: OrchestratorEvent) => void;
+  private worktreeEnabled: boolean;
+  private worktreeMerge: boolean;
 
   constructor(
     agentManager: AgentManager,
     promptEngine: PromptEngine,
     emitEvent: (event: OrchestratorEvent) => void,
+    worktreeEnabled = false,
+    worktreeMerge = true,
   ) {
     this.agentManager = agentManager;
     this.promptEngine = promptEngine;
     this.emitEvent = emitEvent;
+    this.worktreeEnabled = worktreeEnabled;
+    this.worktreeMerge = worktreeMerge;
   }
 
   /**
@@ -261,7 +268,30 @@ export class DelegationRouter {
         this.lastDevAgentId = target.agentId;
       }
 
-      console.log(`[Delegation] ${fromAgentId} -> ${target.agentId} (${targetName}) depth=${newDepth} total=${this.totalDelegations} repoPath=${repoPath ?? "default"}: ${cleanPrompt.slice(0, 80)}`);
+      // Create worktree for dev agents in team mode
+      let effectiveRepoPath = repoPath;
+      if (this.worktreeEnabled && repoPath && !target.worktreePath) {
+        const targetRole = target.role.toLowerCase();
+        const isDevWorker = !targetRole.includes("review") && !targetRole.includes("lead");
+        if (isDevWorker) {
+          const wt = createWorktree(repoPath, target.agentId, taskId, target.name);
+          if (wt) {
+            const branch = `agent/${target.name.toLowerCase().replace(/\s+/g, "-")}/${taskId}`;
+            target.worktreePath = wt;
+            target.worktreeBranch = branch;
+            effectiveRepoPath = wt;
+            this.emitEvent({
+              type: "worktree:created",
+              agentId: target.agentId,
+              taskId,
+              worktreePath: wt,
+              branch,
+            });
+          }
+        }
+      }
+
+      console.log(`[Delegation] ${fromAgentId} -> ${target.agentId} (${targetName}) depth=${newDepth} total=${this.totalDelegations} repoPath=${effectiveRepoPath ?? "default"}: ${cleanPrompt.slice(0, 80)}`);
       this.emitEvent({
         type: "task:delegated",
         fromAgentId,
@@ -279,7 +309,15 @@ export class DelegationRouter {
         timestamp: Date.now(),
       });
       this.assignedTask.set(target.agentId, taskId);
-      target.runTask(taskId, fullPrompt, repoPath);
+      // Broadcast activity for awareness
+      this.emitEvent({
+        type: "agent:activity",
+        agentId: target.agentId,
+        agentName: target.name,
+        intent: cleanPrompt.slice(0, 200),
+        phase: "started",
+      });
+      target.runTask(taskId, fullPrompt, effectiveRepoPath);
     };
   }
 
@@ -322,6 +360,50 @@ export class DelegationRouter {
         taskId,
         timestamp: Date.now(),
       });
+
+      // Broadcast activity completion
+      this.emitEvent({
+        type: "agent:activity",
+        agentId,
+        agentName: fromName,
+        intent: summary.slice(0, 200),
+        phase: "completed",
+      });
+
+      // ── Worktree merge on task completion ──
+      if (fromSession?.worktreePath && fromSession.worktreeBranch && this.teamProjectDir) {
+        if (this.worktreeMerge && success) {
+          // Check for conflicts before merging
+          const conflicts = checkConflicts(this.teamProjectDir, fromSession.worktreeBranch);
+          if (conflicts.length > 0) {
+            console.log(`[Worktree] Conflict detected for ${fromName} on files: ${conflicts.join(", ")}`);
+            // Remove worktree dir but keep branch for manual conflict resolution
+            removeWorktreeOnly(fromSession.worktreePath, this.teamProjectDir);
+            this.emitEvent({
+              type: "worktree:merged",
+              agentId,
+              taskId,
+              branch: fromSession.worktreeBranch,
+              success: false,
+              conflictFiles: conflicts,
+            });
+          } else {
+            const result = mergeWorktree(this.teamProjectDir, fromSession.worktreePath, fromSession.worktreeBranch);
+            this.emitEvent({
+              type: "worktree:merged",
+              agentId,
+              taskId,
+              branch: fromSession.worktreeBranch,
+              success: result.success,
+              conflictFiles: result.conflictFiles,
+            });
+          }
+        } else {
+          removeWorktree(fromSession.worktreePath, fromSession.worktreeBranch, this.teamProjectDir);
+        }
+        fromSession.worktreePath = null;
+        fromSession.worktreeBranch = null;
+      }
 
       // ── Direct fix complete: dev finished fix → auto re-review ──
       if (meta.isDirectFix && meta.reviewerAgentId && success) {

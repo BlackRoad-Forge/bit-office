@@ -128,6 +128,17 @@ export interface WorktreeMergedEvent {
   conflictFiles?: string[];
 }
 
+export interface AgentActivityEvent {
+  type: "agent:activity";
+  agentId: string;
+  agentName: string;
+  intent: string;
+  phase: "started" | "completed";
+  touchedFiles?: string[];
+  exports?: string[];
+  needs?: string[];
+}
+
 export interface AgentCreatedEvent {
   type: "agent:created";
   agentId: string;
@@ -187,6 +198,7 @@ export type OrchestratorEvent =
   | TaskQueuedEvent
   | WorktreeCreatedEvent
   | WorktreeMergedEvent
+  | AgentActivityEvent
   | AgentCreatedEvent
   | AgentFiredEvent
   | TaskResultReturnedEvent
@@ -210,6 +222,7 @@ export interface OrchestratorEventMap {
   "task:queued": [TaskQueuedEvent];
   "worktree:created": [WorktreeCreatedEvent];
   "worktree:merged": [WorktreeMergedEvent];
+  "agent:activity": [AgentActivityEvent];
   "agent:created": [AgentCreatedEvent];
   "agent:fired": [AgentFiredEvent];
   "task:result-returned": [TaskResultReturnedEvent];
