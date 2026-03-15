@@ -122,9 +122,9 @@ function ThinkingBubble({ logLine }: { logLine: string | null }) {
     <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 8 }}>
       <div style={{
         padding: "8px 12px",
-        backgroundColor: "#1e1a30", color: "#7a8a6a", fontSize: 12,
+        backgroundColor: "#0c1210", color: "#7a8a6a", fontSize: 12,
         fontFamily: "monospace",
-        border: "1px solid #3d2e54",
+        border: "1px solid #1a2a1a",
         borderLeft: "2px solid #e8b04060",
         maxWidth: "100%", overflow: "hidden",
         whiteSpace: "pre-wrap", wordBreak: "break-word",
@@ -204,7 +204,7 @@ function PreviewOverlay({ url, onClose, savedRatings, submitted, onRate }: {
     }}>
       <div style={{
         height: 40, display: "flex", alignItems: "center",
-        padding: "0 12px", backgroundColor: "#1a1530", gap: 8,
+        padding: "0 12px", backgroundColor: "#0a0e0a", gap: 8,
       }}>
         <span style={{
           flex: 1, color: "#888", fontSize: 14,
@@ -405,7 +405,7 @@ function RatingPopup({ onSubmit, onSkip, initialRatings }: { onSubmit: (ratings:
       display: "flex", alignItems: "center", justifyContent: "center",
     }} onClick={onSkip}>
       <div style={{
-        backgroundColor: "#1a1530", padding: "22px 20px",
+        backgroundColor: "#0a0e0a", padding: "22px 20px",
         border: "2px solid rgba(232,176,64,0.4)",
         boxShadow: "0 0 40px rgba(200,155,48,0.1)",
         width: 280,
@@ -475,7 +475,7 @@ function CelebrationModal({ previewUrl, previewPath, onPreview, onDismiss, previ
       display: "flex", alignItems: "center", justifyContent: "center",
     }}>
       <div style={{
-        backgroundColor: "#231e38", padding: "28px 24px",
+        backgroundColor: "#0e160e", padding: "28px 24px",
         maxWidth: 420, width: "90%", textAlign: "center",
         border: "2px solid #e8b040", boxShadow: "0 0 40px rgba(200,155,48,0.15), 4px 4px 0px rgba(0,0,0,0.5)",
       }}>
@@ -526,7 +526,7 @@ function CelebrationModal({ previewUrl, previewPath, onPreview, onDismiss, previ
             onClick={onDismiss}
             style={{
               padding: "9px 20px",
-              border: "1px solid #3d2e54", backgroundColor: "#1e1a30",
+              border: "1px solid #1a2a1a", backgroundColor: "#0c1210",
               color: "#9a8a68", fontSize: 13, cursor: "pointer", fontFamily: "monospace",
             }}
           >
@@ -708,7 +708,21 @@ function MdContent({ text }: { text: string }) {
   );
 }
 
+// ── Terminal theme ──
+// All console/chat colors defined here. Change these to re-skin the entire UI.
 const TERM_FONT = "'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace";
+const TERM_SIZE = 12;
+const TERM_GREEN = "#18ff62";        // Primary accent
+const TERM_DIM = "#3a5a3a";          // Dimmed text
+const TERM_TEXT = "#7a9a7a";          // Agent output text
+const TERM_TEXT_BRIGHT = "#b8d0b0";  // User input text
+const TERM_GLOW = "0 0 8px rgba(24,255,98,0.25)";
+const TERM_BG = "#050808";           // Chat content area
+const TERM_PANEL = "#0c1210";        // Sidebar / modals
+const TERM_SURFACE = "#0a0e0a";      // Cards / elevated
+const TERM_HOVER = "#0e1a0e";        // Hover state
+const TERM_BORDER = "#1a2a1a";       // Borders
+const TERM_BORDER_DIM = "#152515";   // Subtle borders
 
 const DONE_VERBS = ["Brewed", "Crafted", "Forged", "Compiled", "Shipped", "Deployed", "Hacked", "Rendered", "Built", "Cooked"];
 function formatDuration(ms: number): string {
@@ -719,11 +733,6 @@ function formatDuration(ms: number): string {
   const remSec = sec % 60;
   return `${verb} for ${min}m ${remSec}s`;
 }
-const TERM_SIZE = 12;
-const TERM_GREEN = "#18ff62";
-const TERM_DIM = "#3a5a3a";
-const TERM_TEXT = "#7a9a7a";
-const TERM_GLOW = `0 0 8px rgba(24,255,98,0.25)`;
 
 function SysMsg({ ts, tag, text, firstLine, isLong }: { ts: string; tag: string; text: string; firstLine: string; isLong: boolean }) {
   const [expanded, setExpanded] = useState(false);
@@ -749,20 +758,19 @@ function SysMsg({ ts, tag, text, firstLine, isLong }: { ts: string; tag: string;
 
 function MessageBubble({ msg, agentName, onPreview, isTeamLead, isTeamMember, teamPhase }: { msg: ChatMessage; agentName?: string; onPreview?: (url: string) => void; isTeamLead?: boolean; isTeamMember?: boolean; teamPhase?: string | null }) {
   const ts = new Date(msg.timestamp).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-  const base: React.CSSProperties = { marginBottom: 1, fontSize: TERM_SIZE, fontFamily: TERM_FONT, fontWeight: 400, lineHeight: 1.4 };
+  const base: React.CSSProperties = { marginBottom: 3, fontSize: TERM_SIZE, fontFamily: TERM_FONT, fontWeight: 400, lineHeight: 1.4 };
 
   // ── User input ──
   if (msg.role === "user") {
-    // Team delegation received by dev/reviewer — collapsible
     const isFromTeam = msg.text.startsWith("[From ");
     if (isFromTeam && msg.text.length > 80) {
       return <SysMsg ts={ts} tag="task" text={msg.text} firstLine={msg.text.slice(0, 80) + "..."} isLong={true} />;
     }
     return (
-      <div className="term-msg" style={base}>
+      <div className="term-msg" style={{ ...base, marginTop: 8 }}>
         <span style={{ color: TERM_DIM }}>{ts} </span>
         <span style={{ color: TERM_GREEN, textShadow: TERM_GLOW }}>&gt; </span>
-        <span style={{ color: "#b8d0b0", wordBreak: "break-word" }}>{linkifyText(msg.text)}</span>
+        <span style={{ color: TERM_TEXT_BRIGHT, wordBreak: "break-word" }}>{linkifyText(msg.text)}</span>
       </div>
     );
   }
@@ -816,7 +824,7 @@ function MessageBubble({ msg, agentName, onPreview, isTeamLead, isTeamMember, te
     const projectDir = r.projectDir ?? r.summary.match(/PROJECT_DIR:\s*(.+)/i)?.[1]?.trim();
     const changedFiles = r.changedFiles ?? [];
     return (
-      <div className="term-msg" style={base}>
+      <div className="term-msg" style={{ ...base, marginTop: 6 }}>
         <span style={{ color: TERM_DIM }}>{ts} </span>
         <span style={{ color: TERM_GREEN, textShadow: TERM_GLOW }}>[done] </span>
         <span style={{ color: TERM_TEXT, wordBreak: "break-word" }} className="chat-markdown"><MdContent text={cleanSummary || "completed."} /></span>
@@ -825,8 +833,8 @@ function MessageBubble({ msg, agentName, onPreview, isTeamLead, isTeamMember, te
           {entryFile && <span style={{ cursor: "pointer", color: TERM_GREEN, opacity: 0.6 }} onClick={() => sendCommand({ type: "OPEN_FILE", path: entryFile })}> entry:{entryFile}</span>}
         </div>}
         {changedFiles.length > 0 && <div style={{ color: TERM_DIM }}> {changedFiles.length} files changed</div>}
-        {hasWebPreview(r) && onPreview && <span onClick={() => { const cmd = buildPreviewCommand(r); if (cmd) sendCommand(cmd); const url = computePreviewUrl(r); if (url) onPreview(url); }} style={{ color: TERM_GREEN, cursor: "pointer", border: `1px solid ${TERM_GREEN}40`, padding: "2px 10px", marginTop: 4, display: "inline-block", fontSize: 10, fontFamily: TERM_FONT, transition: "all 0.15s" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = `${TERM_GREEN}15`; e.currentTarget.style.borderColor = TERM_GREEN; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.borderColor = `${TERM_GREEN}40`; }}>preview</span>}
-        {!hasWebPreview(r) && buildPreviewCommand(r) && <span onClick={() => { const cmd = buildPreviewCommand(r); if (cmd) sendCommand(cmd); }} style={{ color: TERM_GREEN, cursor: "pointer", border: `1px solid ${TERM_GREEN}40`, padding: "2px 10px", marginTop: 4, display: "inline-block", fontSize: 10, fontFamily: TERM_FONT, transition: "all 0.15s" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = `${TERM_GREEN}15`; e.currentTarget.style.borderColor = TERM_GREEN; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.borderColor = `${TERM_GREEN}40`; }}>launch</span>}
+        {hasWebPreview(r) && onPreview && <span onClick={() => { const cmd = buildPreviewCommand(r); if (cmd) sendCommand(cmd); const url = computePreviewUrl(r); if (url) onPreview(url); }} style={{ color: TERM_GREEN, cursor: "pointer", border: `1px solid ${TERM_GREEN}40`, padding: "3px 12px", marginTop: 4, display: "inline-block", fontSize: 10, fontFamily: TERM_FONT, backgroundColor: `${TERM_GREEN}10`, transition: "all 0.15s" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = `${TERM_GREEN}20`; e.currentTarget.style.borderColor = TERM_GREEN; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = `${TERM_GREEN}10`; e.currentTarget.style.borderColor = `${TERM_GREEN}40`; }}>preview</span>}
+        {!hasWebPreview(r) && buildPreviewCommand(r) && <span onClick={() => { const cmd = buildPreviewCommand(r); if (cmd) sendCommand(cmd); }} style={{ color: TERM_GREEN, cursor: "pointer", border: `1px solid ${TERM_GREEN}40`, padding: "3px 12px", marginTop: 4, display: "inline-block", fontSize: 10, fontFamily: TERM_FONT, backgroundColor: `${TERM_GREEN}10`, transition: "all 0.15s" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = `${TERM_GREEN}20`; e.currentTarget.style.borderColor = TERM_GREEN; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = `${TERM_GREEN}10`; e.currentTarget.style.borderColor = `${TERM_GREEN}40`; }}>launch</span>}
         {msg.durationMs && msg.durationMs > 1000 && (
           <div style={{ color: TERM_DIM, marginTop: 3, fontSize: 10, fontFamily: TERM_FONT }}>
             {"\u2731"} {formatDuration(msg.durationMs)}
@@ -856,7 +864,7 @@ function MessageBubble({ msg, agentName, onPreview, isTeamLead, isTeamMember, te
           <div style={{ color: TERM_DIM }}> {msg.result.changedFiles.length} files: {msg.result.changedFiles.slice(0, 3).join(", ")}{msg.result.changedFiles.length > 3 ? ` +${msg.result.changedFiles.length - 3}` : ""}</div>
         )}
         {msg.result && hasWebPreview(msg.result) && onPreview && !isTeamMember && !isTeamLead && (
-          <span onClick={() => { const r = msg.result!; const cmd = buildPreviewCommand(r); if (cmd) sendCommand(cmd); const url = computePreviewUrl(r); if (url) setTimeout(() => onPreview(url), r.previewUrl ? 0 : 1500); }} style={{ color: TERM_GREEN, cursor: "pointer", border: `1px solid ${TERM_GREEN}40`, padding: "2px 10px", marginTop: 4, display: "inline-block", fontSize: 10, fontFamily: TERM_FONT, transition: "all 0.15s" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = `${TERM_GREEN}15`; e.currentTarget.style.borderColor = TERM_GREEN; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.borderColor = `${TERM_GREEN}40`; }}>preview</span>
+          <span onClick={() => { const r = msg.result!; const cmd = buildPreviewCommand(r); if (cmd) sendCommand(cmd); const url = computePreviewUrl(r); if (url) setTimeout(() => onPreview(url), r.previewUrl ? 0 : 1500); }} style={{ color: TERM_GREEN, cursor: "pointer", border: `1px solid ${TERM_GREEN}40`, padding: "3px 12px", marginTop: 4, display: "inline-block", fontSize: 10, fontFamily: TERM_FONT, backgroundColor: `${TERM_GREEN}10`, transition: "all 0.15s" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = `${TERM_GREEN}20`; e.currentTarget.style.borderColor = TERM_GREEN; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = `${TERM_GREEN}10`; e.currentTarget.style.borderColor = `${TERM_GREEN}40`; }}>preview</span>
         )}
         {msg.durationMs && msg.durationMs > 1000 && (
           <div style={{ color: TERM_DIM, marginTop: 3, fontSize: 10, fontFamily: TERM_FONT }}>
@@ -1134,8 +1142,8 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: "#1e1a30", padding: "18px 18px 14px",
-          width: "90%", maxWidth: 400, border: "2px solid #3d2e54",
+          backgroundColor: "#0c1210", padding: "18px 18px 14px",
+          width: "90%", maxWidth: 400, border: "2px solid #1a2a1a",
           boxShadow: "4px 4px 0px rgba(0,0,0,0.5)",
           maxHeight: "90vh", overflowY: "auto",
         }}
@@ -1153,7 +1161,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
                 key={p}
                 onClick={() => setPalette(p)}
                 style={{
-                  padding: 3, border: palette === p ? "2px solid #e8b040" : "2px solid #3d2e54",
+                  padding: 3, border: palette === p ? "2px solid #e8b040" : "2px solid #1a2a1a",
                   backgroundColor: palette === p ? "#382800" : "transparent",
                   cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
                 }}
@@ -1173,7 +1181,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
             placeholder="Agent name"
             style={{
               width: "100%", padding: "7px 10px", fontSize: 14, fontFamily: "monospace",
-              border: "1px solid #3d2e54", backgroundColor: "#14112a", color: "#eddcb8",
+              border: "1px solid #1a2a1a", backgroundColor: "#14112a", color: "#eddcb8",
               boxSizing: "border-box",
             }}
           />
@@ -1187,7 +1195,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
             onChange={(e) => handleRoleChange(Number(e.target.value))}
             style={{
               width: "100%", padding: "7px 10px", fontSize: 14, fontFamily: "monospace",
-              border: "1px solid #3d2e54", backgroundColor: "#14112a", color: "#eddcb8",
+              border: "1px solid #1a2a1a", backgroundColor: "#14112a", color: "#eddcb8",
               boxSizing: "border-box", cursor: "pointer",
             }}
           >
@@ -1203,7 +1211,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
               placeholder="e.g. Python Expert"
               style={{
                 width: "100%", padding: "7px 10px", fontSize: 14, fontFamily: "monospace",
-                border: "1px solid #3d2e54", backgroundColor: "#14112a", color: "#eddcb8",
+                border: "1px solid #1a2a1a", backgroundColor: "#14112a", color: "#eddcb8",
                 boxSizing: "border-box", marginTop: 4,
               }}
             />
@@ -1224,7 +1232,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
                     onClick={() => toggleSkill(skill)}
                     style={{
                       padding: "4px 10px", fontSize: 13, fontFamily: "monospace",
-                      border: active ? "1px solid #e8b04080" : "1px solid #3d2e54",
+                      border: active ? "1px solid #e8b04080" : "1px solid #1a2a1a",
                       backgroundColor: active ? "#382800" : "transparent",
                       color: active ? "#e8b040" : "#7a6858",
                       cursor: "pointer",
@@ -1268,7 +1276,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
               placeholder="Add custom skill..."
               style={{
                 flex: 1, padding: "6px 10px", fontSize: 13, fontFamily: "monospace",
-                border: "1px solid #3d2e54", backgroundColor: "#14112a", color: "#eddcb8",
+                border: "1px solid #1a2a1a", backgroundColor: "#14112a", color: "#eddcb8",
                 boxSizing: "border-box",
               }}
             />
@@ -1276,7 +1284,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
               onClick={addCustomSkill}
               style={{
                 padding: "5px 12px", fontSize: 15, fontWeight: 700,
-                border: "1px solid #3d2e54", backgroundColor: "transparent",
+                border: "1px solid #1a2a1a", backgroundColor: "transparent",
                 color: "#7a6858", cursor: "pointer", fontFamily: "monospace",
               }}
             >+</button>
@@ -1330,7 +1338,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
                 rows={2}
                 style={{
                   width: "100%", padding: "7px 10px", fontSize: 13, fontFamily: "monospace",
-                  border: "1px solid #3d2e54", backgroundColor: "#14112a", color: "#eddcb8",
+                  border: "1px solid #1a2a1a", backgroundColor: "#14112a", color: "#eddcb8",
                   resize: "vertical", boxSizing: "border-box", marginTop: 2,
                 }}
               />
@@ -1356,7 +1364,7 @@ function CreateAgentModal({ onSave, onClose, assetsReady, editAgent }: {
             onClick={onClose}
             style={{
               padding: "9px 16px",
-              border: "1px solid #3d2e54", backgroundColor: "transparent",
+              border: "1px solid #1a2a1a", backgroundColor: "transparent",
               color: "#6a5848", fontSize: 14, cursor: "pointer", fontFamily: "monospace",
             }}
           >Cancel</button>
@@ -1394,8 +1402,8 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: "#1e1a30", padding: "18px 18px 14px",
-          width: "90%", maxWidth: 420, border: "2px solid #3d2e54",
+          backgroundColor: "#0c1210", padding: "18px 18px 14px",
+          width: "90%", maxWidth: 420, border: "2px solid #1a2a1a",
           boxShadow: "4px 4px 0px rgba(0,0,0,0.5)",
           maxHeight: "90vh", overflowY: "auto",
         }}
@@ -1412,7 +1420,7 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
                 onClick={() => setSelectedBackend(b.id)}
                 style={{
                   flex: 1, padding: "6px 4px", fontSize: 13, fontWeight: 600,
-                  border: selectedBackend === b.id ? `1px solid ${b.color}` : "1px solid #3d2e54",
+                  border: selectedBackend === b.id ? `1px solid ${b.color}` : "1px solid #1a2a1a",
                   backgroundColor: selectedBackend === b.id ? b.color + "20" : "transparent",
                   color: selectedBackend === b.id ? b.color : "#6a5848",
                   cursor: "pointer", fontFamily: "monospace",
@@ -1433,7 +1441,7 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
               placeholder="Paste path or click Browse"
               style={{
                 flex: 1, padding: "6px 8px", fontSize: 12,
-                border: "1px solid #3d2e54", backgroundColor: "#1a1530",
+                border: "1px solid #1a2a1a", backgroundColor: "#0a0e0a",
                 color: "#eddcb8", fontFamily: "monospace",
                 outline: "none",
               }}
@@ -1445,8 +1453,8 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
                 sendCommand({ type: "PICK_FOLDER", requestId: rid });
               }}
               style={{
-                padding: "6px 10px", border: "1px solid #3d2e54",
-                backgroundColor: "#1a1530", color: "#9a8a68",
+                padding: "6px 10px", border: "1px solid #1a2a1a",
+                backgroundColor: "#0a0e0a", color: "#9a8a68",
                 fontSize: 12, cursor: "pointer", fontFamily: "monospace",
                 whiteSpace: "nowrap",
               }}
@@ -1465,12 +1473,12 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
               key={def.id}
               onClick={() => onHire(def, selectedBackend, workDir || undefined)}
               onMouseEnter={(e) => { setHoveredId(def.id); e.currentTarget.style.borderColor = "#e8b04040"; }}
-              onMouseLeave={(e) => { setHoveredId(null); e.currentTarget.style.borderColor = "#3d2e54"; }}
+              onMouseLeave={(e) => { setHoveredId(null); e.currentTarget.style.borderColor = "#1a2a1a"; }}
               title={def.skills ? `Skills: ${def.skills}` : undefined}
               style={{
                 display: "flex", flexDirection: "column", alignItems: "center",
                 padding: "12px 6px 10px", position: "relative",
-                border: "1px solid #3d2e54", backgroundColor: "transparent",
+                border: "1px solid #1a2a1a", backgroundColor: "transparent",
                 cursor: "pointer", textAlign: "center",
                 transition: "border-color 0.15s",
               }}
@@ -1499,12 +1507,12 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
                   key={def.id}
                   onClick={() => onHire(def, selectedBackend, workDir || undefined)}
                   onMouseEnter={(e) => { setHoveredId(def.id); e.currentTarget.style.borderColor = "#e8b04040"; }}
-                  onMouseLeave={(e) => { setHoveredId(null); e.currentTarget.style.borderColor = "#3d2e54"; }}
+                  onMouseLeave={(e) => { setHoveredId(null); e.currentTarget.style.borderColor = "#1a2a1a"; }}
                   title={def.skills ? `Skills: ${def.skills}` : undefined}
                   style={{
                     display: "flex", flexDirection: "column", alignItems: "center",
                     padding: "12px 6px 10px", position: "relative",
-                    border: "1px solid #3d2e54", backgroundColor: "transparent",
+                    border: "1px solid #1a2a1a", backgroundColor: "transparent",
                     cursor: "pointer", textAlign: "center",
                     transition: "border-color 0.15s",
                   }}
@@ -1545,7 +1553,7 @@ function HireModal({ agentDefs, onHire, onCreate, onEdit, onDelete, onClose, ass
             onClick={onClose}
             style={{
               padding: "9px 16px",
-              border: "1px solid #3d2e54", backgroundColor: "transparent",
+              border: "1px solid #1a2a1a", backgroundColor: "transparent",
               color: "#6a5848", fontSize: 14, cursor: "pointer", fontFamily: "monospace",
             }}
           >Cancel</button>
@@ -1753,7 +1761,7 @@ function TeamActivityLog({ messages, agents, assetsReady, onClear }: {
 
   return (
     <div style={{
-      borderTop: "1px solid #2e2448",
+      borderTop: "1px solid #152515",
       padding: "6px 0",
     }}>
       <div
@@ -1772,11 +1780,11 @@ function TeamActivityLog({ messages, agents, assetsReady, onClear }: {
             onClick={(e) => { e.stopPropagation(); onClear(); }}
             style={{
               marginLeft: "auto", fontSize: 9, padding: "1px 5px",
-              color: "#7a6858", border: "1px solid #3d2e5480",
+              color: "#7a6858", border: "1px solid #1a2a1a80",
               cursor: "pointer",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.color = "#e04848"; e.currentTarget.style.borderColor = "#e0484880"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = "#7a6858"; e.currentTarget.style.borderColor = "#3d2e5480"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "#7a6858"; e.currentTarget.style.borderColor = "#1a2a1a80"; }}
           >CLEAR</span>
         )}
       </div>
@@ -1833,8 +1841,8 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: "#1e1a30", padding: "18px 18px 14px",
-          width: "90%", maxWidth: 440, border: "2px solid #3d2e54",
+          backgroundColor: "#0c1210", padding: "18px 18px 14px",
+          width: "90%", maxWidth: 440, border: "2px solid #1a2a1a",
           boxShadow: "4px 4px 0px rgba(0,0,0,0.5)",
           maxHeight: "90vh", overflowY: "auto",
         }}
@@ -1852,7 +1860,7 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
               placeholder="Paste path or click Browse"
               style={{
                 flex: 1, padding: "6px 8px", fontSize: 12,
-                border: "1px solid #3d2e54", backgroundColor: "#1a1530",
+                border: "1px solid #1a2a1a", backgroundColor: "#0a0e0a",
                 color: "#eddcb8", fontFamily: "monospace",
                 outline: "none",
               }}
@@ -1864,8 +1872,8 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
                 sendCommand({ type: "PICK_FOLDER", requestId: rid });
               }}
               style={{
-                padding: "6px 10px", border: "1px solid #3d2e54",
-                backgroundColor: "#1a1530", color: "#9a8a68",
+                padding: "6px 10px", border: "1px solid #1a2a1a",
+                backgroundColor: "#0a0e0a", color: "#9a8a68",
                 fontSize: 12, cursor: "pointer", fontFamily: "monospace",
                 whiteSpace: "nowrap",
               }}
@@ -1902,8 +1910,8 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
                 onClick={(e) => e.stopPropagation()}
                 onChange={(e) => setBackends((prev) => ({ ...prev, [def.id]: e.target.value }))}
                 style={{
-                  padding: "3px 6px", border: "1px solid #3d2e54",
-                  backgroundColor: "#1a1530", color: "#9a8a68", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
+                  padding: "3px 6px", border: "1px solid #1a2a1a",
+                  backgroundColor: "#0a0e0a", color: "#9a8a68", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
                 }}
               >
                 {BACKEND_OPTIONS.map((b) => (
@@ -1926,7 +1934,7 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
                   style={{
                     display: "flex", flexDirection: "column", alignItems: "center",
                     padding: "12px 6px 10px",
-                    border: selected ? "1px solid #e8b04060" : "1px solid #3d2e54",
+                    border: selected ? "1px solid #e8b04060" : "1px solid #1a2a1a",
                     backgroundColor: selected ? "#2a2200" : "transparent",
                     cursor: "pointer", textAlign: "center",
                     opacity: selected ? 1 : 0.5,
@@ -1941,8 +1949,8 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
                     onClick={(e) => { e.stopPropagation(); setSelectedDevId(def.id); }}
                     onChange={(e) => { setSelectedDevId(def.id); setBackends((prev) => ({ ...prev, [def.id]: e.target.value })); }}
                     style={{
-                      marginTop: 6, padding: "3px 6px", border: "1px solid #3d2e54",
-                      backgroundColor: "#1a1530", color: "#9a8a68", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
+                      marginTop: 6, padding: "3px 6px", border: "1px solid #1a2a1a",
+                      backgroundColor: "#0a0e0a", color: "#9a8a68", fontSize: 12, cursor: "pointer", fontFamily: "monospace",
                     }}
                   >
                     {BACKEND_OPTIONS.map((b) => (
@@ -1970,7 +1978,7 @@ function HireTeamModal({ agentDefs, onCreateTeam, onClose, assetsReady }: {
             onClick={onClose}
             style={{
               padding: "9px 16px",
-              border: "1px solid #3d2e54", backgroundColor: "transparent",
+              border: "1px solid #1a2a1a", backgroundColor: "transparent",
               color: "#6a5848", fontSize: 14, cursor: "pointer", fontFamily: "monospace",
             }}
           >Cancel</button>
@@ -2720,7 +2728,7 @@ export default function OfficePage() {
                 {showShareMenu && (
                   <div style={{
                     position: "absolute", top: "100%", left: 0, marginTop: 4, zIndex: 50,
-                    backgroundColor: "#1e1a30", border: "1px solid #3d2e54",
+                    backgroundColor: "#0c1210", border: "1px solid #1a2a1a",
                     display: "flex", flexDirection: "column", minWidth: 160,
                   }}>
                     <button
@@ -2811,112 +2819,102 @@ export default function OfficePage() {
 
       {/* ── Right Sidebar (desktop only) — takes remaining space after game scene ── */}
       {!isMobile && <>
-        {/* Console mode toggle button — positioned outside sidebar so overflow:hidden doesn't clip it */}
-        <button
-          onClick={() => setConsoleMode(!consoleMode)}
-          style={{
-            position: "fixed",
-            right: consoleMode ? "calc(100vw - 28px)" : "35vw",
-            top: "50%",
-            transform: "translateY(-50%)",
-            zIndex: 30,
-            width: 28,
-            height: 56,
-            border: "none",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 0,
-            background: "linear-gradient(90deg, #2a2444 0%, #1e1a30 100%)",
-            borderRadius: consoleMode ? "0 10px 10px 0" : "10px 0 0 10px",
-            borderTop: "1px solid #3d2e54",
-            borderBottom: "1px solid #3d2e54",
-            borderLeft: consoleMode ? "none" : "1px solid #3d2e54",
-            borderRight: consoleMode ? "1px solid #3d2e54" : "none",
-            boxShadow: "-2px 0 8px rgba(0,0,0,0.3)",
-            color: "#e8b040",
-            fontSize: 14,
-            transition: "right 0.3s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "linear-gradient(135deg, #3a3460 0%, #2a2444 100%)";
-            e.currentTarget.style.color = "#f0c860";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "linear-gradient(90deg, #2a2444 0%, #1e1a30 100%)";
-            e.currentTarget.style.color = "#e8b040";
-          }}
-          title={consoleMode ? "Back to Office" : "Console Mode"}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ transform: consoleMode ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
-            <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
+        {/* ── Bookmark tabs + arrow button — fixed on the left edge of sidebar ── */}
         <div style={{
-          width: consoleMode ? "100vw" : "35vw",
+          position: "fixed",
+          left: consoleMode ? 0 : undefined,
+          right: consoleMode ? undefined : "min(50vw, 960px)",
+          top: "50%",
+          transform: "translateY(-50%)",
+          zIndex: 30,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: consoleMode ? "flex-start" : "flex-end",
+          gap: 2,
+          transition: "right 0.3s ease",
+        }}>
+          {/* Bookmark tabs */}
+          {[
+            { key: "agents" as const, label: "Agents", color: "#c8a050" },
+            { key: "team" as const, label: "Team", color: "#d09040" },
+            { key: "external" as const, label: "Ext", color: "#b87830" },
+          ].map((tab) => {
+            const active = expandedSection === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => {
+                  setExpandedSection(tab.key);
+                  const list = tab.key === "agents" ? soloAgents : tab.key === "team" ? teamAgents : externalAgents;
+                  if (list.length > 0) { setSelectedAgent(list[0].agentId); setChatOpen(true); }
+                }}
+                style={{
+                  writingMode: "vertical-lr",
+                  textOrientation: "mixed",
+                  padding: "0 5px",
+                  height: 72,
+                  border: "none", cursor: "pointer",
+                  background: active ? tab.color + "20" : "#0c1210",
+                  borderRadius: consoleMode ? "0 6px 6px 0" : "6px 0 0 6px",
+                  borderTop: `1px solid ${active ? tab.color + "60" : TERM_BORDER}`,
+                  borderBottom: `1px solid ${active ? tab.color + "60" : TERM_BORDER}`,
+                  borderLeft: consoleMode ? "none" : `1px solid ${active ? tab.color + "60" : TERM_BORDER}`,
+                  borderRight: consoleMode ? `1px solid ${active ? tab.color + "60" : TERM_BORDER}` : "none",
+                  color: active ? tab.color : "#5a5a5a",
+                  fontSize: 13, fontFamily: TERM_FONT, fontWeight: 600,
+                  letterSpacing: "0.1em",
+                  boxShadow: "2px 0 8px rgba(0,0,0,0.4)",
+                  transition: "all 0.15s",
+                }}
+                onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = tab.color; }}
+                onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = "#5a5a5a"; }}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+
+          {/* Arrow button */}
+          <button
+            onClick={() => setConsoleMode(!consoleMode)}
+            style={{
+              width: 28, height: 40, border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: 0, marginTop: 4,
+              background: "#0c1210",
+              borderRadius: consoleMode ? "0 10px 10px 0" : "10px 0 0 10px",
+              borderTop: "1px solid #1a2a1a",
+              borderBottom: "1px solid #1a2a1a",
+              borderLeft: consoleMode ? "none" : "1px solid #1a2a1a",
+              borderRight: consoleMode ? "1px solid #1a2a1a" : "none",
+              boxShadow: "-2px 0 8px rgba(0,0,0,0.3)",
+              color: "#e8b040", fontSize: 14,
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "#2a2444"; e.currentTarget.style.color = "#f0c860"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "#0c1210"; e.currentTarget.style.color = "#e8b040"; }}
+            title={consoleMode ? "Back to Office" : "Console Mode"}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ transform: consoleMode ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
+              <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div style={{
+          width: consoleMode ? "100vw" : "min(50vw, 960px)",
           minWidth: 260,
           flexShrink: 0,
           height: "100vh",
-          backgroundColor: "#1e1a30",
-          borderLeft: consoleMode ? "none" : "2px solid #3d2e54",
+          backgroundColor: TERM_PANEL,
+          borderLeft: consoleMode ? "none" : `1px solid ${TERM_GREEN}15`,
+          boxShadow: consoleMode ? "none" : `inset 1px 0 12px ${TERM_GREEN}06`,
           display: "flex",
           flexDirection: "row",
           overflow: "hidden",
           transition: "width 0.3s ease",
         }}>
-          {/* ── Left vertical tab bar ── */}
-          <div style={{
-            width: 40, flexShrink: 0, display: "flex", flexDirection: "column",
-            alignItems: "center", paddingTop: 8, gap: 2,
-            backgroundColor: "#16122a", borderRight: "1px solid #2e2448",
-          }}>
-            {([
-              { key: "agents" as const, icon: "\u25C9", count: soloAgents.length, color: "#e8b040", tip: "Agents" },
-              { key: "team" as const, icon: "\u25C8", count: teamAgents.length, color: "#e89030", tip: "Team" },
-              { key: "external" as const, icon: "\u26A1", count: externalAgents.length, color: "#5aacff", tip: "External" },
-            ]).map((tab) => {
-              const active = expandedSection === tab.key;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => {
-                    setExpandedSection(tab.key);
-                    // Auto-select first agent in new tab
-                    const list = tab.key === "agents" ? soloAgents : tab.key === "team" ? teamAgents : externalAgents;
-                    if (list.length > 0) { setSelectedAgent(list[0].agentId); setChatOpen(true); }
-                  }}
-                  title={tab.tip + (tab.count > 0 ? ` (${tab.count})` : "")}
-                  style={{
-                    width: 34, height: 34, padding: 0, border: "none", cursor: "pointer",
-                    backgroundColor: active ? tab.color + "18" : "transparent",
-                    borderLeft: active ? `2px solid ${tab.color}` : "2px solid transparent",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    position: "relative", fontSize: 16,
-                    color: active ? tab.color : "#5a5a5a",
-                    transition: "all 0.15s",
-                  }}
-                  onMouseEnter={(e) => { if (!active) e.currentTarget.style.color = tab.color + "80"; }}
-                  onMouseLeave={(e) => { if (!active) e.currentTarget.style.color = "#5a5a5a"; }}
-                >
-                  {tab.icon}
-                  {tab.count > 0 && (
-                    <span style={{
-                      position: "absolute", top: 2, right: 2,
-                      fontSize: 8, minWidth: 12, height: 12,
-                      backgroundColor: tab.color + "30", color: tab.color,
-                      borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center",
-                      fontFamily: TERM_FONT, fontWeight: 400,
-                    }}>{tab.count}</span>
-                  )}
-                </button>
-              );
-            })}
-            <div style={{ flex: 1 }} />
-          </div>
-
           {/* ── Main content area ── */}
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0, width: consoleMode ? "90%" : undefined, maxWidth: consoleMode ? "90%" : undefined, margin: consoleMode ? "0 auto" : undefined }}>
 
           {(() => {
             // Shared agent row renderer
@@ -2936,14 +2934,15 @@ export default function OfficePage() {
                   border: "none",
                   backgroundColor: "transparent",
                 }}>
-                  {/* Agent info bar (compact, replaces old collapsed row) */}
+                  {/* Agent info bar */}
                   <div
                     style={{
                       display: isExpanded ? "flex" : "none",
-                      alignItems: "center", gap: 6,
-                      padding: "4px 8px",
-                      borderBottom: "1px solid #2e2448",
-                      fontSize: 10, fontFamily: TERM_FONT, color: "#5a5a5a",
+                      alignItems: "center", gap: 8,
+                      padding: "5px 12px",
+                      backgroundColor: TERM_SURFACE,
+                      borderBottom: `1px solid ${TERM_BORDER}`,
+                      fontSize: TERM_SIZE, fontFamily: TERM_FONT, color: TERM_DIM,
                       flexShrink: 0,
                     }}
                   >
@@ -2971,14 +2970,12 @@ export default function OfficePage() {
                       display: "flex", flexDirection: "column",
                       backgroundColor: "#0a0a10",
                       minHeight: 0,
-                      height: "calc(100vh - 200px)",
-                      maxHeight: "calc(100vh - 160px)",
                       overflow: "hidden",
                     }}>
                       {/* Compact info header */}
                       <div style={{
                         padding: "10px 14px",
-                        borderBottom: "1px solid #272040",
+                        borderBottom: "1px solid #0e1a0e",
                         flexShrink: 0,
                       }}>
                         <div style={{ fontSize: 11, color: "#5aacff", marginBottom: 6, fontFamily: "monospace", letterSpacing: "0.05em" }}>
@@ -3034,8 +3031,6 @@ export default function OfficePage() {
                       flexDirection: "column",
                       backgroundColor: "#050808",
                       minHeight: 0,
-                      height: "calc(100vh - 200px)",
-                      maxHeight: "calc(100vh - 160px)",
                       overflow: "hidden",
                     }}>
                       {/* CRT scanline bar */}
@@ -3110,11 +3105,6 @@ export default function OfficePage() {
                           </div>
                         )}
 
-                        {!busy && agentState.messages.length > 0 && (
-                          <div style={{ fontSize: TERM_SIZE, fontFamily: TERM_FONT, color: TERM_GREEN, opacity: 0.25, padding: "2px 0" }}>
-                            &gt;_
-                          </div>
-                        )}
 
                         <div ref={chatEndRef} />
                       </div>
@@ -3122,8 +3112,8 @@ export default function OfficePage() {
                       {/* Suggestion feed (visible to owner and collaborator) */}
                       {!isSpectator && suggestions.length > 0 && (
                         <div style={{
-                          padding: "6px 10px", borderTop: "1px solid #2e2448",
-                          backgroundColor: "#1a1530", maxHeight: 120, overflowY: "auto",
+                          padding: "6px 10px", borderTop: "1px solid #152515",
+                          backgroundColor: "#0a0e0a", maxHeight: 120, overflowY: "auto",
                         }}>
                           <div style={{ fontSize: 10, color: "#a855f7", fontFamily: "monospace", marginBottom: 4, letterSpacing: "0.05em" }}>SUGGESTIONS</div>
                           {suggestions.slice(-10).map((s, i) => (
@@ -3137,12 +3127,12 @@ export default function OfficePage() {
                       {/* Pending image previews */}
                       {pendingImages.length > 0 && (
                         <div style={{
-                          padding: "6px 10px", borderTop: "1px solid #2e2448",
-                          backgroundColor: "#1a1530", display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center",
+                          padding: "6px 10px", borderTop: "1px solid #152515",
+                          backgroundColor: "#0a0e0a", display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center",
                         }}>
                           {pendingImages.map((img, i) => (
                             <div key={i} style={{ position: "relative", display: "inline-block" }}>
-                              <img src={img.dataUrl} alt={img.name} style={{ height: 48, borderRadius: 4, border: "1px solid #3d2e54" }} />
+                              <img src={img.dataUrl} alt={img.name} style={{ height: 48, borderRadius: 4, border: "1px solid #1a2a1a" }} />
                               <button
                                 onClick={() => setPendingImages((prev) => prev.filter((_, j) => j !== i))}
                                 style={{
@@ -3169,7 +3159,7 @@ export default function OfficePage() {
                         if (isSpectator) {
                           return (
                             <div style={{
-                              padding: "8px 10px", borderTop: "1px solid #2e2448",
+                              padding: "8px 10px", borderTop: "1px solid #152515",
                               backgroundColor: "#182844", flexShrink: 0,
                               fontSize: 12, color: "#7ab8f5", fontFamily: "monospace", textAlign: "center",
                             }}>
@@ -3182,8 +3172,8 @@ export default function OfficePage() {
                         if (isCollaborator) {
                           return (
                             <div style={{
-                              padding: "8px 10px", borderTop: "1px solid #2e2448",
-                              backgroundColor: "#1a1530", flexShrink: 0,
+                              padding: "8px 10px", borderTop: "1px solid #152515",
+                              backgroundColor: "#0a0e0a", flexShrink: 0,
                             }}>
                               <div style={{ display: "flex", gap: 6 }}>
                                 <input
@@ -3202,7 +3192,7 @@ export default function OfficePage() {
                                   disabled={!suggestText.trim()}
                                   style={{
                                     padding: "9px 14px", border: "none",
-                                    backgroundColor: suggestText.trim() ? "#a855f7" : "#272040",
+                                    backgroundColor: suggestText.trim() ? "#a855f7" : "#0e1a0e",
                                     color: suggestText.trim() ? "#fff" : "#5a4838",
                                     fontSize: 13, cursor: suggestText.trim() ? "pointer" : "default",
                                     fontWeight: 700, fontFamily: "monospace",
@@ -3215,8 +3205,8 @@ export default function OfficePage() {
 
                         return (
                           <div style={{
-                            padding: "8px 10px", borderTop: "1px solid #2e2448",
-                            backgroundColor: "#1a1530", flexShrink: 0,
+                            padding: "8px 10px", borderTop: "1px solid #152515",
+                            backgroundColor: "#0a0e0a", flexShrink: 0,
                           }}>
                             {isTeamMember ? (
                               <div style={{
@@ -3226,7 +3216,7 @@ export default function OfficePage() {
                               </div>
                             ) : cardPhase === "execute" ? (
                               <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-                                <div style={{ display: "flex", gap: 0, alignItems: "center", borderTop: `1px solid ${TERM_GREEN}10` }}>
+                                <div style={{ display: "flex", gap: 0, alignItems: "center", borderTop: `1px solid ${TERM_BORDER}` }}>
                                   <span style={{ color: busy ? TERM_DIM : TERM_GREEN, fontSize: TERM_SIZE, fontFamily: TERM_FONT, padding: "6px 0 6px 8px", flexShrink: 0, textShadow: busy ? "none" : TERM_GLOW }}>&gt;</span>
                                   <input
                                     value={prompt}
@@ -3252,7 +3242,7 @@ export default function OfficePage() {
                                 )}
                               </div>
                             ) : cardPhase === "design" && !busy ? (
-                              <div style={{ display: "flex", gap: 6, alignItems: "center", borderTop: `1px solid ${TERM_GREEN}10`, padding: "4px 8px" }}>
+                              <div style={{ display: "flex", gap: 6, alignItems: "center", borderTop: `1px solid ${TERM_BORDER}`, padding: "4px 8px" }}>
                                 <button
                                   onClick={handleApprovePlan}
                                   style={{
@@ -3276,7 +3266,7 @@ export default function OfficePage() {
                                 />
                               </div>
                             ) : cardPhase === "complete" && !busy ? (
-                              <div style={{ display: "flex", gap: 6, alignItems: "center", borderTop: `1px solid ${TERM_GREEN}10`, padding: "4px 8px" }}>
+                              <div style={{ display: "flex", gap: 6, alignItems: "center", borderTop: `1px solid ${TERM_BORDER}`, padding: "4px 8px" }}>
                                 <span style={{ color: TERM_DIM, fontSize: TERM_SIZE, fontFamily: TERM_FONT }}>&gt;</span>
                                 <input
                                   value={prompt}
@@ -3300,7 +3290,7 @@ export default function OfficePage() {
                                 >Close Project</button>
                               </div>
                             ) : (
-                              <div style={{ display: "flex", gap: 0, alignItems: "center", borderTop: `1px solid ${TERM_GREEN}10` }}>
+                              <div style={{ display: "flex", gap: 0, alignItems: "center", borderTop: `1px solid ${TERM_BORDER}` }}>
                                 <span style={{ color: isAgentBusy ? TERM_DIM : TERM_GREEN, fontSize: TERM_SIZE, fontFamily: TERM_FONT, padding: "6px 0 6px 8px", flexShrink: 0, textShadow: isAgentBusy ? "none" : TERM_GLOW }}>&gt;</span>
                                 <input
                                   value={prompt}
@@ -3342,16 +3332,18 @@ export default function OfficePage() {
             {/* -- Horizontal Agent Bar -- */}
             <div style={{
               display: "flex", alignItems: "center", gap: 10,
-              padding: "6px 4px", minHeight: 52,
-              borderBottom: "1px solid #2e2448",
+              padding: "8px 12px", minHeight: 52,
+              borderBottom: `1px solid ${TERM_BORDER}`,
+              backgroundColor: TERM_SURFACE,
               overflowX: "auto", overflowY: "hidden",
               scrollbarWidth: "none",
             }}>
-              {activeAgentList.length === 0 ? (
-                <div style={{ padding: "12px 10px", color: "#5a4838", fontSize: 11, fontFamily: TERM_FONT }}>
-                  {expandedSection === "external" ? "No external agents detected" : ""}
+              {activeAgentList.length === 0 && expandedSection === "external" && (
+                <div style={{ padding: "12px 10px", color: TERM_DIM, fontSize: TERM_SIZE, fontFamily: TERM_FONT }}>
+                  No external agents detected
                 </div>
-              ) : activeAgentList.map((agent) => {
+              )}
+              {activeAgentList.map((agent) => {
                 const isActive = selectedAgent === agent.agentId;
                 const agentState = agents.get(agent.agentId);
                 const agentBusy = agentState?.status === "working";
@@ -3363,15 +3355,16 @@ export default function OfficePage() {
                     title={`${agent.name}\n${agent.role}\n${(STATUS_CONFIG[agent.status] ?? STATUS_CONFIG.idle).label}`}
                     style={{
                       display: "flex", flexDirection: "column", alignItems: "center",
-                      padding: "4px 8px 3px", gap: 1,
+                      padding: "6px 10px 4px", gap: 2,
                       border: "none", cursor: "pointer",
-                      backgroundColor: isActive ? "#272040" : "transparent",
-                      borderBottom: isActive ? `2px solid ${TERM_GREEN}` : "2px solid transparent",
+                      backgroundColor: isActive ? `${TERM_GREEN}08` : "transparent",
+                      borderBottom: isActive ? `2px solid ${TERM_GREEN}60` : "2px solid transparent",
+                      borderRadius: "4px 4px 0 0",
                       flexShrink: 0, position: "relative",
-                      transition: "background-color 0.1s",
+                      transition: "all 0.15s",
                     }}
-                    onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "#1e1a34"; }}
-                    onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = isActive ? "#272040" : "transparent"; }}
+                    onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = `${TERM_GREEN}05`; }}
+                    onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = "transparent"; }}
                   >
                     <div style={{ position: "relative", width: 28, height: 34, overflow: "hidden", borderRadius: 2 }}>
                       <div style={{ marginTop: -1, marginLeft: 0 }}>
@@ -3525,8 +3518,8 @@ export default function OfficePage() {
                 style={{
                   position: "relative", flexShrink: 0,
                   width: 44, height: 44,
-                  border: selectedAgent === agent.agentId ? "1px solid #e8b040" : "1px solid #3d2e54",
-                  backgroundColor: "#1e1a30",
+                  border: selectedAgent === agent.agentId ? "1px solid #e8b040" : "1px solid #1a2a1a",
+                  backgroundColor: "#0c1210",
                   cursor: "pointer", padding: 0,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   overflow: "hidden",
@@ -3536,7 +3529,7 @@ export default function OfficePage() {
                 <span style={{
                   position: "absolute", bottom: 2, right: 2,
                   width: 6, height: 6,
-                  backgroundColor: cfg.color, border: "1px solid #1e1a30",
+                  backgroundColor: cfg.color, border: "1px solid #0c1210",
                 }} />
               </button>
             );
@@ -3554,7 +3547,7 @@ export default function OfficePage() {
         return (
           <div style={{
             position: "absolute", inset: 0, zIndex: 30,
-            backgroundColor: "#1a1530",
+            backgroundColor: "#0a0e0a",
             display: "flex", flexDirection: "column",
           }}>
             {/* Header */}
@@ -3562,10 +3555,10 @@ export default function OfficePage() {
               onClick={() => setChatOpen(false)}
               style={{
                 padding: "12px 14px",
-                borderBottom: "1px solid #2e2448",
+                borderBottom: "1px solid #152515",
                 display: "flex", alignItems: "center", gap: 10,
                 flexShrink: 0,
-                backgroundColor: "#1e1a30",
+                backgroundColor: "#0c1210",
                 cursor: "pointer",
               }}
             >
@@ -3667,8 +3660,8 @@ export default function OfficePage() {
             {/* Suggestion feed (mobile) */}
             {!isSpectator && suggestions.length > 0 && (
               <div style={{
-                padding: "6px 10px", borderTop: "1px solid #2e2448",
-                backgroundColor: "#1a1530", maxHeight: 80, overflowY: "auto",
+                padding: "6px 10px", borderTop: "1px solid #152515",
+                backgroundColor: "#0a0e0a", maxHeight: 80, overflowY: "auto",
               }}>
                 <div style={{ fontSize: 10, color: "#a855f7", fontFamily: "monospace", marginBottom: 4, letterSpacing: "0.05em" }}>SUGGESTIONS</div>
                 {suggestions.slice(-5).map((s, i) => (
@@ -3687,7 +3680,7 @@ export default function OfficePage() {
               if (isSpectator) {
                 return (
                   <div style={{
-                    padding: "8px 10px", borderTop: "1px solid #2e2448",
+                    padding: "8px 10px", borderTop: "1px solid #152515",
                     backgroundColor: "#182844", flexShrink: 0,
                     fontSize: 12, color: "#7ab8f5", fontFamily: "monospace", textAlign: "center",
                   }}>
@@ -3700,8 +3693,8 @@ export default function OfficePage() {
               if (isCollaborator) {
                 return (
                   <div style={{
-                    padding: "8px 10px", borderTop: "1px solid #2e2448",
-                    backgroundColor: "#1a1530", flexShrink: 0,
+                    padding: "8px 10px", borderTop: "1px solid #152515",
+                    backgroundColor: "#0a0e0a", flexShrink: 0,
                   }}>
                     <div style={{ display: "flex", gap: 6 }}>
                       <input
@@ -3720,7 +3713,7 @@ export default function OfficePage() {
                         disabled={!suggestText.trim()}
                         style={{
                           padding: "9px 14px", border: "none",
-                          backgroundColor: suggestText.trim() ? "#a855f7" : "#272040",
+                          backgroundColor: suggestText.trim() ? "#a855f7" : "#0e1a0e",
                           color: suggestText.trim() ? "#fff" : "#5a4838",
                           fontSize: 13, cursor: suggestText.trim() ? "pointer" : "default",
                           fontWeight: 700, fontFamily: "monospace",
@@ -3733,8 +3726,8 @@ export default function OfficePage() {
 
               return (
                 <div style={{
-                  padding: "8px 10px", borderTop: "1px solid #2e2448",
-                  backgroundColor: "#1a1530", flexShrink: 0,
+                  padding: "8px 10px", borderTop: "1px solid #152515",
+                  backgroundColor: "#0a0e0a", flexShrink: 0,
                 }}>
                   {mobileIsTeamMember ? (
                     <div style={{
@@ -3760,7 +3753,7 @@ export default function OfficePage() {
                           onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && handleRunTask()}
                           placeholder="Send a message..."
                           style={{
-                            flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
+                            flex: 1, padding: "9px 12px", border: "1px solid #1a2a1a",
                             backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
                           }}
                         />
@@ -3769,7 +3762,7 @@ export default function OfficePage() {
                           disabled={!prompt.trim() && pendingImages.length === 0}
                           style={{
                             padding: "9px 14px", border: "none",
-                            backgroundColor: (prompt.trim() || pendingImages.length > 0) ? "#e8b040" : "#272040",
+                            backgroundColor: (prompt.trim() || pendingImages.length > 0) ? "#e8b040" : "#0e1a0e",
                             color: (prompt.trim() || pendingImages.length > 0) ? "#16122a" : "#5a4838",
                             fontSize: 13, cursor: (prompt.trim() || pendingImages.length > 0) ? "pointer" : "default",
                             fontWeight: 700, fontFamily: "monospace",
@@ -3803,7 +3796,7 @@ export default function OfficePage() {
                           onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && handleRunTask()}
                           placeholder="Or give feedback..."
                           style={{
-                            flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
+                            flex: 1, padding: "9px 12px", border: "1px solid #1a2a1a",
                             backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
                           }}
                         />
@@ -3812,7 +3805,7 @@ export default function OfficePage() {
                           disabled={!prompt.trim() && pendingImages.length === 0}
                           style={{
                             padding: "9px 14px", border: "none",
-                            backgroundColor: (prompt.trim() || pendingImages.length > 0) ? "#e8b040" : "#272040",
+                            backgroundColor: (prompt.trim() || pendingImages.length > 0) ? "#e8b040" : "#0e1a0e",
                             color: (prompt.trim() || pendingImages.length > 0) ? "#16122a" : "#5a4838",
                             fontSize: 13, cursor: (prompt.trim() || pendingImages.length > 0) ? "pointer" : "default",
                             fontWeight: 700, fontFamily: "monospace",
@@ -3830,7 +3823,7 @@ export default function OfficePage() {
                           onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && handleRunTask()}
                           placeholder="Request changes..."
                           style={{
-                            flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
+                            flex: 1, padding: "9px 12px", border: "1px solid #1a2a1a",
                             backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
                           }}
                         />
@@ -3839,7 +3832,7 @@ export default function OfficePage() {
                           disabled={!prompt.trim() && pendingImages.length === 0}
                           style={{
                             padding: "9px 14px", border: "none",
-                            backgroundColor: (prompt.trim() || pendingImages.length > 0) ? "#e8b040" : "#272040",
+                            backgroundColor: (prompt.trim() || pendingImages.length > 0) ? "#e8b040" : "#0e1a0e",
                             color: (prompt.trim() || pendingImages.length > 0) ? "#16122a" : "#5a4838",
                             fontSize: 13, cursor: (prompt.trim() || pendingImages.length > 0) ? "pointer" : "default",
                             fontWeight: 700, fontFamily: "monospace",
@@ -3872,7 +3865,7 @@ export default function OfficePage() {
                         onKeyDown={(e) => e.key === "Enter" && !e.nativeEvent.isComposing && handleRunTask()}
                         placeholder="Send a message..."
                         style={{
-                          flex: 1, padding: "9px 12px", border: "1px solid #3d2e54",
+                          flex: 1, padding: "9px 12px", border: "1px solid #1a2a1a",
                           backgroundColor: "#16122a", color: "#eddcb8", fontSize: 14, outline: "none",
                         }}
                         autoFocus
@@ -3882,7 +3875,7 @@ export default function OfficePage() {
                         disabled={!prompt.trim() && pendingImages.length === 0}
                         style={{
                           padding: "9px 14px", border: "none",
-                          backgroundColor: (prompt.trim() || pendingImages.length > 0) ? "#e8b040" : "#272040",
+                          backgroundColor: (prompt.trim() || pendingImages.length > 0) ? "#e8b040" : "#0e1a0e",
                           color: (prompt.trim() || pendingImages.length > 0) ? "#16122a" : "#5a4838",
                           fontSize: 13, cursor: (prompt.trim() || pendingImages.length > 0) ? "pointer" : "default",
                           fontWeight: 700, fontFamily: "monospace",
@@ -3901,15 +3894,15 @@ export default function OfficePage() {
       {isMobile && mobileTeamOpen && (
         <div style={{
           position: "absolute", inset: 0, zIndex: 30,
-          backgroundColor: "#1a1530",
+          backgroundColor: "#0a0e0a",
           display: "flex", flexDirection: "column",
         }}>
           <div
             onClick={() => setMobileTeamOpen(false)}
             style={{
-              padding: "12px 14px", borderBottom: "1px solid #2e2448",
+              padding: "12px 14px", borderBottom: "1px solid #152515",
               display: "flex", alignItems: "center", gap: 10, flexShrink: 0,
-              backgroundColor: "#1e1a30", cursor: "pointer",
+              backgroundColor: "#0c1210", cursor: "pointer",
             }}
           >
             <span style={{ fontSize: 15, color: "#7a6858", marginRight: 4 }}>&larr;</span>
@@ -4018,7 +4011,7 @@ export default function OfficePage() {
           display: "flex", alignItems: "center", justifyContent: "center",
         }} onClick={() => setShareUrl(null)}>
           <div style={{
-            backgroundColor: "#1e1a30", border: "1px solid #3d2e54",
+            backgroundColor: "#0c1210", border: "1px solid #1a2a1a",
             padding: 24, maxWidth: 420, width: "90%",
           }} onClick={(e) => e.stopPropagation()}>
             <div style={{ fontSize: 15, fontWeight: 700, color: "#eddcb8", marginBottom: 12 }}>Share Link Created</div>
@@ -4027,7 +4020,7 @@ export default function OfficePage() {
               readOnly
               value={shareUrl}
               style={{
-                width: "100%", padding: "8px 10px", border: "1px solid #3d2e54",
+                width: "100%", padding: "8px 10px", border: "1px solid #1a2a1a",
                 backgroundColor: "#16122a", color: "#eddcb8", fontSize: 12,
                 fontFamily: "monospace", outline: "none",
               }}

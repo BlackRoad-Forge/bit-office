@@ -16,14 +16,34 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&family=Press+Start+2P&display=swap" rel="stylesheet" />
       </head>
-      <body style={{ margin: 0, backgroundColor: "#1a1530", color: "#eddcb8", fontFamily: "system-ui, sans-serif" }}>
+      <body style={{ margin: 0, backgroundColor: "#16122a", color: "#eddcb8", fontFamily: "system-ui, sans-serif" }}>
         <style dangerouslySetInnerHTML={{ __html: `
           :root {
-            --px-bg-deep: #16122a;
-            --px-bg-panel: #1e1a30;
+            /* ── Office scene (pixel art, warm purple) ── */
+            --office-bg: #16122a;
+            --office-panel: #1e1a30;
+            --office-border: #3d2e54;
+            --office-text: #eddcb8;
+            --office-gold: #e8b040;
+
+            /* ── Console/chat (terminal, dark green-black) ── */
+            --term-bg: #050808;
+            --term-panel: #0c1210;
+            --term-card: #0e160e;
+            --term-surface: #0a0e0a;
+            --term-border: #1a2a1a;
+            --term-border-dim: #152515;
+            --term-green: #18ff62;
+            --term-green-dim: #3a5a3a;
+            --term-text: #7a9a7a;
+            --term-text-bright: #b8d0b0;
+
+            /* ── Legacy aliases (for components not yet migrated) ── */
+            --px-bg-deep: var(--office-bg);
+            --px-bg-panel: var(--office-panel);
             --px-bg-card: #231e38;
-            --px-bg-chat: #1a1530;
-            --px-border: #3d2e54;
+            --px-bg-chat: var(--term-surface);
+            --px-border: var(--office-border);
             --px-border-warm: #5a3d14;
             --px-gold: #e8b040;
             --px-gold-dim: #a87820;
@@ -35,21 +55,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }
           * {
             scrollbar-width: thin;
-            scrollbar-color: #5a3d14 #1a1530;
+            scrollbar-color: var(--term-border) var(--term-surface);
           }
           *::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
+            width: 3px;
+            height: 3px;
           }
           *::-webkit-scrollbar-track {
             background: transparent;
           }
           *::-webkit-scrollbar-thumb {
-            background: #3d2d10;
-            border-radius: 0;
+            background: #1a3a1a;
+            border-radius: 2px;
           }
           *::-webkit-scrollbar-thumb:hover {
-            background: #e8b040;
+            background: #18ff6240;
           }
           *::-webkit-scrollbar-corner {
             background: transparent;
