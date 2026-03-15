@@ -3017,12 +3017,12 @@ export default function OfficePage() {
                   padding: "0 5px",
                   height: 72,
                   border: "none", cursor: "pointer",
-                  background: active ? tab.color + "20" : TERM_PANEL,
+                  background: active ? tab.color + "20" : TERM_PANEL + "80",
                   borderRadius: consoleMode ? "0 6px 6px 0" : "6px 0 0 6px",
-                  borderTop: `1px solid ${active ? tab.color + "60" : TERM_BORDER}`,
-                  borderBottom: `1px solid ${active ? tab.color + "60" : TERM_BORDER}`,
-                  borderLeft: consoleMode ? "none" : `1px solid ${active ? tab.color + "60" : TERM_BORDER}`,
-                  borderRight: consoleMode ? `1px solid ${active ? tab.color + "60" : TERM_BORDER}` : "none",
+                  borderTop: `1px solid ${active ? tab.color + "60" : tab.color + "40"}`,
+                  borderBottom: `1px solid ${active ? tab.color + "60" : tab.color + "40"}`,
+                  borderLeft: consoleMode ? "none" : `1px solid ${active ? tab.color + "60" : tab.color + "40"}`,
+                  borderRight: consoleMode ? `1px solid ${active ? tab.color + "60" : tab.color + "40"}` : "none",
                   color: active ? tab.color : "#5a5a5a",
                   fontSize: 13, fontFamily: TERM_FONT, fontWeight: 600,
                   letterSpacing: "0.1em",
@@ -3054,17 +3054,17 @@ export default function OfficePage() {
               width: 28, height: 40, border: "none", cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center",
               padding: 0, marginTop: 4,
-              background: TERM_PANEL,
+              background: TERM_PANEL + "80",
               borderRadius: consoleMode ? "0 10px 10px 0" : "10px 0 0 10px",
-              borderTop: "1px solid #1a2a1a",
-              borderBottom: "1px solid #1a2a1a",
-              borderLeft: consoleMode ? "none" : "1px solid #1a2a1a",
-              borderRight: consoleMode ? "1px solid #1a2a1a" : "none",
+              borderTop: "1px solid #e8b04040",
+              borderBottom: "1px solid #e8b04040",
+              borderLeft: consoleMode ? "none" : "1px solid #e8b04040",
+              borderRight: consoleMode ? "1px solid #e8b04040" : "none",
               boxShadow: "-2px 0 8px rgba(0,0,0,0.3)",
               color: "#e8b040", fontSize: 14,
             }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "#2a2444"; e.currentTarget.style.color = "#f0c860"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = TERM_PANEL; e.currentTarget.style.color = "#e8b040"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = TERM_PANEL + "80"; e.currentTarget.style.color = "#e8b040"; }}
             title={consoleMode ? "Back to Office" : "Console Mode"}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ transform: consoleMode ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.3s ease" }}>
