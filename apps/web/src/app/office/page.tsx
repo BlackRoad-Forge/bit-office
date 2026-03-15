@@ -725,7 +725,7 @@ const TERM_DIM = "#3a5a3a";
 const TERM_TEXT = "#7a9a7a";
 const TERM_GLOW = `0 0 8px rgba(24,255,98,0.25)`;
 
-function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: { msg: ChatMessage; onPreview?: (url: string) => void; isTeamLead?: boolean; isTeamMember?: boolean; teamPhase?: string | null }) {
+function MessageBubble({ msg, agentName, onPreview, isTeamLead, isTeamMember, teamPhase }: { msg: ChatMessage; agentName?: string; onPreview?: (url: string) => void; isTeamLead?: boolean; isTeamMember?: boolean; teamPhase?: string | null }) {
   const ts = new Date(msg.timestamp).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   const base: React.CSSProperties = { marginBottom: 1, fontSize: TERM_SIZE, fontFamily: TERM_FONT, fontWeight: 400, lineHeight: 1.4 };
 
@@ -750,7 +750,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
       <div className="term-msg" style={base}>
         <span style={{ color: TERM_DIM }}>{ts} </span>
         <span style={{ color: TERM_GREEN, opacity: 0.4 }}>[{tag}] </span>
-        <span style={{ color: "#556655", wordBreak: "break-word", whiteSpace: "pre-wrap" }}>{linkifyText(msg.text)}</span>
+        <span style={{ color: "#556655", wordBreak: "break-word" }} className="chat-markdown"><MdContent text={msg.text} /></span>
       </div>
     );
   }
@@ -769,7 +769,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
       return (
         <div style={base}>
           <span style={{ color: TERM_DIM }}>{ts} </span>
-          <span style={{ color: TERM_GREEN, opacity: 0.4 }}>[agent] </span>
+          <span style={{ color: TERM_GREEN, opacity: 0.4 }}>[{agentName ?? "agent"}] </span>
           <span style={{ color: TERM_DIM }}>...</span>
         </div>
       );
@@ -777,7 +777,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
     return (
       <div style={base}>
         <span style={{ color: TERM_DIM }}>{ts} </span>
-        <span style={{ color: TERM_GREEN, opacity: 0.4 }}>[agent] </span>
+        <span style={{ color: TERM_GREEN, opacity: 0.4 }}>[{agentName ?? "agent"}] </span>
         <span style={{ color: TERM_TEXT, wordBreak: "break-word", whiteSpace: "pre-wrap" }}>
           <TypewriterText text={msg.text} />
         </span>
@@ -796,7 +796,7 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
       <div className="term-msg" style={base}>
         <span style={{ color: TERM_DIM }}>{ts} </span>
         <span style={{ color: TERM_GREEN, textShadow: TERM_GLOW }}>[done] </span>
-        <span style={{ color: TERM_TEXT, wordBreak: "break-word", whiteSpace: "pre-wrap" }}>{linkifyText(cleanSummary || "completed.")}</span>
+        <span style={{ color: TERM_TEXT, wordBreak: "break-word" }} className="chat-markdown"><MdContent text={cleanSummary || "completed."} /></span>
         {(projectDir || entryFile) && <div style={{ color: TERM_DIM, marginLeft: 0 }}>
           {projectDir && <span>  dir:{projectDir} </span>}
           {entryFile && <span style={{ cursor: "pointer", color: TERM_GREEN, opacity: 0.6 }} onClick={() => sendCommand({ type: "OPEN_FILE", path: entryFile })}> entry:{entryFile}</span>}
@@ -816,18 +816,18 @@ function MessageBubble({ msg, onPreview, isTeamLead, isTeamMember, teamPhase }: 
   return (
     <div className="term-msg" style={base}>
       <span style={{ color: TERM_DIM }}>{ts} </span>
-      <span style={{ color: TERM_GREEN, opacity: 0.5 }}>[agent] </span>
+      <span style={{ color: TERM_GREEN, opacity: 0.5 }}>[{agentName ?? "agent"}] </span>
       <div style={{ marginLeft: 0, marginTop: 0, color: TERM_TEXT, wordBreak: "break-word" }} className="chat-markdown">
         {planContent ? (
           <>
-            {textWithoutPlan && <span style={{ whiteSpace: "pre-wrap" }}>{linkifyText(textWithoutPlan)}</span>}
+            {textWithoutPlan && <span className="chat-markdown"><MdContent text={textWithoutPlan} /></span>}
             <div style={{ marginTop: 2, paddingLeft: 8, borderLeft: `1px solid ${TERM_GREEN}15` }}>
               <span style={{ color: TERM_GREEN, opacity: 0.3 }}>[plan] </span>
-              <span style={{ whiteSpace: "pre-wrap" }}>{linkifyText(planContent!)}</span>
+              <span className="chat-markdown"><MdContent text={planContent!} /></span>
             </div>
           </>
         ) : (
-          <span style={{ whiteSpace: "pre-wrap" }}>{displayText}</span>
+          <MdContent text={displayText} />
         )}
         {msg.result && msg.result.changedFiles.length > 0 && !planContent && (
           <div style={{ color: TERM_DIM }}> {msg.result.changedFiles.length} files: {msg.result.changedFiles.slice(0, 3).join(", ")}{msg.result.changedFiles.length > 3 ? ` +${msg.result.changedFiles.length - 3}` : ""}</div>
@@ -2947,7 +2947,7 @@ export default function OfficePage() {
                           </div>
                         )}
                         {agentState.messages.map((msg) => (
-                          <MessageBubble key={msg.id} msg={msg} />
+                          <MessageBubble key={msg.id} msg={msg} agentName={agentState?.name} />
                         ))}
                         <div ref={chatEndRef} />
                       </div>
@@ -3022,7 +3022,7 @@ export default function OfficePage() {
                         )}
 
                         {agentState.messages.map((msg) => (
-                          <MessageBubble key={msg.id} msg={msg} onPreview={setPreviewUrl} isTeamLead={agentState?.isTeamLead} isTeamMember={isTeamMember} teamPhase={agentState?.isTeamLead ? getAgentPhase(agent.agentId) : null} />
+                          <MessageBubble key={msg.id} msg={msg} agentName={agentState?.name} onPreview={setPreviewUrl} isTeamLead={agentState?.isTeamLead} isTeamMember={isTeamMember} teamPhase={agentState?.isTeamLead ? getAgentPhase(agent.agentId) : null} />
                         ))}
 
 
@@ -3598,7 +3598,7 @@ export default function OfficePage() {
               )}
 
               {agentState.messages.map((msg) => (
-                <MessageBubble key={msg.id} msg={msg} onPreview={setPreviewUrl} isTeamLead={agentState.isTeamLead} isTeamMember={mobileIsTeamMember} teamPhase={agentState.isTeamLead ? getAgentPhase(agentState.agentId) : null} />
+                <MessageBubble key={msg.id} msg={msg} agentName={agentState.name} onPreview={setPreviewUrl} isTeamLead={agentState.isTeamLead} isTeamMember={mobileIsTeamMember} teamPhase={agentState.isTeamLead ? getAgentPhase(agentState.agentId) : null} />
               ))}
 
 
