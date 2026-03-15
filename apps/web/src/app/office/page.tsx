@@ -2268,12 +2268,16 @@ export default function OfficePage() {
   const [assetsReady, setAssetsReady] = useState(false);
 
   // ── Theme ──
-  const [termTheme, setTermTheme] = useState(() => {
-    if (typeof window !== "undefined") return localStorage.getItem("bit-office-theme") ?? "green-hacker";
-    return "green-hacker";
-  });
-  // Apply theme on mount and change
-  applyTermTheme(termTheme); // synchronous — updates module vars before render
+  // Always start with default to avoid SSR/client hydration mismatch,
+  // then restore saved theme in useEffect (client-only).
+  const [termTheme, setTermTheme] = useState("green-hacker");
+  applyTermTheme(termTheme);
+  useEffect(() => {
+    const saved = localStorage.getItem("bit-office-theme");
+    if (saved && saved !== "green-hacker" && TERM_THEMES[saved]) {
+      setTermTheme(saved);
+    }
+  }, []);
   useEffect(() => {
     applyTermTheme(termTheme);
     localStorage.setItem("bit-office-theme", termTheme);
