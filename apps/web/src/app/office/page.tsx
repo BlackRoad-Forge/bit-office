@@ -2992,7 +2992,9 @@ export default function OfficePage() {
           flexDirection: "column",
           alignItems: consoleMode ? "flex-start" : "flex-end",
           gap: 2,
-          transition: "left 0.3s ease, right 0.3s ease",
+          transition: "left 0.3s ease, right 0.3s ease, opacity 0.15s ease",
+          opacity: consoleMode || sceneVisible ? 1 : 0,
+          pointerEvents: consoleMode || sceneVisible ? "auto" : "none",
         }}>
           {/* Bookmark tabs */}
           {[
